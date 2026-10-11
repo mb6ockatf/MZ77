@@ -9,8 +9,6 @@
 #include <pthread.h>
 #include <gtk/gtk.h>
 
-#define WINDOW_SIZE 4096
-#define MAX_MATCH   258
 #define HT_SIZE     65536
 
 typedef uint8_t  BYTE;
