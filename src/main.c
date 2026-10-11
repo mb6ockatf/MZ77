@@ -13,6 +13,8 @@
 #include "dt.h"
 #include "queue.h"
 #include "lz77.h"
+#include "messages.h"
+#include <getopt.h>
 
 
 static gboolean
@@ -256,9 +258,42 @@ on_start (GtkButton *button, AppData *app)
   app->has_worker = true;
 }
 
-int
-main (void)
+static void
+parse_options (int argc, char **argv)
 {
+  static const struct option long_options[] = {
+    {"help", no_argument, NULL, 'h'},
+    {"version", no_argument, NULL, 'V'},
+    {NULL, 0, NULL, 0}
+  };
+  int option;
+  while ((option = getopt_long (argc, argv, "hV", long_options, NULL)) != -1)
+    {
+      switch (option)
+	{
+	case 'h':
+	  show_help (argv[0]);
+	case 'V':
+	  show_version ();
+	default:
+	  fprintf (stderr, "Try '%s --help' for more information.\n",
+		   argv[0]);
+	  exit (EXIT_FAILURE);
+	}
+    }
+  if (optind < argc)
+    {
+      fprintf (stderr, "%s: unexpected argument '%s'\n", argv[0],
+	       argv[optind]);
+      fprintf (stderr, "Try '%s --help' for more information.\n", argv[0]);
+      exit (EXIT_FAILURE);
+    }
+}
+
+int
+main (int argc, char **argv)
+{
+  parse_options (argc, argv);
   check_debugger ();
   gtk_init ();
   AppData app = { 0 };
