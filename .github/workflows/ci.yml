@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.profile }} build
+    runs-on: ubuntu-latest
+    # Debian 13 "trixie" matches the Devuan 6 development machine.
+    container: debian:trixie
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [debug, release]
+    env:
+      # Strict flags on top of each profile's own; any warning fails the job.
+      STRICT_CFLAGS: -std=c23 -Wall -Wextra -Wpedantic -pedantic-errors -Werror
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential autoconf automake libtool pkgconf gnulib \
+            libgtk-4-dev git ca-certificates
+
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap
+        run: ./bootstrap
+
+      - name: Configure
+        run: ./configure --enable-${{ matrix.profile }} CFLAGS="$STRICT_CFLAGS"
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Test
+        run: make check
+
+      # Builds the tarball, then configures, builds, runs 'make check' and
+      # 'make installcheck' (gnits --help/--version checks) from it.
+      - name: Distcheck
+        run: >-
+          make -j"$(nproc)" distcheck
+          DISTCHECK_CONFIGURE_FLAGS="--enable-${{ matrix.profile }} CFLAGS='$STRICT_CFLAGS'"
+
+      - name: Show test logs
+        if: failure()
+        run: find . -name test-suite.log -o -name roundtrip.log | xargs -r cat
