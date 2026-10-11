@@ -1,5 +1,29 @@
 MZ77 NEWS                                          -*- outline -*-
 
+* Noteworthy changes in release 0.1 (2026-10-12) [stable]
+
+** Bug fixes
+
+  The compressor no longer hangs on long, repetitive input, and no longer
+  emits back-references that decompress to the wrong bytes.
+
+  The decompressor rejects archives that refer before the start of the
+  output and reports read and write errors instead of ignoring them.
+
+  The window no longer closes itself after a batch finishes.  Adding files
+  several times queues all of them, and failed files are reported.
+
+** New features
+
+  mz77 now accepts --help and --version.
+
+** Build changes
+
+  ./bootstrap regenerates the build system from a fresh checkout using
+  gnulib-tool and autoreconf.
+
+  'make check' runs round-trip tests for the codec.
+
 ========================================================================
 
 Copyright (C) 2001-2024 Free Software Foundation, Inc.
