@@ -48,30 +48,22 @@ typedef struct {
     atomic_int count;
     atomic_bool shutdown;
 } TaskQueue;
-typedef struct {
-	FILE *fd;
-	uint32_t buffer;
-	int bits_in_buffer;
-} BitWriter;
-typedef struct {
-    FILE *fp;
-    uint32_t buffer;
-    int bits;
-} BitReader;
 typedef struct
 {
     GtkWidget *list_box, *progress, *status, *start_btn, *mode_switch,
               *mode_label, *out_dir_label, *out_dir_btn;
     GMainLoop *loop;
-    atomic_int busy, completed, total;
+    atomic_int busy, completed, total, pending;
     TaskQueue queue;
+    pthread_t worker;
+    bool has_worker;
     atomic_bool existing;
     char out_dir[PATH_MAX];
 } AppData;
 typedef struct {
     AppData *app;
     gboolean run;
-    char msg[32];
+    char msg[64];
 } StateData;
 
 
