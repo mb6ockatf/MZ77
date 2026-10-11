@@ -1,0 +1,12 @@
+#!/bin/sh
+# Rebuild the ctags index at .git/tags in the background so git
+# operations do not wait.  Enabled by ./bootstrap via core.hooksPath.
+top=$(git rev-parse --show-toplevel) || exit 0
+gitdir=$(git rev-parse --absolute-git-dir) || exit 0
+command -v ctags >/dev/null 2>&1 || exit 0
+(
+  cd "$top" &&
+  git ls-files -z -- '*.c' '*.h' |
+    xargs -0 ctags -f "$gitdir/tags.$$" &&
+  mv -f "$gitdir/tags.$$" "$gitdir/tags"
+) >/dev/null 2>&1 &

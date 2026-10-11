@@ -15,4 +15,9 @@ gnulib (on debian-based distros: autoconf automake libtool gnulib):
 
 Further building steps described in INSTALL file.
 
+./bootstrap also points git at the hooks in .githooks, which rebuild a
+ctags index in .git/tags after each commit, checkout, merge and rebase
+(if Universal Ctags is installed). To opt out: git config --unset
+core.hooksPath
+
 The coursework report from May 2026 is kept in archive/report-2026-05.

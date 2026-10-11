@@ -5,3 +5,9 @@ set -e
 cd "$(dirname "$0")"
 gnulib-tool --update
 autoreconf -fi
+# Use the tracked hooks (they keep .git/tags up to date) unless the
+# developer already chose a hooks directory.
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1 &&
+   ! git config core.hooksPath >/dev/null; then
+  git config core.hooksPath .githooks
+fi
