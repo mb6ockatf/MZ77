@@ -4,4 +4,14 @@ LZ77 archiver software
 on debian-based distros install libgtk-4-dev pkg-config for GTK4. On other
 distros, good luck.
 
-Building steps described in INSTALL file.
+Building from a fresh checkout also needs autoconf, automake, libtool and
+gnulib (on debian-based distros: autoconf automake libtool gnulib):
+
+    ./bootstrap
+    ./configure            # or --enable-debug / --enable-release
+    make -j$(nproc)
+    src/mz77
+
+Further building steps described in INSTALL file.
+
+The coursework report from May 2026 is kept in archive/report-2026-05.

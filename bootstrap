@@ -1,0 +1,7 @@
+#!/bin/sh
+# Regenerate the build system from a fresh checkout.
+# Needs autoconf, automake, libtool, pkg-config and gnulib-tool.
+set -e
+cd "$(dirname "$0")"
+gnulib-tool --update
+autoreconf -fi
