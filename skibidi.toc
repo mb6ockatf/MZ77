@@ -1,9 +1,0 @@
-\babel@toc {russian}{}\relax 
-\contentsline {chapter}{ВВЕДЕНИЕ}{3}{chapter*.1}%
-\contentsline {chapter}{ОПИСАНИЕ ПО}{4}{chapter*.2}%
-\contentsline {chapter}{ИСПОЛЬЗУЕМЫЕ СТРУКТУРЫ ДАННЫХ}{6}{chapter*.5}%
-\contentsline {chapter}{АЛГОРИТМЫ В ОСНОВЕ ПО}{7}{chapter*.6}%
-\contentsline {chapter}{ОПИСАНИЕ РЕАЛИЗАЦИИ}{8}{chapter*.7}%
-\contentsline {chapter}{ТЕСТИРОВАНИЕ ПО}{10}{chapter*.8}%
-\contentsline {chapter}{ЗАКЛЮЧЕНИЕ}{14}{chapter*.17}%
-\contentsline {chapter}{ХОД РАБОТЫ}{15}{chapter*.18}%

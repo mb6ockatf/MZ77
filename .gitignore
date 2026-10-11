@@ -110,3 +110,12 @@ dkms.conf
 *~
 src/*~
 src/mz77
+
+# LaTeX
+*.aux
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
