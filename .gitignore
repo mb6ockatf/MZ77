@@ -19,6 +19,7 @@ autom4te.cache
 /config.cache
 /config.guess
 /config.h.in
+/config.h
 /config.log
 /config.status
 /config.sub
@@ -119,3 +120,10 @@ src/mz77
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# Test suite
+/test/roundtrip
+/test/roundtrip-work.*
+*.trs
+test-suite.log
+/test/*.log

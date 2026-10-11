@@ -10,6 +10,7 @@ gnulib (on debian-based distros: autoconf automake libtool gnulib):
     ./bootstrap
     ./configure            # or --enable-debug / --enable-release
     make -j$(nproc)
+    make check             # round-trip tests for the codec
     src/mz77
 
 Further building steps described in INSTALL file.

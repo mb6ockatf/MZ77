@@ -1,12 +1,6 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-#if defined __GNUC__ && __GNUC__ >= 15 && !defined __clang__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wtrailing-whitespace"
-#endif
-
-
 /* Witness that <config.h> has been included.  */
 #define _GL_CONFIG_H_INCLUDED 1
 
@@ -16,6 +10,9 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
+
+/* Define to 1 if you have the <minix/config.h> header file. */
+/* #undef HAVE_MINIX_CONFIG_H */
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -40,6 +37,9 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
+
+/* Define to 1 if you have the <wchar.h> header file. */
+#define HAVE_WCHAR_H 1
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
@@ -70,6 +70,98 @@
    backward compatibility; new code need not use it. */
 #define STDC_HEADERS 1
 
+/* Enable extensions on AIX, Interix, z/OS.  */
+#ifndef _ALL_SOURCE
+# define _ALL_SOURCE 1
+#endif
+/* Enable general extensions on macOS.  */
+#ifndef _DARWIN_C_SOURCE
+# define _DARWIN_C_SOURCE 1
+#endif
+/* Enable general extensions on Solaris.  */
+#ifndef __EXTENSIONS__
+# define __EXTENSIONS__ 1
+#endif
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE 1
+#endif
+/* Enable X/Open compliant socket functions that do not require linking
+   with -lxnet on HP-UX 11.11.  */
+#ifndef _HPUX_ALT_XOPEN_SOCKET_API
+# define _HPUX_ALT_XOPEN_SOCKET_API 1
+#endif
+/* Identify the host operating system as Minix.
+   This macro does not affect the system headers' behavior.
+   A future release of Autoconf may stop defining this macro.  */
+#ifndef _MINIX
+/* # undef _MINIX */
+#endif
+/* Enable general extensions on NetBSD.
+   Enable NetBSD compatibility extensions on Minix.  */
+#ifndef _NETBSD_SOURCE
+# define _NETBSD_SOURCE 1
+#endif
+/* Enable OpenBSD compatibility extensions on NetBSD.
+   Oddly enough, this does nothing on OpenBSD.  */
+#ifndef _OPENBSD_SOURCE
+# define _OPENBSD_SOURCE 1
+#endif
+/* Define to 1 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_SOURCE
+/* # undef _POSIX_SOURCE */
+#endif
+/* Define to 2 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_1_SOURCE
+/* # undef _POSIX_1_SOURCE */
+#endif
+/* Enable POSIX-compatible threading on Solaris.  */
+#ifndef _POSIX_PTHREAD_SEMANTICS
+# define _POSIX_PTHREAD_SEMANTICS 1
+#endif
+/* Enable extensions specified by ISO/IEC TS 18661-5:2014.  */
+#ifndef __STDC_WANT_IEC_60559_ATTRIBS_EXT__
+# define __STDC_WANT_IEC_60559_ATTRIBS_EXT__ 1
+#endif
+/* Enable extensions specified by ISO/IEC TS 18661-1:2014.  */
+#ifndef __STDC_WANT_IEC_60559_BFP_EXT__
+# define __STDC_WANT_IEC_60559_BFP_EXT__ 1
+#endif
+/* Enable extensions specified by ISO/IEC TS 18661-2:2015.  */
+#ifndef __STDC_WANT_IEC_60559_DFP_EXT__
+# define __STDC_WANT_IEC_60559_DFP_EXT__ 1
+#endif
+/* Enable extensions specified by C23 Annex F.  */
+#ifndef __STDC_WANT_IEC_60559_EXT__
+# define __STDC_WANT_IEC_60559_EXT__ 1
+#endif
+/* Enable extensions specified by ISO/IEC TS 18661-4:2015.  */
+#ifndef __STDC_WANT_IEC_60559_FUNCS_EXT__
+# define __STDC_WANT_IEC_60559_FUNCS_EXT__ 1
+#endif
+/* Enable extensions specified by C23 Annex H and ISO/IEC TS 18661-3:2015.  */
+#ifndef __STDC_WANT_IEC_60559_TYPES_EXT__
+# define __STDC_WANT_IEC_60559_TYPES_EXT__ 1
+#endif
+/* Enable extensions specified by ISO/IEC TR 24731-2:2010.  */
+#ifndef __STDC_WANT_LIB_EXT2__
+# define __STDC_WANT_LIB_EXT2__ 1
+#endif
+/* Enable extensions specified by ISO/IEC 24747:2009.  */
+#ifndef __STDC_WANT_MATH_SPEC_FUNCS__
+# define __STDC_WANT_MATH_SPEC_FUNCS__ 1
+#endif
+/* Enable extensions on HP NonStop.  */
+#ifndef _TANDEM_SOURCE
+# define _TANDEM_SOURCE 1
+#endif
+/* Enable X/Open extensions.  Define to 500 only if necessary
+   to make mbstate_t available.  */
+#ifndef _XOPEN_SOURCE
+/* # undef _XOPEN_SOURCE */
+#endif
+
+
 /* Version number of package */
 #define VERSION "0.1"
 
@@ -94,25 +186,33 @@
 #endif
 
 
-/* The _Noreturn keyword of C11.
-   Do not use [[noreturn]], because with it the syntax
-     extern _Noreturn void func (...);
-   would not be valid; such a declaration would be valid only with 'extern'
-   and '_Noreturn' swapped, or without the 'extern' keyword.  However, some
-   AIX system header files and several gnulib header files use precisely
-   this syntax with 'extern'.  So even though C23 deprecates _Noreturn,
-   it is currently more portable to prefer it to [[noreturn]].
-
-   Also, do not try to work around LLVM bug 59792 (clang 15 or earlier).
-   This rare bug can be worked around by compiling with 'clang -D_Noreturn=',
-   though the workaround may generate many false-alarm warnings.  */
+/* The _Noreturn keyword of C11.  */
 #ifndef _Noreturn
-# if ((!defined __cplusplus || defined __clang__) \
-      && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0)))
+# if (defined __cplusplus \
+      && ((201103 <= __cplusplus && !(__GNUC__ == 4 && __GNUC_MINOR__ == 7)) \
+          || (defined _MSC_VER && 1900 <= _MSC_VER)) \
+      && 0)
+    /* [[noreturn]] is not practically usable, because with it the syntax
+         extern _Noreturn void func (...);
+       would not be valid; such a declaration would only be valid with 'extern'
+       and '_Noreturn' swapped, or without the 'extern' keyword.  However, some
+       AIX system header files and several gnulib header files use precisely
+       this syntax with 'extern'.  */
+#  define _Noreturn [[noreturn]]
+# elif (defined __clang__ && __clang_major__ < 16 \
+        && defined _GL_WORK_AROUND_LLVM_BUG_59792)
+   /* Compile with -D_GL_WORK_AROUND_LLVM_BUG_59792 to work around
+      that rare LLVM bug, though you may get many false-alarm warnings.  */
+#  define _Noreturn
+# elif ((!defined __cplusplus || defined __clang__) \
+        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0) \
+            || (!defined __STRICT_ANSI__ \
+                && (_GL_GNUC_PREREQ (4, 7) \
+                    || (defined __apple_build_version__ \
+                        ? 6000000 <= __apple_build_version__ \
+                        : 3 < __clang_major__ + (5 <= __clang_minor__))))))
    /* _Noreturn works as-is.  */
 # elif _GL_GNUC_PREREQ (2, 8) || defined __clang__ || 0x5110 <= __SUNPRO_C
-   /* Prefer __attribute__ ((__noreturn__)) to plain _Noreturn even if the
-      latter works, as 'gcc -std=gnu99 -Wpedantic' warns about _Noreturn.  */
 #  define _Noreturn __attribute__ ((__noreturn__))
 # elif 1200 <= (defined _MSC_VER ? _MSC_VER : 0)
 #  define _Noreturn __declspec (noreturn)
@@ -163,9 +263,6 @@
 #  define _GL_HAS_ATTRIBUTE(attr) __has_attribute (__##attr##__)
 # else
 #  define _GL_HAS_ATTRIBUTE(attr) _GL_ATTR_##attr
-/* The following lines list the first GCC version that supports the attribute.
-   Although the lines are not used in GCC 5 and later (as GCC 5 introduced
-   __has_attribute support), list GCC versions 5+ anyway for completeness.  */
 #  define _GL_ATTR_alloc_size _GL_GNUC_PREREQ (4, 3)
 #  define _GL_ATTR_always_inline _GL_GNUC_PREREQ (3, 2)
 #  define _GL_ATTR_artificial _GL_GNUC_PREREQ (4, 3)
@@ -186,15 +283,14 @@
 #  endif
 #  define _GL_ATTR_noinline _GL_GNUC_PREREQ (3, 1)
 #  define _GL_ATTR_nonnull _GL_GNUC_PREREQ (3, 3)
-#  define _GL_ATTR_nonnull_if_nonzero _GL_GNUC_PREREQ (15, 1)
 #  define _GL_ATTR_nonstring _GL_GNUC_PREREQ (8, 0)
 #  define _GL_ATTR_nothrow _GL_GNUC_PREREQ (3, 3)
 #  define _GL_ATTR_packed _GL_GNUC_PREREQ (2, 7)
 #  define _GL_ATTR_pure _GL_GNUC_PREREQ (2, 96)
-#  define _GL_ATTR_reproducible _GL_GNUC_PREREQ (15, 1)
+#  define _GL_ATTR_reproducible 0 /* not yet supported, as of GCC 14 */
 #  define _GL_ATTR_returns_nonnull _GL_GNUC_PREREQ (4, 9)
 #  define _GL_ATTR_sentinel _GL_GNUC_PREREQ (4, 0)
-#  define _GL_ATTR_unsequenced _GL_GNUC_PREREQ (15, 1)
+#  define _GL_ATTR_unsequenced 0 /* not yet supported, as of GCC 14 */
 #  define _GL_ATTR_unused _GL_GNUC_PREREQ (2, 7)
 #  define _GL_ATTR_warn_unused_result _GL_GNUC_PREREQ (3, 4)
 # endif
@@ -222,7 +318,7 @@
       ======================================================================
       This gives a syntax error
         - in C mode with gcc
-          <https://gcc.gnu.org/PR108796>, and
+          <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108796>, and
         - in C++ mode with clang++ version < 16, and
         - in C++ mode, inside extern "C" {}, still in newer clang++ versions
           <https://github.com/llvm/llvm-project/issues/101990>.
@@ -467,25 +563,22 @@
 #endif
 
 /* _GL_ATTRIBUTE_CONST declares:
-   It is OK for a compiler to move a call, or omit a duplicate call
-   and reuse a cached return value, even if the state changes between calls.
-   It is also OK to omit a call if the result is not used.
-   This attribute is safe if the function does not change observable state,
-   returns a value determined solely by its arguments' values
-   without examining state, and always returns exactly once -
+   It is OK for a compiler to move calls to the function and to omit
+   calls to the function if another call has the same arguments or the
+   result is not used.
+   This attribute is safe for a function that neither depends on
+   nor affects state, and always returns exactly once -
    e.g., does not raise an exception, call longjmp, or loop forever.
    (This attribute is stricter than _GL_ATTRIBUTE_PURE because the
-   function cannot observe state.  Unlike _GL_ATTRIBUTE_UNSEQUENCED
-   the function must return exactly once and cannot access state
-   addressed by its pointer arguments or that happens to have the same
-   value for all calls to the function, but the function is allowed to
-   return a pointer to storage that can be modified later.  */
+   function cannot observe state.  It is stricter than
+   _GL_ATTRIBUTE_UNSEQUENCED because the function must return exactly
+   once and cannot depend on state addressed by its arguments.)  */
 /* Applies to: functions.  */
 #ifndef _GL_ATTRIBUTE_CONST
 # if _GL_HAS_ATTRIBUTE (const)
 #  define _GL_ATTRIBUTE_CONST __attribute__ ((__const__))
 # else
-#  define _GL_ATTRIBUTE_CONST
+#  define _GL_ATTRIBUTE_CONST _GL_ATTRIBUTE_UNSEQUENCED
 # endif
 #endif
 
@@ -507,7 +600,7 @@
    yet.  */
 #ifndef _GL_ATTRIBUTE_DEALLOC_FREE
 # if defined __cplusplus && defined __GNUC__ && !defined __clang__
-/* Work around GCC bug <https://gcc.gnu.org/PR108231> */
+/* Work around GCC bug <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108231> */
 #  define _GL_ATTRIBUTE_DEALLOC_FREE \
      _GL_ATTRIBUTE_DEALLOC ((void (*) (void *)) free, 1)
 # else
@@ -646,9 +739,7 @@
 
 /* _GL_ATTRIBUTE_MAYBE_UNUSED declares that it is not a programming mistake if
    the entity is not used.  The compiler should not warn if the entity is not
-   used.  However, 'int _GL_UNNAMED (i)' is preferable to
-   '_GL_ATTRIBUTE_MAYBE_UNUSED int i' when parameter I is unused
-   regardless of preprocessor macro settings.  */
+   used.  */
 /* Applies to:
      - function, variable,
      - struct, union, struct/union member,
@@ -735,17 +826,6 @@
 # endif
 #endif
 
-/* _GL_ATTRIBUTE_NONNULL_IF_NONZERO (NP, NI) declares that the argument NP
-   (a pointer) must not be NULL if the argument NI (an integer) is != 0.  */
-/* Applies to: functions.  */
-#ifndef _GL_ATTRIBUTE_NONNULL_IF_NONZERO
-# if _GL_HAS_ATTRIBUTE (nonnull_if_nonzero)
-#  define _GL_ATTRIBUTE_NONNULL_IF_NONZERO(np, ni) __attribute__ ((__nonnull_if_nonzero__ (np, ni)))
-# else
-#  define _GL_ATTRIBUTE_NONNULL_IF_NONZERO(np, ni)
-# endif
-#endif
-
 /* _GL_ATTRIBUTE_NONSTRING declares that the contents of a character array is
    not meant to be NUL-terminated.  */
 /* Applies to: struct/union members and variables that are arrays of element
@@ -802,38 +882,35 @@
 #endif
 
 /* _GL_ATTRIBUTE_PURE declares:
-   It is OK for a compiler to move a call, or omit a duplicate call
-   and reuse a cached return value, if observable state is the same.
-   It is also OK to omit a call if the return value is not used.
-   This attribute is safe if the function does not change observable state,
-   returns a value determined solely by its arguments's values
-   together with observable state, and always returns exactly once.
+   It is OK for a compiler to move calls to the function and to omit
+   calls to the function if another call has the same arguments or the
+   result is not used, and if observable state is the same.
+   This attribute is safe for a function that does not affect observable state
+   and always returns exactly once.
    (This attribute is looser than _GL_ATTRIBUTE_CONST because the function
-   can depend on observable state.
-   Unlike _GL_ATTRIBUTE_REPRODUCIBLE the function must return exactly
-   once and cannot change state addressed by its arguments, but the
-   function can return a pointer to storage whose contents change later.)  */
+   can depend on observable state.  It is stricter than
+   _GL_ATTRIBUTE_REPRODUCIBLE because the function must return exactly
+   once and cannot affect state addressed by its arguments.)  */
 /* Applies to: functions.  */
 #ifndef _GL_ATTRIBUTE_PURE
 # if _GL_HAS_ATTRIBUTE (pure)
 #  define _GL_ATTRIBUTE_PURE __attribute__ ((__pure__))
 # else
-#  define _GL_ATTRIBUTE_PURE
+#  define _GL_ATTRIBUTE_PURE _GL_ATTRIBUTE_REPRODUCIBLE
 # endif
 #endif
 
 /* _GL_ATTRIBUTE_REPRODUCIBLE declares:
-   It is OK for a compiler to move a call, or omit a duplicate call
-   and reuse a cached value returned either directly or indirectly via
-   a pointer, if other observable state is the same;
-   however, pointer arguments cannot alias.
-   This attribute is safe for a function that is effectless and idempotent;
-   see ISO C 23 § 6.7.13.8 for a definition of these terms.
+   It is OK for a compiler to move calls to the function and to omit duplicate
+   calls to the function with the same arguments, so long as the state
+   addressed by its arguments is the same and is updated in time for
+   the rest of the program.
+   This attribute is safe for a function that is effectless and idempotent; see
+   ISO C 23 § 6.7.12.7 for a definition of these terms.
    (This attribute is looser than _GL_ATTRIBUTE_UNSEQUENCED because
-   the function need not be stateless or independent.
-   Unlike _GL_ATTRIBUTE_PURE the function need not return exactly once
-   and can change state addressed by its pointer arguments, but the
-   function cannot return a pointer to storage whose contents change later.)
+   the function need not be stateless and idempotent.  It is looser
+   than _GL_ATTRIBUTE_PURE because the function need not return
+   exactly once and can affect state addressed by its arguments.)
    See also <https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2956.htm> and
    <https://stackoverflow.com/questions/76847905/>.  */
 /* Applies to: functions, pointer to functions, function types.  */
@@ -875,20 +952,16 @@
 #endif
 
 /* _GL_ATTRIBUTE_UNSEQUENCED declares:
-   It is OK for a compiler to move a call, or omit a duplicate call
-   and reuse a cached value returned either directly or indirectly via
-   a pointer, if the state addressed by its pointer arguments is the same;
-   however, pointer arguments cannot alias.
+   It is OK for a compiler to move calls to the function and to omit duplicate
+   calls to the function with the same arguments, so long as the state
+   addressed by its arguments is the same.
    This attribute is safe for a function that is effectless, idempotent,
-   stateless, and independent; see ISO C 23 § 6.7.13.8 for a definition of
+   stateless, and independent; see ISO C 23 § 6.7.12.7 for a definition of
    these terms.
    (This attribute is stricter than _GL_ATTRIBUTE_REPRODUCIBLE because
-   the function must be stateless and independent.  Unlike
-   _GL_ATTRIBUTE_CONST the function need not return exactly once, and
-   can depend on state accessed via its pointer arguments or that
-   happens to have the same value for all calls to the function, but
-   the function cannot return a pointer to storage whose contents
-   change later.)
+   the function must be stateless and independent.  It is looser than
+   _GL_ATTRIBUTE_CONST because the function need not return exactly
+   once and can depend on state addressed by its arguments.)
    See also <https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2956.htm> and
    <https://stackoverflow.com/questions/76847905/>.  */
 /* Applies to: functions, pointer to functions, function types.  */
@@ -926,21 +999,6 @@
 #  define _GL_UNUSED_LABEL _GL_ATTRIBUTE_UNUSED
 # else
 #  define _GL_UNUSED_LABEL
-# endif
-#endif
-
-/* _GL_UNNAMED (ID) is the "name" of an unnamed function parameter.
-   Each of the function's unnamed parameters should have a unique "name".
-   The "name" cannot be used.  This ports both to C17 and earlier, which
-   lack unnamed parameters, and to C++ and later C, which have them.  */
-/* Applies to:
-     - function parameters.  */
-#ifndef _GL_UNNAMED
-# if ((defined __STDC_VERSION__ ? __STDC_VERSION__ : 0) < 202311 \
-      && !defined __cplusplus)
-#  define _GL_UNNAMED(id) unnamed_##id _GL_ATTRIBUTE_UNUSED
-# else
-#  define _GL_UNNAMED(id)
 # endif
 #endif
 
@@ -1005,14 +1063,9 @@
      -1 if n1 < n2
    The naïve code   (n1 > n2 ? 1 : n1 < n2 ? -1 : 0)  produces a conditional
    jump with nearly all GCC versions up to GCC 10.
-   This variant     (n1 < n2 ? -1 : n1 > n2)  produces a conditional jump with
-   many GCC versions up to GCC 9.
+   This variant     (n1 < n2 ? -1 : n1 > n2)  produces a conditional with many
+   GCC versions up to GCC 9.
    The better code  (n1 > n2) - (n1 < n2)  from Hacker's Delight § 2-9
    avoids conditional jumps in all GCC versions >= 3.4.  */
 #define _GL_CMP(n1, n2) (((n1) > (n2)) - ((n1) < (n2)))
-
-
-#if defined __GNUC__ && __GNUC__ >= 15 && !defined __clang__
-# pragma GCC diagnostic pop
-#endif
 

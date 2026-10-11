@@ -1,3 +1,4 @@
+#include <config.h>
 #include "lz77.h"
 #include "bitio.h"
 #include <stdio.h>
