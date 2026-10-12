@@ -16,7 +16,6 @@
 #include "messages.h"
 #include <getopt.h>
 
-
 static gboolean
 ui_update (gpointer user_data)
 {
@@ -59,8 +58,7 @@ worker (void *user_data)
 {
   AppData *app = user_data;
   int total = atomic_load (&app->total);
-  int failed = 0;
-  int processed = 0;
+  int failed = 0, processed = 0;
   TaskItem task;
   clock_t begin = clock ();
   for (int task_index = 0; task_index < total; task_index++)
@@ -176,13 +174,11 @@ on_picked_output_dir (GObject *src, GAsyncResult *res, gpointer user_data)
   GError *err = NULL;
   GFile *folder =
     gtk_file_dialog_select_folder_finish (GTK_FILE_DIALOG (src), res, &err);
-
   if (!folder || err)
     {
       g_clear_error (&err);
       return;
     }
-
   char *path = g_file_get_path (folder);
   if (path)
     {
@@ -196,7 +192,6 @@ on_picked_output_dir (GObject *src, GAsyncResult *res, gpointer user_data)
 static void
 on_select_output_dir (GtkButton *btn, AppData *app)
 {
-  (void) btn;
   GtkWindow *win = GTK_WINDOW (gtk_widget_get_root (GTK_WIDGET (btn)));
   GtkFileDialog *dlg = gtk_file_dialog_new ();
   gtk_file_dialog_set_title (dlg, "Select Output Directory");
@@ -206,7 +201,6 @@ on_select_output_dir (GtkButton *btn, AppData *app)
 static void
 on_add_files (GtkButton *btn, AppData *app)
 {
-  (void) btn;
   GtkWindow *win = GTK_WINDOW (gtk_widget_get_root (GTK_WIDGET (btn)));
   GtkFileDialog *dlg = gtk_file_dialog_new ();
   gtk_file_dialog_set_title (dlg, "Select files");

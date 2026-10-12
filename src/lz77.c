@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-
 #define WINDOW_SIZE 4096
 #define MAX_MATCH   258
 #define MIN_MATCH   3
