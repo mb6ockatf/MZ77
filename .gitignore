@@ -136,3 +136,12 @@ TAGS
 
 # GCC -fcallgraph-info output
 *.ci
+
+# Benchmarks: downloaded corpus, results, variant builds
+/bench/mz77-bench
+/bench/corpus/
+/bench/results/
+/bench/bin/
+/bench/pgo-data/
+/bench/pgo-train/
+gmon.out

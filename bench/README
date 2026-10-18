@@ -1,0 +1,112 @@
+MZ77 benchmarks and profiling
+=============================
+
+Tools for measuring the LZ77 codec (src/lz77.c, src/bitio.c).  The GUI
+is not measured.  Nothing here is built by 'make' or run by 'make check'.
+
+Targets, run from the top of the build tree:
+
+  make corpus         download and unpack the Silesia corpus into
+                      bench/corpus/silesia (about 68 MB, once)
+  make bench          time the codec as configured on the whole corpus
+  make bench-compare  build the codec with several compiler settings and
+                      time each one on the whole corpus
+  make profile        profile one input with gprof, perf and valgrind
+
+Results go to bench/results/COMMIT/ (COMMIT-dirty when src/ or bench/
+has uncommitted changes), so runs before and after a change sit side by
+side.  Every run also writes machine.txt: CPU, governor, kernel and
+compiler.
+
+Corpus
+------
+
+bench/corpus/generated/ is made by 'mz77-bench --generate' from a fixed
+seed, 20 MB per file:
+
+  text.dat    English-like words: typical text
+  random.dat  uniform random bytes: incompressible, worst case
+  zeros.dat   all zero bytes: longest matches, best case
+  mixed.dat   a short phrase with 1 byte in 8 random
+
+bench/corpus/silesia/ is the Silesia corpus (Sebastian Deorowicz, 2003),
+12 files and 211 MB of real data (text, executables, databases, images,
+XML), the usual benchmark for general-purpose compressors.
+
+The driver
+----------
+
+bench/mz77-bench calls lz77_compress and lz77_decompress directly.  It
+runs each file --repeat times (default 5) and reports the median wall
+time from CLOCK_MONOTONIC, the throughput in MB/s (10^6 bytes) of
+uncompressed data, and the ratio archive size / input size (lower is
+better).  The first run of each file checks that decompression gives
+back the input, so a faster but broken codec fails loudly.  Temporary
+archives go to /dev/shm, so the disk does not add noise.
+
+  bench/mz77-bench --mode=compress --repeat=3 FILE...
+  bench/mz77-bench --csv=out.csv --label=try1 FILE...
+
+make bench: bench.csv, bench.txt
+--------------------------------
+
+One row per corpus file with the flags ./configure chose.  Configure
+with --enable-release for numbers that match the shipped program.
+
+make bench-compare: variants.csv, variants.txt
+----------------------------------------------
+
+Compiles src/lz77.c, src/bitio.c and bench/bench.c directly with each of
+
+  O0, O1, O2, O3                machine-independent optimisation levels
+  O3-native                     -march=native: machine-dependent
+  O3-native-lto                 plus link-time optimisation
+  O3-native-lto-pgo             plus profile-guided optimisation, trained
+                                on test/input and a small synthetic set,
+                                not on the measured corpus
+
+variants.csv has one row per variant and file; variants.txt totals each
+variant over the corpus.  The list is at the top of bench/compare.sh.
+
+make profile: profile/
+----------------------
+
+Profiles one input: PROFILE_INPUT if set, else silesia/dickens (10 MB of
+English text), else generated/text.dat.
+
+  gprof.txt                  flat profile and call graph, over 5 runs.
+                             Built with -O2 -pg -fno-inline, so the small
+                             static helpers (byte_at, hash3, ht_insert)
+                             appear as functions of their own.  Call
+                             counts are exact; times are 10 ms samples.
+                             Time inside libc (memmove, fputc, fgetc) is
+                             not instrumented and is listed as _init.
+  perf-stat-compress.txt     hardware counters for compression alone and
+  perf-stat-decompress.txt   decompression alone, mean of 5 runs: cycles,
+                             instructions (IPC), branch misses, cache
+                             misses, L1 data cache misses
+  perf-report.txt            sampled hot functions with call stacks
+  perf-lines.txt             sampled hot source lines (file:line)
+  perf-annotate-*.txt        hot instructions inside each codec function
+                             (perf 6.12 sometimes crashes here; a function
+                             it crashes on gets no file)
+  callgrind.txt              exact instruction counts per function
+  callgrind-lines.txt        the same per source line of lz77.c and bitio.c
+  cachegrind.txt             simulated cache and branch-predictor misses
+  summary.txt                the headline numbers from all of the above
+
+perf needs kernel.perf_event_paranoid <= 2 (the Debian default is 2);
+the scripts count user-space events only, so no root is needed.
+
+callgrind and cachegrind run the program about 50 times slower but give
+the same counts on every run, which makes them the best way to compare
+before and after a change.  Use wall time and perf for real speed.
+
+Getting stable timings
+----------------------
+
+Laptop CPUs change clock speed with temperature and power.  Plug the
+machine in, close heavy programs, and compare runs made in the same
+conditions.  Increase REPEAT for steadier medians:
+
+  make bench REPEAT=9
