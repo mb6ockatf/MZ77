@@ -5,7 +5,6 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/ptrace.h>
-#include <sys/prctl.h>
 volatile sig_atomic_t trap_detected = 0;
 
 static void
@@ -49,24 +48,9 @@ is_tracer_present_procfs ()
   return (tracer != 0);
 }
 
-static inline bool
-is_ld_preload ()
-{
-  if (getenv ("LD_PRELOAD") != NULL)
-    return true;
-  return false;
-}
-
-static inline void
-set_no_memdump ()
-{
-  prctl (PR_SET_DUMPABLE, 0);
-}
-
 void
 check_debugger ()
 {
-  set_no_memdump ();
   if (is_tracer_present_procfs () || is_tracer_by_int3 ())
     exit (EXIT_SUCCESS);
 }

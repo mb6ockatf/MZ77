@@ -7,7 +7,6 @@
 #include <limits.h>
 #include <pthread.h>
 #include <gtk/gtk.h>
-#define HT_SIZE     65536
 typedef uint8_t  BYTE;
 typedef uint8_t *PBYTE;
 typedef uint16_t WORD;
@@ -21,6 +20,7 @@ enum TaskStatus { STATUS_PENDING, STATUS_RUNNING, STATUS_DONE, STATUS_ERROR };
 typedef struct {
     enum Mode mode;
     enum TaskStatus status;
+    GtkWidget *row_label;
     union {
         struct { char in_path[PATH_MAX]; char out_path[PATH_MAX]; } paths;
         struct { size_t original; size_t compressed; double ratio; } stats;
@@ -51,6 +51,7 @@ typedef struct
     bool has_worker;
     atomic_bool existing;
     char out_dir[PATH_MAX];
+    GHashTable *reserved_outputs;
 } AppData;
 
 typedef struct {
@@ -59,13 +60,9 @@ typedef struct {
     char msg[64];
 } StateData;
 
-typedef struct HashNode {
-    DWORD position;
-    struct HashNode *next;
-} HashNode;
-
 typedef struct {
-    HashNode *buckets[HT_SIZE];
-} LZHashTable;
+    GtkWidget *label;
+    enum TaskStatus status;
+} RowUpdate;
 
 #endif

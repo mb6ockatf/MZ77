@@ -14,8 +14,7 @@ enum
 { TIME_LIMIT_SECONDS = 120 };
 
 static char work_dir[64];
-static int failures;
-static int checks;
+static int failures, checks;
 
 static void
 fail (const char *name, const char *reason)

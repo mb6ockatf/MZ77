@@ -8,7 +8,6 @@
 #include <pthread.h>
 #include <gtk/gtk.h>
 #include <glib.h>
-#include <time.h>
 #include "antidebugger.h"
 #include "dt.h"
 #include "queue.h"
@@ -53,6 +52,42 @@ apply_state (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
+static const char *
+status_text (enum TaskStatus status)
+{
+  switch (status)
+    {
+    case STATUS_RUNNING:
+      return "Working";
+    case STATUS_DONE:
+      return "Done";
+    case STATUS_ERROR:
+      return "Failed";
+    default:
+      return "Wait";
+    }
+}
+
+static gboolean
+apply_row_status (gpointer user_data)
+{
+  RowUpdate *update = user_data;
+  gtk_label_set_text (GTK_LABEL (update->label),
+		      status_text (update->status));
+  g_object_unref (update->label);
+  g_free (update);
+  return G_SOURCE_REMOVE;
+}
+
+static void
+post_row_status (GtkWidget *label, enum TaskStatus status)
+{
+  RowUpdate *update = g_new0 (RowUpdate, 1);
+  update->label = g_object_ref (label);
+  update->status = status;
+  g_idle_add (apply_row_status, update);
+}
+
 static void *
 worker (void *user_data)
 {
@@ -60,7 +95,6 @@ worker (void *user_data)
   int total = atomic_load (&app->total);
   int failed = 0, processed = 0;
   TaskItem task;
-  clock_t begin = clock ();
   for (int task_index = 0; task_index < total; task_index++)
     {
       if (atomic_load (&app->queue.shutdown))
@@ -68,8 +102,8 @@ worker (void *user_data)
       if (!queue_pop (&app->queue, &task))
 	break;
       atomic_fetch_sub (&app->pending, 1);
-      printf ("Total: %d; Got a task\n", total);
       task.status = STATUS_RUNNING;
+      post_row_status (task.row_label, task.status);
       int result;
       if (task.mode == MODE_COMPRESS)
 	result =
@@ -84,12 +118,12 @@ worker (void *user_data)
 	  fprintf (stderr, "mz77: failed: %s -> %s\n",
 		   task.data.paths.in_path, task.data.paths.out_path);
 	}
+      post_row_status (task.row_label, task.status);
+      g_object_unref (task.row_label);
       processed++;
       atomic_fetch_add (&app->completed, 1);
       g_idle_add (ui_update, app);
     }
-  clock_t end = clock ();
-  printf ("all done at %f\n", (double) (end - begin));
   StateData *state = g_new0 (StateData, 1);
   state->app = app;
   state->run = FALSE;
@@ -100,6 +134,43 @@ worker (void *user_data)
     g_strlcpy (state->msg, "Done", sizeof (state->msg));
   g_idle_add (apply_state, state);
   return NULL;
+}
+
+static bool
+choose_output_path (AppData *app, const char *target_dir,
+		    const char *in_path, enum Mode mode, char *out_path)
+{
+  char *base = g_path_get_basename (in_path);
+  const char *suffix = "";
+  if (mode == MODE_COMPRESS)
+    suffix = ".lz77";
+  else if (g_str_has_suffix (base, ".lz77") && strlen (base) > 5)
+    base[strlen (base) - 5] = '\0';
+  bool found = false;
+  for (int attempt = 0; !found; attempt++)
+    {
+      char *name = (attempt == 0)
+	? g_strconcat (base, suffix, NULL)
+	: g_strdup_printf ("%s.%d%s", base, attempt, suffix);
+      char *candidate = g_build_filename (target_dir, name, NULL);
+      g_free (name);
+      if (strlen (candidate) >= PATH_MAX)
+	{
+	  g_free (candidate);
+	  break;
+	}
+      if (!g_file_test (candidate, G_FILE_TEST_EXISTS)
+	  && !g_hash_table_contains (app->reserved_outputs, candidate))
+	{
+	  g_strlcpy (out_path, candidate, PATH_MAX);
+	  g_hash_table_add (app->reserved_outputs, candidate);
+	  found = true;
+	}
+      else
+	g_free (candidate);
+    }
+  g_free (base);
+  return found;
 }
 
 static void
@@ -121,6 +192,8 @@ on_picked_multiple (GObject *source, GAsyncResult *result, gpointer user_data)
   enum Mode mode = is_comp ? MODE_COMPRESS : MODE_DECOMPRESS;
   guint count = g_list_model_get_n_items (files);
   int added = 0;
+  const char *target_dir =
+    (app->out_dir[0] != '\0') ? app->out_dir : g_get_home_dir ();
   for (guint file_index = 0; file_index < count; file_index++)
     {
       GFile *file = G_FILE (g_list_model_get_item (files, file_index));
@@ -128,31 +201,24 @@ on_picked_multiple (GObject *source, GAsyncResult *result, gpointer user_data)
       if (path)
 	{
 	  TaskItem task = {.mode = mode,.status = STATUS_PENDING };
-	  g_strlcpy (task.data.paths.in_path, path, PATH_MAX);
-	  char *base = g_path_get_basename (path);
-	  const char *target_dir =
-	    (app->out_dir[0] != '\0') ? app->out_dir : g_get_home_dir ();
-	  char *tmp_path = g_build_filename (target_dir, base, NULL);
-	  g_strlcpy (task.data.paths.out_path, tmp_path, PATH_MAX);
-	  g_free (tmp_path);
-	  if (mode == MODE_COMPRESS)
-	    g_strlcat (task.data.paths.out_path, ".lz77", PATH_MAX);
-	  else
-	    {
-	      size_t len = strlen (task.data.paths.out_path);
-	      if (len > 5
-		  && strcmp (task.data.paths.out_path + len - 5,
-			     ".lz77") == 0)
-		task.data.paths.out_path[len - 5] = '\0';
-	    }
-	  g_free (base);
-	  queue_push (&app->queue, &task);
-	  added++;
+	  const char *problem = NULL;
+	  if (g_strlcpy (task.data.paths.in_path, path, PATH_MAX) >= PATH_MAX)
+	    problem = "Path too long";
+	  else if (!choose_output_path (app, target_dir, path, mode,
+					task.data.paths.out_path))
+	    problem = "Output path too long";
 	  GtkWidget *row = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
+	  GtkWidget *label = gtk_label_new (problem ? problem : "Wait");
 	  gtk_box_append (GTK_BOX (row), gtk_label_new (path));
-	  gtk_box_append (GTK_BOX (row), gtk_label_new ("Wait"));
+	  gtk_box_append (GTK_BOX (row), label);
 	  gtk_list_box_insert (GTK_LIST_BOX (app->list_box), row, -1);
 	  gtk_widget_set_visible (row, TRUE);
+	  if (!problem)
+	    {
+	      task.row_label = g_object_ref (label);
+	      queue_push (&app->queue, &task);
+	      added++;
+	    }
 	  g_free (path);
 	}
       g_object_unref (file);
@@ -182,8 +248,14 @@ on_picked_output_dir (GObject *src, GAsyncResult *res, gpointer user_data)
   char *path = g_file_get_path (folder);
   if (path)
     {
-      g_strlcpy (app->out_dir, path, PATH_MAX);
-      gtk_label_set_text (GTK_LABEL (app->out_dir_label), path);
+      if (strlen (path) >= PATH_MAX)
+	gtk_label_set_text (GTK_LABEL (app->status),
+			    "Output directory path too long");
+      else
+	{
+	  g_strlcpy (app->out_dir, path, PATH_MAX);
+	  gtk_label_set_text (GTK_LABEL (app->out_dir_label), path);
+	}
       g_free (path);
     }
   g_object_unref (folder);
@@ -196,6 +268,7 @@ on_select_output_dir (GtkButton *btn, AppData *app)
   GtkFileDialog *dlg = gtk_file_dialog_new ();
   gtk_file_dialog_set_title (dlg, "Select Output Directory");
   gtk_file_dialog_select_folder (dlg, win, NULL, on_picked_output_dir, app);
+  g_object_unref (dlg);
 }
 
 static void
@@ -205,14 +278,16 @@ on_add_files (GtkButton *btn, AppData *app)
   GtkFileDialog *dlg = gtk_file_dialog_new ();
   gtk_file_dialog_set_title (dlg, "Select files");
   gtk_file_dialog_open_multiple (dlg, win, NULL, on_picked_multiple, app);
+  g_object_unref (dlg);
 }
 
-static void
+static gboolean
 on_mode_toggle (GtkSwitch *sw, gboolean state, AppData *app)
 {
   (void) sw;
   gtk_label_set_text (GTK_LABEL (app->mode_label),
 		      state ? "Mode: compress" : "Mode: decompress");
+  return FALSE;
 }
 
 static gboolean
@@ -294,6 +369,8 @@ main (int argc, char **argv)
   app.loop = g_main_loop_new (NULL, FALSE);
   g_strlcpy (app.out_dir, g_get_home_dir (), PATH_MAX);
   queue_init (&app.queue);
+  app.reserved_outputs =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   GtkWidget *win = gtk_window_new ();
   gtk_window_set_title (GTK_WINDOW (win), "MZ77 Archiver");
   gtk_window_set_default_size (GTK_WINDOW (win), 440, 380);
@@ -347,5 +424,6 @@ main (int argc, char **argv)
     pthread_join (app.worker, NULL);
   g_main_loop_unref (app.loop);
   queue_destroy (&app.queue);
+  g_hash_table_destroy (app.reserved_outputs);
   return EXIT_SUCCESS;
 }

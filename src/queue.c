@@ -70,6 +70,8 @@ queue_destroy (TaskQueue *q)
   while (cur)
     {
       TaskNode *n = cur->next;
+      if (cur->task.row_label)
+	g_object_unref (cur->task.row_label);
       free (cur);
       cur = n;
     }

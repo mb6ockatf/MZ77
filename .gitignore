@@ -127,3 +127,12 @@ src/mz77
 *.trs
 test-suite.log
 /test/*.log
+
+# Editor indexes: ctags/etags, clangd
+tags
+TAGS
+/compile_commands.json
+/.cache/
+
+# GCC -fcallgraph-info output
+*.ci
