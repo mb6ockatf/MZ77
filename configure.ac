@@ -1,12 +1,10 @@
 AC_PREREQ([2.72])
 AC_INIT([MZ77],[0.1],[gordienkov.zyu@edu.spbstu.ru])
 AM_INIT_AUTOMAKE([gnits subdir-objects])
-dnl Remember whether the user set CFLAGS before AC_PROG_CC adds -g -O2.
 mz77_user_cflags=${CFLAGS+set}
 AC_PROG_CC
 AC_USE_SYSTEM_EXTENSIONS
 PKG_PROG_PKG_CONFIG
-
 PKG_CHECK_MODULES([GTK4], [gtk4 >= 4.0], [],
 		  [AC_MSG_ERROR([GTK4 development files not found. Install libgtk-4-dev])]
 		  )
@@ -37,9 +35,6 @@ done
 if test $profile_count -gt 1; then
 	AC_MSG_ERROR([--enable-debug, --enable-release and --enable-profile are mutually exclusive])
 fi
-dnl CFLAGS comes after PROFILE_CFLAGS on the command line, so the default
-dnl -g -O2 would override the profile's -O level.  Drop the default, but
-dnl keep CFLAGS the user gave.
 if test -n "$PROFILE_CFLAGS" && test "x$mz77_user_cflags" != xset; then
 	CFLAGS=
 fi

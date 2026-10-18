@@ -9,8 +9,6 @@ repeat=${REPEAT:-5}
 describe_machine
 build O2 -O2
 "$benchdir/bin/O2" --generate="$corpus/generated" >/dev/null
-
-# NAME|CFLAGS.  Edit this list to try other options.
 variants='O0|-O0
 O1|-O1
 O2|-O2
@@ -18,7 +16,6 @@ O3|-O3
 O3-native|-O3 -march=native
 O3-native-lto|-O3 -march=native -flto
 O3-native-lto-pgo|-O3 -march=native -flto PGO'
-
 rm -f "$results/variants.csv"
 echo "$variants" | while IFS='|' read -r name flags; do
   case $flags in
@@ -26,7 +23,6 @@ echo "$variants" | while IFS='|' read -r name flags; do
       flags=${flags% PGO}
       pgo_dir=$benchdir/pgo-data
       rm -rf "$pgo_dir"
-      # Train on inputs that are not in the measured corpus.
       build "$name" $flags -fprofile-generate -fprofile-dir="$pgo_dir"
       "$benchdir/bin/$name" --repeat=1 "$srcdir"/test/input/* >/dev/null
       "$benchdir/bin/$name" --generate="$benchdir/pgo-train" --size=4000000 >/dev/null
@@ -43,7 +39,6 @@ echo "$variants" | while IFS='|' read -r name flags; do
     --label="$name" --csv="$results/variants.csv"
 done
 
-# Corpus-wide throughput per variant: total bytes over total median time.
 awk -F, 'NR > 1 {
     size[$1] += $3; arch[$1] += $4; comp[$1] += $7; dec[$1] += $8
     if (!($1 in seen)) { seen[$1] = 1; order[++count] = $1 }

@@ -11,9 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "lz77.h"
-
 enum BenchMode { BENCH_BOTH, BENCH_COMPRESS, BENCH_DECOMPRESS };
-
 enum { MAX_REPEATS = 100, COPY_CHUNK = 65536 };
 
 typedef struct

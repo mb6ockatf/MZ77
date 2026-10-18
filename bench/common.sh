@@ -7,13 +7,10 @@ builddir=${MZ77_BUILDDIR:-$srcdir}
 benchdir=$builddir/bench
 CC=${CC:-gcc}
 corpus=$benchdir/corpus
-
 if [ ! -f "$builddir/config.h" ]; then
   echo "$0: $builddir/config.h missing; run ./configure first" >&2
   exit 1
 fi
-
-# One results directory per commit, so before/after runs sit side by side.
 rev=$(git -C "$srcdir" rev-parse --short HEAD 2>/dev/null || echo norev)
 if ! git -C "$srcdir" diff --quiet HEAD -- src bench 2>/dev/null; then
   rev=$rev-dirty
@@ -21,9 +18,6 @@ fi
 results=${MZ77_RESULTS:-$benchdir/results/$rev}
 mkdir -p "$results"
 
-# build NAME FLAGS...: compile the codec and the bench driver with FLAGS,
-# straight from the sources, into $benchdir/bin/NAME.  Extra LDFLAGS go in
-# $link_flags.
 build () {
   name=$1; shift
   mkdir -p "$benchdir/bin"
@@ -32,8 +26,6 @@ build () {
     ${link_flags:-} -o "$benchdir/bin/$name"
 }
 
-# The files every benchmark runs on: the synthetic corpus, then Silesia
-# when it has been fetched.
 corpus_files () {
   ls "$corpus"/generated/*.dat 2>/dev/null
   if [ -d "$corpus/silesia" ]; then
@@ -41,7 +33,6 @@ corpus_files () {
   fi
 }
 
-# Default input for the profilers: real English text if Silesia is there.
 profile_input () {
   if [ -n "${PROFILE_INPUT:-}" ]; then
     echo "$PROFILE_INPUT"
@@ -52,7 +43,6 @@ profile_input () {
   fi
 }
 
-# Record what the numbers were measured on.
 describe_machine () {
   {
     echo "date:     $(date -u +%Y-%m-%dT%H:%M:%SZ)"

@@ -1,6 +1,6 @@
 #!/bin/sh
-# Time the codec as configured (the flags ./configure chose) on the whole
-# corpus.  Writes $results/bench.csv and $results/bench.txt.
+# Time the codec as configured (the flags ./configure chose) on corpus
+# $results/bench.csv and $results/bench.txt
 set -e
 . "$(dirname "$0")/common.sh"
 bench=${MZ77_BENCH:-$benchdir/mz77-bench}
