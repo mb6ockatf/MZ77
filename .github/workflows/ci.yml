@@ -5,10 +5,17 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     name: ${{ matrix.profile }} build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Debian 13 "trixie" matches the Devuan 6 development machine.
     container: debian:trixie
     timeout-minutes: 30
@@ -27,7 +34,7 @@ jobs:
             build-essential autoconf automake libtool pkgconf gnulib \
             libgtk-4-dev git ca-certificates
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Bootstrap
         run: ./bootstrap
@@ -50,4 +57,4 @@ jobs:
 
       - name: Show test logs
         if: failure()
-        run: find . -name test-suite.log -o -name roundtrip.log | xargs -r cat
+        run: find . \( -name test-suite.log -o -name roundtrip.log \) -exec cat {} +
