@@ -110,3 +110,16 @@ machine in, close heavy programs, and compare runs made in the same
 conditions.  Increase REPEAT for steadier medians:
 
   make bench REPEAT=9
+
+The optimisation log: campaign.sh, summarize.sh
+-----------------------------------------------
+
+bench/campaign.sh STEP runs make check, make bench, an archive checksum
+pass, make bench-compare and make profile in one go, pinned to one core,
+and keeps every log in bench/log/MACHINE/STEP/raw/.  It then rebuilds
+bench/log/MACHINE/SUMMARY.md with bench/summarize.sh, which compares
+each step with the one before and with the first.  bench/log/README
+describes the layout and the list of steps.
+
+  bench/campaign.sh 01-block-io
+  REPEAT=5 SKIP_PROFILE=1 bench/campaign.sh 01-block-io-quick

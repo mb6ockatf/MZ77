@@ -1,0 +1,61 @@
+Benchmark log of the optimisation work
+======================================
+
+One directory per machine, one directory per measured step inside it:
+
+  bench/log/MACHINE/SUMMARY.md     every step on that machine in one table:
+                                   totals, speed-up against the previous
+                                   step and against the baseline
+  bench/log/MACHINE/NN-NAME/
+    EXPLANATION.md                 what was measured, under which
+                                   conditions, what the numbers say
+    raw/                           everything the run printed, unedited
+
+Each step is measured with bench/campaign.sh STEP, which records:
+
+  raw/conditions.txt     commit, uncommitted changes, CPU, governor,
+                         power, compiler, configure options, load
+  raw/uncommitted.patch  the exact source measured, when it was not
+                         yet committed (the step's own commit follows)
+  raw/campaign.log       progress and time of each stage
+  raw/build.log, check.log, build-bench.log
+  raw/bench.log, bench.csv, bench.txt
+                         make bench: the codec as shipped
+                         (--enable-release), REPEAT runs per file
+  raw/archives.sha256    checksum of the archive of every corpus file;
+                         an optimisation that keeps the format must keep
+                         these identical
+  raw/bench-compare.log, variants.csv, variants.txt
+                         make bench-compare: -O0 to -O3, -march=native,
+                         LTO, PGO
+  raw/profile.log, profile/
+                         make profile: gprof, perf stat/record, callgrind,
+                         cachegrind on silesia/dickens
+
+perf.data, callgrind.out, cachegrind.out and the profiled archive are
+binary and large; they stay on the machine that made them and are not
+committed.
+
+Measurements are pinned to one core with taskset.  Times from
+different machines are never compared with each other, only steps on
+the same machine.
+
+Machines
+--------
+
+  debian       AMD Ryzen 7 5700U (Zen 2), 8 cores / 16 threads, 30 GB,
+               AVX2 and BMI2, no AVX-512; GCC 14.2
+  hppavillion  Intel Core i3-1115G4 (Tiger Lake), 2 cores / 4 threads,
+               7.4 GB, AVX-512BW; GCC 16.2
+
+Steps
+-----
+
+  00-baseline           dev at b5f6d00 plus the measuring scripts
+  01-block-io           #11
+  02-inline-bitio       #12
+  03-no-memmove         #14
+  04-compare-8-bytes    #15
+  05-avx512bw           #16, measured on hppavillion
+  06-avx2               AVX2 match compare, measured on debian
+  07-lto-pgo            #13

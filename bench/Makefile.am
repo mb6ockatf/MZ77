@@ -6,7 +6,8 @@ mz77_bench_CPPFLAGS = -I$(top_srcdir)/src
 mz77_bench_CFLAGS = $(PROFILE_CFLAGS)
 mz77_bench_LDFLAGS = $(PROFILE_LDFLAGS)
 mz77_bench_LDADD = $(top_builddir)/src/libmz77codec.a
-dist_noinst_SCRIPTS = common.sh fetch-silesia.sh bench.sh compare.sh profile.sh
+dist_noinst_SCRIPTS = common.sh fetch-silesia.sh bench.sh compare.sh profile.sh \
+		      campaign.sh summarize.sh
 dist_noinst_DATA = README
 BENCH_ENV = CC='$(CC)' MZ77_SRCDIR='$(abs_top_srcdir)' \
 	    MZ77_BUILDDIR='$(abs_top_builddir)'
