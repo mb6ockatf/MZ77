@@ -1,0 +1,28 @@
+# Rejected variant, measured 2026-10-24 ~00:40 MSK on debian, GCC 14.2, --enable-release:
+# match_length_avx2 compares the first 8 bytes as one uint64_t before the
+# 32-byte loop (variant-word-first.patch on top of raw/uncommitted.patch).
+# bench16 = #16 (word path here), bench17 = this step as measured, bench17b = the variant.
+# taskset -c 15 perf stat -x, -e cycles:u BENCH --mode=compress --repeat=1 CORPUS, two rounds:
+bench16 16.260G
+bench17 14.465G
+bench17b 15.737G
+bench16 16.213G
+bench17 14.417G
+bench17b 15.709G
+# Per file, cycles:u in G: file #16 avx2 variant #16/variant
+mixed.dat   5.785 3.997 4.860  1.190x
+random.dat  0.599 0.667 0.692  0.865x
+text.dat    0.894 0.862 0.947  0.944x
+zeros.dat   0.098 0.097 0.100  0.980x
+dickens     0.512 0.550 0.541  0.946x
+mozilla     2.440 2.413 2.492  0.979x
+mr          0.416 0.411 0.420  0.991x
+nci         1.047 0.930 1.004  1.044x
+ooffice     0.320 0.333 0.333  0.961x
+osdb        0.385 0.418 0.423  0.910x
+reymont     0.359 0.372 0.375  0.960x
+samba       0.755 0.715 0.754  1.002x
+sao         0.325 0.356 0.354  0.916x
+webster     1.812 1.764 1.842  0.984x
+x-ray       0.354 0.384 0.383  0.926x
+xml         0.146 0.137 0.143  1.021x

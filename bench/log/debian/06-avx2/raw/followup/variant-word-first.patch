@@ -1,0 +1,19 @@
+--- src/lz77.c	2026-10-24 00:27:11.555500645 +0300
++++ src/lz77.c (variant)	2026-10-24 00:35:35.287253771 +0300
+@@ -109,6 +109,16 @@
+ 		   size_t limit)
+ {
+   size_t len = 0;
++  if (limit >= sizeof (uint64_t))
++    {
++      uint64_t candidate_word, cursor_word;
++      memcpy (&candidate_word, candidate, sizeof (candidate_word));
++      memcpy (&cursor_word, cursor, sizeof (cursor_word));
++      uint64_t difference = candidate_word ^ cursor_word;
++      if (difference != 0)
++	return (size_t) __builtin_ctzll (difference) / 8;
++      len = sizeof (uint64_t);
++    }
+   while (len + 32 <= limit)
+     {
+       __m256i candidate_bytes =

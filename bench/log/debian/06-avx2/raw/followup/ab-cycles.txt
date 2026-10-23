@@ -1,0 +1,26 @@
+# Follow-up A/B after the campaign run, debian clock 2026-10-24 00:33 (reads as MSK), GCC 14.2, --enable-release.
+# bench16 = 02312cd (#16, word path here); bench17 = 02312cd + raw/uncommitted.patch (AVX2), run as is (AVX2) and with MZ77_MATCH=word.
+# taskset -c 15 perf stat -x, -e cycles:u,instructions:u BENCH --mode=compress --repeat=1 CORPUS
+#16 cycles:u=16.266G instructions:u=41.211G 
+avx2-word cycles:u=16.253G instructions:u=41.211G 
+avx2 cycles:u=14.485G instructions:u=40.301G 
+#16 cycles:u=16.161G instructions:u=41.211G 
+avx2-word cycles:u=15.972G instructions:u=41.211G 
+avx2 cycles:u=14.453G instructions:u=40.301G 
+# Per file, cycles:u in G: file #16 avx2-word avx2 #16/avx2
+mixed.dat 5.762 5.594 3.991 1.444x
+random.dat 0.611 0.602 0.657 0.931x
+text.dat 0.894 0.899 0.862 1.037x
+zeros.dat 0.097 0.098 0.097 1.003x
+dickens 0.512 0.517 0.549 0.933x
+mozilla 2.438 2.423 2.421 1.007x
+mr 0.415 0.414 0.406 1.023x
+nci 1.051 1.025 0.931 1.129x
+ooffice 0.321 0.321 0.332 0.966x
+osdb 0.383 0.394 0.417 0.919x
+reymont 0.359 0.366 0.371 0.967x
+samba 0.753 0.755 0.710 1.060x
+sao 0.328 0.327 0.363 0.904x
+webster 1.813 1.820 1.784 1.016x
+x-ray 0.356 0.349 0.382 0.933x
+xml 0.145 0.145 0.135 1.075x

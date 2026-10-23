@@ -1,0 +1,610 @@
+--------------------------------------------------------------------------------
+Profile data file '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/06-avx2/raw/profile/callgrind.out' (creator: callgrind-3.24.0)
+--------------------------------------------------------------------------------
+I1 cache: 
+D1 cache: 
+LL cache: 
+Timerange: Basic block 0 - 247922849
+Trigger: Program termination
+Profiled target:  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/bin/prof --repeat=1 /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/corpus/silesia/dickens (PID 7127, part 1)
+Events recorded:  Ir
+Events shown:     Ir
+Event sort order: Ir
+Thresholds:       99
+Include dirs:     
+User annotated:   /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/lz77.c
+                  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c
+Auto-annotation:  on
+
+--------------------------------------------------------------------------------
+Ir                     
+--------------------------------------------------------------------------------
+1,423,881,187 (100.0%)  PROGRAM TOTALS
+
+--------------------------------------------------------------------------------
+Ir                    file:function
+--------------------------------------------------------------------------------
+874,468,893 (61.41%)  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/lz77.c:compress_avx2 [/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/bin/prof]
+182,581,096 (12.82%)  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/lz77.c:lz77_decompress [/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/bin/prof]
+103,808,131 ( 7.29%)  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:br_refill [/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/bin/prof]
+ 92,319,053 ( 6.48%)  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:bw_drain [/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/bin/prof]
+ 70,153,902 ( 4.93%)  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.h:compress_avx2
+ 49,320,463 ( 3.46%)  /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.h:lz77_decompress
+ 32,341,968 ( 2.27%)  /opt/gcc-16.2.0/lib/gcc/x86_64-pc-linux-gnu/16.2.0/include/avx2intrin.h:compress_avx2
+ 16,170,984 ( 1.14%)  /opt/gcc-16.2.0/lib/gcc/x86_64-pc-linux-gnu/16.2.0/include/avxintrin.h:compress_avx2
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /opt/gcc-16.2.0/lib/gcc/x86_64-pc-linux-gnu/16.2.0/include/avx2intrin.h
+--------------------------------------------------------------------------------
+Ir                  
+
+-- line 427 ----------------------------------------
+         .           {
+         .             return (__m256i)__builtin_ia32_pminud256 ((__v8si)__A, (__v8si)__B);
+         .           }
+         .           
+         .           extern __inline int
+         .           __attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
+         .           _mm256_movemask_epi8 (__m256i __A)
+         .           {
+32,341,968 ( 2.27%)    return __builtin_ia32_pmovmskb256 ((__v32qi)__A);
+         .           }
+         .           
+         .           extern __inline __m256i
+         .           __attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
+         .           _mm256_cvtepi8_epi16 (__m128i __X)
+         .           {
+         .             return (__m256i) __builtin_ia32_pmovsxbw256 ((__v16qi)__X);
+         .           }
+-- line 443 ----------------------------------------
+
+--------------------------------------------------------------------------------
+-- User-annotated source: /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/lz77.c
+--------------------------------------------------------------------------------
+Ir                   
+
+-- line 22 ----------------------------------------
+          .             FILE *stream;
+          .             size_t used;
+          .             uint8_t bytes[BITIO_BLOCK_SIZE];
+          .           } OutputBlock;
+          .           
+          .           static void
+          .           output_flush (OutputBlock *output)
+          .           {
+  1,971,663 ( 0.14%)    if (output->used > 0)
+      1,362 ( 0.00%)      fwrite (output->bytes, 1, output->used, output->stream);
+    127,905 ( 0.01%)  => ./libio/./libio/iofwrite.c:fwrite (156x)
+          1 ( 0.00%)    output->used = 0;
+          .           }
+          .           
+          .           static inline void
+          .           output_byte (OutputBlock *output, uint8_t byte)
+          .           {
+ 21,311,536 ( 1.50%)    if (output->used == sizeof (output->bytes))
+          .               output_flush (output);
+ 39,842,843 ( 2.80%)    output->bytes[output->used++] = byte;
+          .           }
+          .           
+          .           static inline uint16_t
+          .           hash3 (const uint8_t *bytes)
+          .           {
+100,330,138 ( 7.05%)    return ((uint16_t) bytes[0] << 10) ^ (bytes[1] << 4) ^ bytes[2];
+          .           }
+          .           
+          .           static inline size_t
+          .           match_length (const uint8_t *candidate, const uint8_t *cursor, size_t limit)
+          .           {
+         65 ( 0.00%)    size_t len = 0;
+        341 ( 0.00%)    while (len + sizeof (uint64_t) <= limit)
+          .               {
+          .                 uint64_t candidate_word, cursor_word;
+        117 ( 0.00%)        memcpy (&candidate_word, candidate + len, sizeof (candidate_word));
+        117 ( 0.00%)        memcpy (&cursor_word, cursor + len, sizeof (cursor_word));
+         48 ( 0.00%)        uint64_t difference = candidate_word ^ cursor_word;
+        104 ( 0.00%)        if (difference != 0)
+          .           	{
+          .           #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        192 ( 0.00%)  	  return len + (size_t) __builtin_ctzll (difference) / 8;
+          .           #else
+          .           	  return len + (size_t) __builtin_clzll (difference) / 8;
+          .           #endif
+          .           	}
+          .                 len += sizeof (uint64_t);
+          .               }
+        436 ( 0.00%)    while (len < limit && candidate[len] == cursor[len])
+         64 ( 0.00%)      len++;
+          .             return len;
+          .           }
+          .           
+          .           #ifdef MZ77_X86
+          .           __attribute__ ((target ("avx512bw,avx512vl")))
+          .           static inline size_t
+          .           match_length_avx512 (const uint8_t *candidate, const uint8_t *cursor,
+          .           		     size_t limit)
+-- line 78 ----------------------------------------
+-- line 103 ----------------------------------------
+          .           #endif
+          .           
+          .           #ifdef MZ77_X86
+          .           __attribute__ ((target ("avx2,bmi")))
+          .           static inline size_t
+          .           match_length_avx2 (const uint8_t *candidate, const uint8_t *cursor,
+          .           		   size_t limit)
+          .           {
+ 16,170,300 ( 1.14%)    size_t len = 0;
+ 48,512,398 ( 3.41%)    while (len + 32 <= limit)
+          .               {
+          .                 __m256i candidate_bytes =
+          .           	_mm256_loadu_si256 ((const __m256i *) (candidate + len));
+          .                 __m256i cursor_bytes =
+          .           	_mm256_loadu_si256 ((const __m256i *) (cursor + len));
+          .                 uint32_t equal = (uint32_t)
+          .           	_mm256_movemask_epi8 (_mm256_cmpeq_epi8 (candidate_bytes,
+          .           						 cursor_bytes));
+ 32,341,968 ( 2.27%)        if (equal != UINT32_MAX)
+ 48,510,705 ( 3.41%)  	return len + (size_t) _tzcnt_u32 (~equal);
+        749 ( 0.00%)        len += 32;
+          .               }
+        195 ( 0.00%)    return len + match_length (candidate + len, cursor + len, limit - len);
+          .           }
+          .           #endif
+          .           
+          .           enum MatchKind
+          .           {
+          .             MATCH_WORD,
+          .             MATCH_AVX2,
+          .             MATCH_AVX512
+          .           };
+          .           
+          .           static inline void
+          .           ht_insert (uint64_t *ht_heads, uint64_t *ht_next, const uint8_t *bytes,
+          .           	   uint64_t pos)
+          .           {
+          .             uint16_t hash = hash3 (bytes);
+ 50,962,220 ( 3.58%)    ht_next[pos % WINDOW_SIZE] = ht_heads[hash];
+ 10,192,444 ( 0.72%)    ht_heads[hash] = pos;
+          .           }
+          .           
+          .           __attribute__ ((always_inline))
+          .           static inline int
+          .           compress_stream (FILE *fin, FILE *fout, enum MatchKind kind)
+          .           {
+          .             BitWriter bw;
+          2 ( 0.00%)    bw_init (&bw, fout);
+          5 ( 0.00%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:bw_init (1x)
+          8 ( 0.00%)    uint64_t *ht_heads = malloc (HT_SIZE * sizeof (uint64_t));
+        703 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        351 ( 0.00%)  => ./malloc/./malloc/malloc.c:malloc (1x)
+          4 ( 0.00%)    uint64_t *ht_next = malloc (WINDOW_SIZE * sizeof (uint64_t));
+        173 ( 0.00%)  => ./malloc/./malloc/malloc.c:malloc (1x)
+          5 ( 0.00%)    if (!ht_heads || !ht_next)
+          .               {
+          .                 free (ht_heads);
+          .                 free (ht_next);
+          .                 return -1;
+          .               }
+          .             for (size_t slot = 0; slot < HT_SIZE; slot++)
+          6 ( 0.00%)      ht_heads[slot] = NO_POS;
+    524,306 ( 0.04%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          .             for (size_t slot = 0; slot < WINDOW_SIZE; slot++)
+          5 ( 0.00%)      ht_next[slot] = NO_POS;
+     32,786 ( 0.00%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          .             uint8_t data[DATA_SIZE];
+         10 ( 0.00%)    size_t data_len = fread (data, 1, sizeof (data), fin);
+        451 ( 0.00%)  => ./libio/./libio/iofread.c:fread (1x)
+        666 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+          2 ( 0.00%)    uint64_t data_base = 0;
+          .             uint64_t win_pos = 0;
+          6 ( 0.00%)    size_t look_len = data_len < WINDOW_SIZE ? data_len : WINDOW_SIZE;
+      1,050 ( 0.00%)    while (look_len > 0)
+          .               {
+  8,691,008 ( 0.61%)        const uint8_t *cursor = data + (win_pos - data_base);
+  5,796,606 ( 0.41%)        size_t best_len = 0;
+  2,898,303 ( 0.20%)        uint64_t best_dist = 0;
+      1,046 ( 0.00%)        if (look_len >= MIN_MATCH)
+          .           	{
+  5,796,606 ( 0.41%)  	  uint64_t pos = ht_heads[hash3 (cursor)];
+          .           	  int chain_left = MAX_CHAIN;
+ 11,593,212 ( 0.81%)  	  size_t limit = look_len < MAX_MATCH ? look_len : MAX_MATCH;
+  2,898,303 ( 0.20%)  	  while (pos != NO_POS && pos < win_pos
+171,558,306 (12.05%)  		 && win_pos - pos <= WINDOW_SIZE && chain_left-- > 0)
+          .           	    {
+ 48,510,900 ( 3.41%)  	      const uint8_t *candidate = data + (pos - data_base);
+          .           	      size_t len;
+          .           #ifdef MZ77_X86
+          .           	      if (kind == MATCH_AVX512)
+          .           		len = match_length_avx512 (candidate, cursor, limit);
+          .           	      else if (kind == MATCH_AVX2)
+          .           		len = match_length_avx2 (candidate, cursor, limit);
+          .           	      else
+          .           #endif
+          .           		len = match_length (candidate, cursor, limit);
+ 16,170,365 ( 1.14%)  	      if (len > best_len)
+          .           		{
+ 64,680,947 ( 4.54%)  		  best_len = len;
+         12 ( 0.00%)  		  best_dist = win_pos - pos;
+         14 ( 0.00%)  		  if (len == MAX_MATCH)
+          .           		    break;
+          .           		}
+ 64,681,196 ( 4.54%)  	      uint64_t next = ht_next[pos % WINDOW_SIZE];
+ 32,340,598 ( 2.27%)  	      if (next == NO_POS || next >= pos)
+          .           		break;
+ 16,168,402 ( 1.14%)  	      pos = next;
+          .           	    }
+          .           	}
+          .                 size_t advance;
+ 21,333,132 ( 1.50%)        if (best_len >= MIN_MATCH)
+          .           	{
+          .           	  bw_write (&bw, 1, 1);
+  3,943,320 ( 0.28%)  	  bw_write (&bw, (uint32_t) (best_dist - 1), 12);
+  1,971,660 ( 0.14%)  	  bw_write (&bw, (uint32_t) (best_len - MIN_MATCH), 8);
+          .           	  advance = best_len;
+          .           	}
+          .                 else
+          .           	{
+          .           	  bw_write (&bw, 0, 1);
+          .           	  bw_write (&bw, cursor[0], 8);
+    926,644 ( 0.07%)  	  advance = 1;
+          .           	}
+ 20,384,892 ( 1.43%)        for (size_t offset = 0; offset < advance; offset++)
+          .           	{
+ 47,967,162 ( 3.37%)  	  if (offset + MIN_MATCH <= look_len)
+          .           	    ht_insert (ht_heads, ht_next, &cursor[offset], win_pos);
+ 10,192,446 ( 0.72%)  	  win_pos++;
+          .           	}
+  2,898,304 ( 0.20%)        look_len -= advance;
+  5,796,608 ( 0.41%)        if (look_len < MAX_MATCH)
+          .           	{
+      5,476 ( 0.00%)  	  size_t start = (size_t) (win_pos - data_base);
+      5,476 ( 0.00%)  	  size_t ahead = data_len - start;
+      5,476 ( 0.00%)  	  if (ahead < WINDOW_SIZE)
+          .           	    {
+        872 ( 0.00%)  	      if (data_len + (WINDOW_SIZE - ahead) > sizeof (data))
+          .           		{
+        176 ( 0.00%)  		  size_t keep_from = start - WINDOW_SIZE;
+      1,236 ( 0.00%)  		  memmove (data, data + keep_from, data_len - keep_from);
+    135,896 ( 0.01%)  => ./string/../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:__memcpy_avx_unaligned_erms (176x)
+        749 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+          .           		  data_len -= keep_from;
+        176 ( 0.00%)  		  data_base += keep_from;
+        352 ( 0.00%)  		  start -= keep_from;
+          .           		}
+      2,620 ( 0.00%)  	      data_len += fread (data + data_len, 1, sizeof (data) - data_len,
+    154,808 ( 0.01%)  => ./libio/./libio/iofread.c:fread (262x)
+          .           				 fin);
+        524 ( 0.00%)  	      ahead = data_len - start;
+          .           	    }
+    222,786 ( 0.02%)  	  look_len = ahead < WINDOW_SIZE ? ahead : WINDOW_SIZE;
+          .           	}
+          .               }
+          3 ( 0.00%)    bw_finish (&bw);
+        987 ( 0.00%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:bw_finish (1x)
+          7 ( 0.00%)    free (ht_heads);
+        659 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         71 ( 0.00%)  => ./malloc/./malloc/malloc.c:free (1x)
+          3 ( 0.00%)    free (ht_next);
+        161 ( 0.00%)  => ./malloc/./malloc/malloc.c:free (1x)
+          1 ( 0.00%)    return 0;
+          .           }
+          .           
+          .           static int
+          .           compress_word (FILE *fin, FILE *fout)
+          .           {
+          .             return compress_stream (fin, fout, MATCH_WORD);
+          .           }
+          .           
+          .           #ifdef MZ77_X86
+          .           __attribute__ ((target ("avx2,bmi")))
+          .           static int
+          .           compress_avx2 (FILE *fin, FILE *fout)
+         10 ( 0.00%)  {
+          .             return compress_stream (fin, fout, MATCH_AVX2);
+          8 ( 0.00%)  }
+          .           
+          .           __attribute__ ((target ("avx512bw,avx512vl")))
+          .           static int
+          .           compress_avx512 (FILE *fin, FILE *fout)
+          .           {
+          .             return compress_stream (fin, fout, MATCH_AVX512);
+          .           }
+          .           #endif
+          .           
+          .           static enum MatchKind
+          .           match_kind (void)
+          .           {
+          8 ( 0.00%)    const char *forced = getenv ("MZ77_MATCH");
+        727 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+      1,104 ( 0.00%)  => ./stdlib/./stdlib/getenv.c:getenv (1x)
+          2 ( 0.00%)    if (forced && strcmp (forced, "word") == 0)
+          .               return MATCH_WORD;
+          .           #ifdef MZ77_X86
+          1 ( 0.00%)    __builtin_cpu_init ();
+          6 ( 0.00%)  => /home/mb6ockatf/src/gcc/gcc-16.2.0/libgcc/config/i386/cpuinfo.c:__cpu_indicator_init (1x)
+          2 ( 0.00%)    int has_avx2 = __builtin_cpu_supports ("avx2")
+          4 ( 0.00%)      && __builtin_cpu_supports ("bmi");
+          .             if (forced && strcmp (forced, "avx2") == 0 && has_avx2)
+          .               return MATCH_AVX2;
+          2 ( 0.00%)    if (__builtin_cpu_supports ("avx512bw")
+          .                 && __builtin_cpu_supports ("avx512vl"))
+          .               return MATCH_AVX512;
+          .             if (has_avx2)
+          .               return MATCH_AVX2;
+          .           #endif
+          .             return MATCH_WORD;
+          .           }
+          .           
+          .           int
+          .           lz77_compress (const char *in_path, const char *out_path)
+          6 ( 0.00%)  {
+          7 ( 0.00%)    FILE *fin = fopen (in_path, "rb");
+        717 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        615 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fin)
+          3 ( 0.00%)      return -1;
+          7 ( 0.00%)    FILE *fout = fopen (out_path, "wb");
+        619 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fout)
+          .               {
+          .                 fclose (fin);
+          .                 return -1;
+          .               }
+          .             int result;
+          .             switch (match_kind ())
+          .               {
+          .           #ifdef MZ77_X86
+          .               case MATCH_AVX512:
+          .                 result = compress_avx512 (fin, fout);
+          .                 break;
+          .               case MATCH_AVX2:
+          3 ( 0.00%)        result = compress_avx2 (fin, fout);
+1,086,385,078 (76.30%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/lz77.c:compress_avx2 (1x)
+          .                 break;
+          .           #endif
+          .               default:
+          .                 result = compress_word (fin, fout);
+          .                 break;
+          .               }
+         17 ( 0.00%)    int status = (result != 0 || ferror (fin) || ferror (fout)) ? -1 : 0;
+        686 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         12 ( 0.00%)  => ./libio/./libio/ferror.c:ferror (2x)
+          7 ( 0.00%)    fclose (fin);
+        679 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        556 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          4 ( 0.00%)    if (fclose (fout) != 0)
+        710 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          .               status = -1;
+          .             return status;
+          5 ( 0.00%)  }
+          .           
+          .           int
+          .           lz77_decompress (const char *in_path, const char *out_path)
+          9 ( 0.00%)  {
+          4 ( 0.00%)    FILE *fin = fopen (in_path, "rb");
+        469 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fin)
+          3 ( 0.00%)      return -1;
+          5 ( 0.00%)    FILE *fout = fopen (out_path, "wb");
+        473 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fout)
+          .               {
+          .                 fclose (fin);
+          .                 return -1;
+          .               }
+          .             BitReader br;
+          3 ( 0.00%)    br_init (&br, fin);
+          6 ( 0.00%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:br_init (1x)
+          .             OutputBlock output;
+          2 ( 0.00%)    output.stream = fout;
+          1 ( 0.00%)    output.used = 0;
+          5 ( 0.00%)    uint8_t window[WINDOW_SIZE] = { 0 };
+      4,114 ( 0.00%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          1 ( 0.00%)    uint64_t win_pos = 0;
+          1 ( 0.00%)    int status = 0;
+          .             while (1)
+          .               {
+          .                 int flag = br_read (&br, 1);
+          .                 if (flag == -1)
+          .           	break;
+  8,694,912 ( 0.61%)        if (flag == 0)
+          .           	{
+          .           	  int literal = br_read (&br, 8);
+          .           	  if (literal == -1)
+          .           	    break;
+          .           	  output_byte (&output, (uint8_t) literal);
+  2,779,932 ( 0.20%)  	  window[win_pos % WINDOW_SIZE] = (uint8_t) literal;
+    926,644 ( 0.07%)  	  win_pos++;
+          .           	}
+          .                 else
+          .           	{
+          .           	  int dist_enc = br_read (&br, 12);
+          .           	  int len_enc = br_read (&br, 8);
+          .           	  if (dist_enc == -1 || len_enc == -1)
+          .           	    {
+          .           	      status = -1;
+          .           	      break;
+          .           	    }
+  1,971,660 ( 0.14%)  	  uint32_t dist = (uint32_t) dist_enc + 1;
+          .           	  uint32_t len = (uint32_t) len_enc + MIN_MATCH;
+  5,914,980 ( 0.42%)  	  if (dist > win_pos)
+          .           	    {
+          .           	      status = -1;
+          .           	      break;
+          .           	    }
+  5,914,980 ( 0.42%)  	  uint64_t src = win_pos - dist;
+ 33,712,386 ( 2.37%)  	  for (uint32_t offset = 0; offset < len; offset++)
+          .           	    {
+ 27,797,406 ( 1.95%)  	      uint8_t byte = window[(src + offset) % WINDOW_SIZE];
+          .           	      output_byte (&output, byte);
+ 27,797,406 ( 1.95%)  	      window[(win_pos + offset) % WINDOW_SIZE] = byte;
+          .           	    }
+  3,943,320 ( 0.28%)  	  win_pos += len;
+          .           	}
+          .               }
+          .             output_flush (&output);
+          8 ( 0.00%)    if (ferror (fin) || ferror (fout))
+         12 ( 0.00%)  => ./libio/./libio/ferror.c:ferror (2x)
+          4 ( 0.00%)      status = -1;
+          3 ( 0.00%)    fclose (fin);
+        524 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          3 ( 0.00%)    if (fclose (fout) != 0)
+        710 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          .               status = -1;
+          .             return status;
+          9 ( 0.00%)  }
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /opt/gcc-16.2.0/lib/gcc/x86_64-pc-linux-gnu/16.2.0/include/avxintrin.h
+--------------------------------------------------------------------------------
+Ir                  
+
+-- line 865 ----------------------------------------
+         .           _mm256_store_si256 (__m256i *__P, __m256i __A)
+         .           {
+         .             *__P = __A;
+         .           }
+         .           
+         .           extern __inline __m256i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+         .           _mm256_loadu_si256 (__m256i_u const *__P)
+         .           {
+16,170,984 ( 1.14%)    return *__P;
+         .           }
+         .           
+         .           extern __inline void __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+         .           _mm256_storeu_si256 (__m256i_u *__P, __m256i __A)
+         .           {
+         .             *__P = __A;
+         .           }
+         .           
+-- line 881 ----------------------------------------
+
+--------------------------------------------------------------------------------
+-- User-annotated source: /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c
+--------------------------------------------------------------------------------
+Ir                  
+
+         .           #include <config.h>
+         .           #include "bitio.h"
+         .           
+         .           void
+         .           br_init (BitReader *br, FILE *fp)
+         .           {
+         1 ( 0.00%)    br->fp = fp;
+         1 ( 0.00%)    br->buf = 0;
+         1 ( 0.00%)    br->bits = 0;
+         2 ( 0.00%)    br->block_pos = 0;
+         .             br->block_len = 0;
+         1 ( 0.00%)  }
+         .           
+         .           void
+         .           br_refill (BitReader *br)
+ 5,267,922 ( 0.37%)  {
+14,192,138 ( 1.00%)    while (br->bits <= 56)
+         .               {
+13,314,153 ( 0.94%)        if (br->block_pos == br->block_len)
+         .           	{
+       672 ( 0.00%)  	  br->block_len = fread (br->block, 1, sizeof (br->block), br->fp);
+    16,874 ( 0.00%)  => ./libio/./libio/iofread.c:fread (96x)
+        96 ( 0.00%)  	  br->block_pos = 0;
+       477 ( 0.00%)  	  if (br->block_len == 0)
+         .           	    return;
+         .           	}
+49,744,466 ( 3.49%)        br->buf = (br->buf << 8) | br->block[br->block_pos++];
+18,654,246 ( 1.31%)        br->bits += 8;
+         .               }
+ 2,633,961 ( 0.18%)  }
+         .           
+         .           void
+         .           bw_init (BitWriter *bw, FILE *fp)
+         .           {
+         1 ( 0.00%)    bw->fp = fp;
+         1 ( 0.00%)    bw->buf = 0;
+         1 ( 0.00%)    bw->bits = 0;
+         1 ( 0.00%)    bw->block_len = 0;
+         1 ( 0.00%)  }
+         .           
+         .           void
+         .           bw_drain (BitWriter *bw)
+ 8,850,702 ( 0.62%)  {
+15,386,400 ( 1.08%)    while (bw->bits >= 8)
+         .               {
+13,911,281 ( 0.98%)        if (bw->block_len == sizeof (bw->block))
+         .           	{
+       850 ( 0.00%)  	  fwrite (bw->block, 1, bw->block_len, bw->fp);
+    76,830 ( 0.01%)  => ./libio/./libio/iofwrite.c:fwrite (94x)
+       703 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         .           	  bw->block_len = 0;
+         .           	}
+18,654,246 ( 1.31%)        bw->bits -= 8;
+31,090,222 ( 2.18%)        bw->block[bw->block_len++] = (uint8_t) (bw->buf >> bw->bits);
+         .               }
+ 4,425,352 ( 0.31%)  }
+         .           
+         .           void
+         .           bw_flush (BitWriter *bw)
+         .           {
+         2 ( 0.00%)    bw_drain (bw);
+         3 ( 0.00%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:bw_drain (1x)
+         3 ( 0.00%)    if (bw->block_len > 0)
+         5 ( 0.00%)      fwrite (bw->block, 1, bw->block_len, bw->fp);
+       935 ( 0.00%)  => ./libio/./libio/iofwrite.c:fwrite (1x)
+         1 ( 0.00%)    bw->block_len = 0;
+         .           }
+         .           
+         .           void
+         .           bw_finish (BitWriter *bw)
+         5 ( 0.00%)  {
+         1 ( 0.00%)    bw_drain (bw);
+        24 ( 0.00%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:bw_drain (1x)
+         3 ( 0.00%)    if (bw->bits > 0)
+         .               {
+         .                 bw->buf <<= 8 - bw->bits;
+         .                 bw->bits = 8;
+         .                 bw_drain (bw);
+         .               }
+         1 ( 0.00%)    bw->buf = 0;
+         1 ( 0.00%)    bw->bits = 0;
+         .             bw_flush (bw);
+         3 ( 0.00%)  }
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.h
+--------------------------------------------------------------------------------
+Ir                  
+
+-- line 29 ----------------------------------------
+         .           void bw_init(BitWriter *bw, FILE *fp);
+         .           void bw_drain(BitWriter *bw);
+         .           void bw_flush(BitWriter *bw);
+         .           void bw_finish(BitWriter *bw);
+         .           
+         .           static inline int
+         .           br_read (BitReader *br, int width)
+         .           {
+17,508,252 ( 1.23%)    if (br->bits < width)
+         .               {
+ 1,755,974 ( 0.12%)        br_refill (br);
+103,825,005 ( 7.29%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:br_refill (877,987x)
+ 2,633,961 ( 0.18%)        if (br->bits < width)
+         .           	return -1;
+         .               }
+13,845,883 ( 0.97%)    br->bits -= width;
+13,576,393 ( 0.95%)    return (int) ((br->buf >> br->bits) & ((1ULL << width) - 1));
+         .           }
+         .           
+         .           static inline void
+         .           bw_write (BitWriter *bw, uint32_t val, int width)
+         .           {
+29,075,221 ( 2.04%)    bw->buf = (bw->buf << width) | (val & ((1ULL << width) - 1));
+20,280,416 ( 1.42%)    bw->bits += width;
+15,536,536 ( 1.09%)    if (bw->bits >= 32)
+ 5,261,729 ( 0.37%)      bw_drain (bw);
+92,396,559 ( 6.49%)  => /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/src/bitio.c:bw_drain (1,475,116x)
+         .           }
+         .           #endif
+
+--------------------------------------------------------------------------------
+Ir                     
+--------------------------------------------------------------------------------
+1,421,164,608 (99.81%)  events annotated
+

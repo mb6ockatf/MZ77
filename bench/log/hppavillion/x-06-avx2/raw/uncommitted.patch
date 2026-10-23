@@ -1,0 +1,88 @@
+diff --git a/src/lz77.c b/src/lz77.c
+index c25ad4b..5ad4aed 100644
+--- a/src/lz77.c
++++ b/src/lz77.c
+@@ -102,9 +102,34 @@ match_length_avx512 (const uint8_t *candidate, const uint8_t *cursor,
+ }
+ #endif
+ 
++#ifdef MZ77_X86
++__attribute__ ((target ("avx2,bmi")))
++static inline size_t
++match_length_avx2 (const uint8_t *candidate, const uint8_t *cursor,
++		   size_t limit)
++{
++  size_t len = 0;
++  while (len + 32 <= limit)
++    {
++      __m256i candidate_bytes =
++	_mm256_loadu_si256 ((const __m256i *) (candidate + len));
++      __m256i cursor_bytes =
++	_mm256_loadu_si256 ((const __m256i *) (cursor + len));
++      uint32_t equal = (uint32_t)
++	_mm256_movemask_epi8 (_mm256_cmpeq_epi8 (candidate_bytes,
++						 cursor_bytes));
++      if (equal != UINT32_MAX)
++	return len + (size_t) _tzcnt_u32 (~equal);
++      len += 32;
++    }
++  return len + match_length (candidate + len, cursor + len, limit - len);
++}
++#endif
++
+ enum MatchKind
+ {
+   MATCH_WORD,
++  MATCH_AVX2,
+   MATCH_AVX512
+ };
+ 
+@@ -158,6 +183,8 @@ compress_stream (FILE *fin, FILE *fout, enum MatchKind kind)
+ #ifdef MZ77_X86
+ 	      if (kind == MATCH_AVX512)
+ 		len = match_length_avx512 (candidate, cursor, limit);
++	      else if (kind == MATCH_AVX2)
++		len = match_length_avx2 (candidate, cursor, limit);
+ 	      else
+ #endif
+ 		len = match_length (candidate, cursor, limit);
+@@ -229,6 +256,13 @@ compress_word (FILE *fin, FILE *fout)
+ }
+ 
+ #ifdef MZ77_X86
++__attribute__ ((target ("avx2,bmi")))
++static int
++compress_avx2 (FILE *fin, FILE *fout)
++{
++  return compress_stream (fin, fout, MATCH_AVX2);
++}
++
+ __attribute__ ((target ("avx512bw,avx512vl")))
+ static int
+ compress_avx512 (FILE *fin, FILE *fout)
+@@ -245,9 +279,15 @@ match_kind (void)
+     return MATCH_WORD;
+ #ifdef MZ77_X86
+   __builtin_cpu_init ();
++  int has_avx2 = __builtin_cpu_supports ("avx2")
++    && __builtin_cpu_supports ("bmi");
++  if (forced && strcmp (forced, "avx2") == 0 && has_avx2)
++    return MATCH_AVX2;
+   if (__builtin_cpu_supports ("avx512bw")
+       && __builtin_cpu_supports ("avx512vl"))
+     return MATCH_AVX512;
++  if (has_avx2)
++    return MATCH_AVX2;
+ #endif
+   return MATCH_WORD;
+ }
+@@ -271,6 +311,9 @@ lz77_compress (const char *in_path, const char *out_path)
+     case MATCH_AVX512:
+       result = compress_avx512 (fin, fout);
+       break;
++    case MATCH_AVX2:
++      result = compress_avx2 (fin, fout);
++      break;
+ #endif
+     default:
+       result = compress_word (fin, fout);
