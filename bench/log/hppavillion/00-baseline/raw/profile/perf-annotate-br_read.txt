@@ -1,0 +1,57 @@
+ Percent |	Source code & Disassembly of prof for cycles:u (140 samples, percent: local period)
+---------------------------------------------------------------------------------------------------
+         :
+         :
+         :
+         : 3    Disassembly of section .text:
+         :
+         : 5    00000000000039b0 <br_read>:
+   15.00 :   39b0:   lea    -0x1(%rsi),%eax
+    0.00 :   39b3:   cmp    $0x1f,%eax
+    0.00 :   39b6:   ja     3a42 <br_read+0x92>
+    0.00 :   39bc:   push   %rbp
+    7.18 :   39bd:   mov    %rsp,%rbp
+    4.12 :   39c0:   push   %r12
+    7.18 :   39c2:   mov    %rdi,%r12
+    0.00 :   39c5:   push   %rbx
+    1.42 :   39c6:   mov    %esi,%ebx
+    0.00 :   39c8:   mov    0x10(%rdi),%eax
+    4.38 :   39cb:   cmp    %eax,%esi
+    0.00 :   39cd:   jg     3a00 <br_read+0x50>
+    0.00 :   39cf:   jmp    3a13 <br_read+0x63>
+    0.00 :   39d1:   nopl   0x0(%rax)
+    0.74 :   39d8:   movzbl %al,%eax
+    0.00 :   39db:   mov    $0x8,%ecx
+    0.00 :   39e0:   shlx   %rcx,0x8(%r12),%rdx
+    7.06 :   39e7:   or     %rax,%rdx
+    0.70 :   39ea:   mov    0x10(%r12),%eax
+    0.00 :   39ef:   mov    %rdx,0x8(%r12)
+   10.63 :   39f4:   add    $0x8,%eax
+    0.00 :   39f7:   mov    %eax,0x10(%r12)
+    0.00 :   39fc:   cmp    %ebx,%eax
+    0.00 :   39fe:   jge    3a17 <br_read+0x67>
+    3.61 :   3a00:   mov    (%r12),%rdi
+    4.16 :   3a04:   call   2130 <fgetc@plt>
+    6.49 :   3a09:   cmp    $0xffffffff,%eax
+    0.00 :   3a0c:   jne    39d8 <br_read+0x28>
+    0.00 :   3a0e:   pop    %rbx
+    0.00 :   3a0f:   pop    %r12
+    0.00 :   3a11:   pop    %rbp
+    0.00 :   3a12:   ret
+    0.63 :   3a13:   mov    0x8(%rdi),%rdx
+    2.09 :   3a17:   sub    %ebx,%eax
+    3.67 :   3a19:   mov    %eax,0x10(%r12)
+    0.73 :   3a1e:   mov    %eax,%ecx
+    0.00 :   3a20:   bzhi   %rax,%rdx,%rax
+    0.00 :   3a25:   mov    %rax,0x8(%r12)
+    9.42 :   3a2a:   mov    $0x1,%eax
+    0.00 :   3a2f:   shrx   %rcx,%rdx,%rdx
+    0.72 :   3a34:   shlx   %rbx,%rax,%rax
+    0.00 :   3a39:   dec    %eax
+    3.47 :   3a3b:   and    %edx,%eax
+    0.00 :   3a3d:   pop    %rbx
+    1.39 :   3a3e:   pop    %r12
+    0.00 :   3a40:   pop    %rbp
+    5.19 :   3a41:   ret
+    0.00 :   3a42:   mov    $0xffffffff,%eax
+    0.00 :   3a47:   ret

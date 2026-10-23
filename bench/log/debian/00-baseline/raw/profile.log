@@ -1,0 +1,81 @@
+make: Entering directory '/home/aushou/mz77/bench'
+CC='gcc' MZ77_SRCDIR='/home/aushou/mz77' MZ77_BUILDDIR='/home/aushou/mz77' /bin/bash ./profile.sh
+profiling on /home/aushou/mz77/bench/corpus/silesia/dickens
+== gprof
+== perf stat
+== perf record
+./profile.sh: line 37:  2703 Segmentation fault      ( perf annotate -q -i "$out/perf.data" --stdio --no-source -s "$func" > "$out/perf-annotate-$func.txt" ) 2> /dev/null
+== callgrind
+== cachegrind
+--2935-- warning: L3 cache found, using its data for the LL simulation.
+input: /home/aushou/mz77/bench/corpus/silesia/dickens (10192446 bytes)
+
+gprof flat profile (top 10):
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 41.12      0.30     0.30        5    60.03    98.05  lz77_compress
+ 16.45      0.42     0.12        5    24.01    44.02  lz77_decompress
+ 10.96      0.50     0.08 38841340     0.00     0.00  bw_flush
+ 10.96      0.58     0.08 38841345     0.00     0.00  br_read
+ 10.28      0.66     0.08 65453735     0.00     0.00  hash3
+  2.74      0.68     0.02 50962220     0.00     0.00  ht_insert
+  2.74      0.70     0.02        5     4.00     4.00  br_init
+  2.06      0.71     0.02 366666790     0.00     0.00  byte_at
+  1.37      0.72     0.01                             _init
+  1.37      0.73     0.01                             frame_dummy
+perf stat, compress only (mean of 5 runs):
+  1,150,022,899      cycles:u                                                                ( +-  0.81% )  (62.39%)
+  2,746,949,504      instructions:u                   #    2.39  insn per cycle              ( +-  0.04% )  (62.39%)
+  540,846,753      branches:u                                                              ( +-  0.08% )  (62.39%)
+  15,812,405      branch-misses:u                  #    2.92% of all branches             ( +-  0.04% )  (62.39%)
+  33,639,850      cache-references:u                                                      ( +- 14.21% )  (62.65%)
+  185,535      cache-misses:u                   #    0.55% of all cache refs           ( +- 24.79% )  (62.69%)
+  1,101,575,458      L1-dcache-loads                                                         ( +-  0.10% )  (62.69%)
+  23,388,885      L1-dcache-load-misses            #    2.12% of all L1-dcache accesses   ( +- 11.90% )  (62.43%)
+  0.27927 +- 0.00216 seconds time elapsed  ( +-  0.77% )
+
+perf stat, decompress only (mean of 5 runs):
+  350,369,968      cycles:u                                                                ( +-  0.12% )  (60.63%)
+  862,179,533      instructions:u                   #    2.46  insn per cycle              ( +-  0.08% )  (60.62%)
+  153,047,640      branches:u                                                              ( +-  0.05% )  (60.63%)
+  3,697,146      branch-misses:u                  #    2.42% of all branches             ( +-  0.39% )  (60.63%)
+  274,813      cache-references:u                                                      ( +-  0.81% )  (63.60%)
+  2,745      cache-misses:u                   #    1.00% of all cache refs           ( +- 24.18% )  (65.62%)
+  434,445,678      L1-dcache-loads                                                         ( +-  0.34% )  (65.62%)
+  74,845      L1-dcache-load-misses            #    0.02% of all L1-dcache accesses   ( +-  2.00% )  (62.65%)
+  0.0922618 +- 0.0000614 seconds time elapsed  ( +-  0.07% )
+
+perf hottest source lines:
+    15.40%  lz77.c:84
+     6.14%  lz77.c:94
+     4.10%  memmove-vec-unaligned-erms.S:505
+     3.94%  lz77.c:86
+     3.56%  fputc.c:41
+     3.46%  lz77.c:36
+     3.08%  memmove-vec-unaligned-erms.S:490
+     3.07%  lz77.c:26
+     2.99%  lz77.c:100
+     2.46%  lz77.c:183
+     2.42%  lz77.c:80
+     2.36%  memmove-vec-unaligned-erms.S:492
+     2.25%  bitio.c:47
+     2.14%  memmove-vec-unaligned-erms.S:491
+     1.99%  getc.c:34
+
+cachegrind totals (I = instructions, D1/LL = L1/last-level data
+cache misses, Bc/Bcm = conditional branches and mispredictions):
+  Ir     3,641,797,533
+  I1mr   1,888
+  ILmr   1,783
+  Dr     789,016,174
+  D1mr   14,101,445
+  DLmr   3,369
+  Dw     503,666,722
+  D1mw   912,347
+  DLmw   9,322
+  Bc     472,390,176
+  Bcm    34,240,350
+  Bi     25,556,919
+  Bim    298
+results in /home/aushou/mz77/bench/log/debian/00-baseline/raw/profile
+make: Leaving directory '/home/aushou/mz77/bench'

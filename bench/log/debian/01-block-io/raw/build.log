@@ -1,0 +1,48 @@
+make: Entering directory '/home/aushou/mz77'
+make  all-recursive
+make[1]: Entering directory '/home/aushou/mz77'
+Making all in lib
+make[2]: Entering directory '/home/aushou/mz77/lib'
+make  all-recursive
+make[3]: Entering directory '/home/aushou/mz77/lib'
+make[4]: Entering directory '/home/aushou/mz77/lib'
+gcc -DHAVE_CONFIG_H -I. -I..     -Wno-cast-qual -Wno-conversion -Wno-float-equal -Wno-sign-compare -Wno-undef -Wno-unused-function -Wno-unused-parameter -Wno-float-conversion -Wimplicit-fallthrough -Wno-pedantic -Wno-sign-conversion -Wno-type-limits -Wno-unused-const-variable -Wno-unsuffixed-float-constants  -MT libgnu_a-gcd.o -MD -MP -MF .deps/libgnu_a-gcd.Tpo -c -o libgnu_a-gcd.o `test -f 'gcd.c' || echo './'`gcd.c
+mv -f .deps/libgnu_a-gcd.Tpo .deps/libgnu_a-gcd.Po
+rm -f libgnu.a
+ar cr libgnu.a libgnu_a-gcd.o 
+ranlib libgnu.a
+make[4]: Leaving directory '/home/aushou/mz77/lib'
+make[3]: Leaving directory '/home/aushou/mz77/lib'
+make[2]: Leaving directory '/home/aushou/mz77/lib'
+Making all in src
+make[2]: Entering directory '/home/aushou/mz77/src'
+gcc -DHAVE_CONFIG_H -I. -I..    -I/usr/include/gtk-4.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/x86_64-linux-gnu -I/usr/include/webp -I/usr/include/graphene-1.0 -I/usr/lib/x86_64-linux-gnu/graphene-1.0/include -mfpmath=sse -msse -msse2 -pthread  -O3 -DNDEBUG -fhardened  -MT mz77-main.o -MD -MP -MF .deps/mz77-main.Tpo -c -o mz77-main.o `test -f 'main.c' || echo './'`main.c
+gcc -DHAVE_CONFIG_H -I. -I..    -I/usr/include/gtk-4.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/x86_64-linux-gnu -I/usr/include/webp -I/usr/include/graphene-1.0 -I/usr/lib/x86_64-linux-gnu/graphene-1.0/include -mfpmath=sse -msse -msse2 -pthread  -O3 -DNDEBUG -fhardened  -MT mz77-antidebugger.o -MD -MP -MF .deps/mz77-antidebugger.Tpo -c -o mz77-antidebugger.o `test -f 'antidebugger.c' || echo './'`antidebugger.c
+gcc -DHAVE_CONFIG_H -I. -I..    -I/usr/include/gtk-4.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/x86_64-linux-gnu -I/usr/include/webp -I/usr/include/graphene-1.0 -I/usr/lib/x86_64-linux-gnu/graphene-1.0/include -mfpmath=sse -msse -msse2 -pthread  -O3 -DNDEBUG -fhardened  -MT mz77-messages.o -MD -MP -MF .deps/mz77-messages.Tpo -c -o mz77-messages.o `test -f 'messages.c' || echo './'`messages.c
+gcc -DHAVE_CONFIG_H -I. -I..    -I/usr/include/gtk-4.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/x86_64-linux-gnu -I/usr/include/webp -I/usr/include/graphene-1.0 -I/usr/lib/x86_64-linux-gnu/graphene-1.0/include -mfpmath=sse -msse -msse2 -pthread  -O3 -DNDEBUG -fhardened  -MT mz77-queue.o -MD -MP -MF .deps/mz77-queue.Tpo -c -o mz77-queue.o `test -f 'queue.c' || echo './'`queue.c
+gcc -DHAVE_CONFIG_H -I. -I..    -O3 -DNDEBUG -fhardened  -MT libmz77codec_a-lz77.o -MD -MP -MF .deps/libmz77codec_a-lz77.Tpo -c -o libmz77codec_a-lz77.o `test -f 'lz77.c' || echo './'`lz77.c
+gcc -DHAVE_CONFIG_H -I. -I..    -O3 -DNDEBUG -fhardened  -MT libmz77codec_a-bitio.o -MD -MP -MF .deps/libmz77codec_a-bitio.Tpo -c -o libmz77codec_a-bitio.o `test -f 'bitio.c' || echo './'`bitio.c
+mv -f .deps/mz77-antidebugger.Tpo .deps/mz77-antidebugger.Po
+mv -f .deps/libmz77codec_a-bitio.Tpo .deps/libmz77codec_a-bitio.Po
+mv -f .deps/libmz77codec_a-lz77.Tpo .deps/libmz77codec_a-lz77.Po
+rm -f libmz77codec.a
+ar cr libmz77codec.a libmz77codec_a-lz77.o libmz77codec_a-bitio.o 
+ranlib libmz77codec.a
+mv -f .deps/mz77-messages.Tpo .deps/mz77-messages.Po
+mv -f .deps/mz77-queue.Tpo .deps/mz77-queue.Po
+mv -f .deps/mz77-main.Tpo .deps/mz77-main.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -I/usr/include/gtk-4.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/x86_64-linux-gnu -I/usr/include/webp -I/usr/include/graphene-1.0 -I/usr/lib/x86_64-linux-gnu/graphene-1.0/include -mfpmath=sse -msse -msse2 -pthread  -O3 -DNDEBUG -fhardened    -o mz77 mz77-main.o mz77-antidebugger.o mz77-messages.o mz77-queue.o libmz77codec.a -lgtk-4 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -lgdk_pixbuf-2.0 -lcairo-gobject -lcairo -lvulkan -lgraphene-1.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0  -lpthread 
+libtool: link: gcc -I/usr/include/gtk-4.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/x86_64-linux-gnu -I/usr/include/webp -I/usr/include/graphene-1.0 -I/usr/lib/x86_64-linux-gnu/graphene-1.0/include -mfpmath=sse -msse -msse2 -O3 -DNDEBUG -fhardened -o mz77 mz77-main.o mz77-antidebugger.o mz77-messages.o mz77-queue.o  libmz77codec.a -lgtk-4 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -lgdk_pixbuf-2.0 -lcairo-gobject -lcairo -lvulkan -lgraphene-1.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lpthread -pthread
+make[2]: Leaving directory '/home/aushou/mz77/src'
+Making all in test
+make[2]: Entering directory '/home/aushou/mz77/test'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/aushou/mz77/test'
+Making all in bench
+make[2]: Entering directory '/home/aushou/mz77/bench'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/aushou/mz77/bench'
+make[2]: Entering directory '/home/aushou/mz77'
+make[2]: Leaving directory '/home/aushou/mz77'
+make[1]: Leaving directory '/home/aushou/mz77'
+make: Leaving directory '/home/aushou/mz77'

@@ -1,0 +1,16 @@
+# started on Fri Oct 23 01:27:52 2026
+
+
+ Performance counter stats for '/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/bin/prof --mode=compress --repeat=1 /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/corpus/silesia/dickens' (5 runs):
+
+     1,214,588,286      cycles:u                                                                ( +-  3.44% )
+     2,638,593,721      instructions:u                   #    2.17  insn per cycle              ( +-  0.03% )
+       542,437,654      branches:u                                                              ( +-  0.01% )
+        17,672,996      branch-misses:u                  #    3.26% of all branches             ( +-  0.18% )
+           126,293      cache-references:u                                                      ( +- 21.07% )
+            36,949      cache-misses:u                   #   29.26% of all cache refs           ( +- 14.92% )
+       549,610,055      L1-dcache-loads                                                         ( +-  0.05% )
+        11,481,473      L1-dcache-load-misses            #    2.09% of all L1-dcache accesses   ( +-  3.25% )
+
+            0.3367 +- 0.0139 seconds time elapsed  ( +-  4.12% )
+

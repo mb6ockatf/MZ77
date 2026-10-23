@@ -1,0 +1,89 @@
+ Percent |	Source code & Disassembly of prof for cycles:u (164 samples, percent: local period)
+---------------------------------------------------------------------------------------------------
+         :
+         :
+         :
+         : 3    Disassembly of section .text:
+         :
+         : 5    0000000000003aa0 <br_read>:
+   11.58 :   3aa0:   lea    -0x1(%rsi),%eax
+    0.00 :   3aa3:   cmp    $0x1f,%eax
+    4.27 :   3aa6:   ja     3bb8 <br_read+0x118>
+    0.00 :   3aac:   push   %rbp
+    4.86 :   3aad:   mov    %rsp,%rbp
+    0.00 :   3ab0:   push   %r13
+    0.00 :   3ab2:   mov    %esi,%r13d
+    0.00 :   3ab5:   push   %r12
+    3.06 :   3ab7:   push   %rbx
+    1.82 :   3ab8:   mov    %rdi,%rbx
+    0.00 :   3abb:   sub    $0x8,%rsp
+    2.41 :   3abf:   mov    0x10(%rdi),%ecx
+    3.07 :   3ac2:   cmp    %ecx,%esi
+    0.00 :   3ac4:   jle    3b62 <br_read+0xc2>
+    0.00 :   3aca:   mov    0x18(%rdi),%rax
+    2.44 :   3ace:   lea    0x28(%rdi),%r12
+    1.22 :   3ad2:   jmp    3b2d <br_read+0x8d>
+    0.00 :   3ad4:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   3adf:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   3aea:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   3af5:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   3b00:   mov    %rax,%rcx
+    0.61 :   3b03:   add    $0x1,%rax
+    1.83 :   3b07:   mov    0x8(%rbx),%rdx
+    6.73 :   3b0b:   mov    0x10(%rbx),%edi
+    1.21 :   3b0e:   mov    %rax,0x18(%rbx)
+    7.92 :   3b12:   movzbl 0x28(%rbx,%rcx,1),%esi
+    3.66 :   3b17:   shl    $0x8,%rdx
+    0.00 :   3b1b:   lea    0x8(%rdi),%ecx
+    0.00 :   3b1e:   or     %rdx,%rsi
+    0.61 :   3b21:   mov    %ecx,0x10(%rbx)
+    1.23 :   3b24:   mov    %rsi,0x8(%rbx)
+    1.21 :   3b28:   cmp    %r13d,%ecx
+    0.61 :   3b2b:   jge    3b66 <br_read+0xc6>
+    0.00 :   3b2d:   cmp    %rax,0x20(%rbx)
+    5.48 :   3b31:   jne    3b00 <br_read+0x60>
+    0.00 :   3b33:   mov    (%rbx),%rcx
+    0.00 :   3b36:   mov    $0x10000,%edx
+    0.00 :   3b3b:   mov    $0x1,%esi
+    0.00 :   3b40:   mov    %r12,%rdi
+    0.00 :   3b43:   call   2090 <fread@plt>
+    0.00 :   3b48:   movq   $0x0,0x18(%rbx)
+    0.00 :   3b50:   mov    %rax,0x20(%rbx)
+    0.00 :   3b54:   test   %rax,%rax
+    0.00 :   3b57:   je     3ba8 <br_read+0x108>
+    0.00 :   3b59:   mov    $0x1,%eax
+    0.00 :   3b5e:   xor    %ecx,%ecx
+    0.00 :   3b60:   jmp    3b07 <br_read+0x67>
+    0.00 :   3b62:   mov    0x8(%rdi),%rsi
+    3.68 :   3b66:   mov    %ecx,%edx
+    1.21 :   3b68:   mov    $0xffffffffffffffff,%rax
+    0.61 :   3b6f:   sub    %r13d,%edx
+    0.00 :   3b72:   mov    %edx,%ecx
+    0.61 :   3b74:   mov    %edx,0x10(%rbx)
+    3.65 :   3b77:   shl    %cl,%rax
+    0.00 :   3b7a:   mov    %r13d,%ecx
+    1.83 :   3b7d:   not    %rax
+    1.83 :   3b80:   and    %rsi,%rax
+    0.61 :   3b83:   mov    %rax,0x8(%rbx)
+    5.49 :   3b87:   mov    $0x1,%eax
+    0.00 :   3b8c:   add    $0x8,%rsp
+    0.61 :   3b90:   shl    %cl,%rax
+    0.61 :   3b93:   mov    %edx,%ecx
+    0.00 :   3b95:   pop    %rbx
+    7.29 :   3b96:   pop    %r12
+    2.45 :   3b98:   sub    $0x1,%eax
+    0.00 :   3b9b:   shr    %cl,%rsi
+    1.22 :   3b9e:   pop    %r13
+    1.84 :   3ba0:   pop    %rbp
+    0.61 :   3ba1:   and    %esi,%eax
+    0.00 :   3ba3:   ret
+    0.00 :   3ba4:   nopl   0x0(%rax)
+    0.00 :   3ba8:   add    $0x8,%rsp
+    0.00 :   3bac:   mov    $0xffffffff,%eax
+    0.00 :   3bb1:   pop    %rbx
+    0.00 :   3bb2:   pop    %r12
+    0.00 :   3bb4:   pop    %r13
+    0.00 :   3bb6:   pop    %rbp
+    0.00 :   3bb7:   ret
+    0.00 :   3bb8:   mov    $0xffffffff,%eax
+    0.00 :   3bbd:   ret

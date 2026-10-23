@@ -1,0 +1,22 @@
+make: Entering directory '/home/aushou/mz77/bench'
+CC='gcc' MZ77_SRCDIR='/home/aushou/mz77' MZ77_BUILDDIR='/home/aushou/mz77' MZ77_BENCH='/home/aushou/mz77/bench/mz77-bench' \
+  /bin/bash ./bench.sh
+file                  size     archive  ratio    comp_s  decomp_s comp_MB/s dec_MB/s
+mixed.dat         20000000     7944005  0.397    3.4747    0.1361     5.76   146.91
+random.dat        20000000    22496386  1.125    0.6448    0.2142    31.02    93.37
+text.dat          20000000     7334892  0.367    0.4902    0.1230    40.80   162.62
+zeros.dat         20000000      203492  0.010    0.0481    0.0666   415.98   300.12
+dickens           10192446     6218082  0.610    0.2773    0.0890    36.75   114.53
+mozilla           51220480    25706424  0.502    1.5310    0.3801    33.46   134.76
+mr                 9970564     5134536  0.515    0.3402    0.0698    29.31   142.78
+nci               33553445     5893099  0.176    0.5867    0.1585    57.19   211.64
+ooffice            6152192     4148219  0.674    0.1949    0.0555    31.57   110.93
+osdb              10085684     7700169  0.763    0.2662    0.0926    37.89   108.89
+reymont            6627202     3027324  0.457    0.2021    0.0471    32.80   140.79
+samba             21606400     8223633  0.381    0.5320    0.1400    40.61   154.37
+sao                7251944     6486631  0.894    0.2228    0.0740    32.55    98.05
+webster           41458703    19025582  0.459    0.9655    0.3094    42.94   134.02
+x-ray              8474240     8051031  0.950    0.2365    0.0849    35.84    99.76
+xml                5345280     1160183  0.217    0.0867    0.0271    61.62   196.94
+results in /home/aushou/mz77/bench/log/debian/00-baseline/raw
+make: Leaving directory '/home/aushou/mz77/bench'

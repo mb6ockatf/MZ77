@@ -2,12 +2,17 @@
 # Print a Markdown summary of every step measured on one machine:
 #   bench/summarize.sh bench/log/MACHINE > bench/log/MACHINE/SUMMARY.md
 # Times are the sums of the per-file medians over the whole corpus, so the
-# large files weigh most.  Speed-up = old time / new time.
+# large files weigh most.  Speed-up = old time / new time.  Steps named
+# x-* are extra runs (another code path or setting on the same source);
+# they are listed separately and do not take part in the chain.
 set -e
 dir=${1:?usage: $0 bench/log/MACHINE}
 steps=$(cd "$dir" && for step in */; do
   [ -f "$step/raw/bench.csv" ] && echo "${step%/}"
 done | LC_ALL=C sort)
+extras=$(echo "$steps" | grep '^x-' || true)
+steps=$(echo "$steps" | grep -v '^x-' || true)
+first=$(echo "$steps" | head -1)
 
 echo "# Benchmark summary: $(basename "$dir")"
 echo
@@ -56,4 +61,23 @@ if [ -n "$last" ] && [ "$last" != "$before" ]; then
     $2 in comp { printf "| %s | %.4f | %.4f | %.2fx | %.4f | %.4f | %.2fx |\n",
       $2, comp[$2], $7, comp[$2] / $7, dec[$2], $8, dec[$2] / $8 }' \
     "$dir/$before/raw/bench.csv" "$dir/$last/raw/bench.csv"
+fi
+
+if [ -n "$extras" ]; then
+  echo
+  echo "## Extra runs"
+  echo
+  echo "Same table for the x-* runs; speed-up is against $first."
+  echo
+  echo "| run | ratio | compress s | decompress s | compress MB/s | decompress MB/s | compress vs baseline | decompress vs baseline |"
+  echo "|---|---|---|---|---|---|---|---|"
+  for step in $extras; do
+    awk -F, -v step="$step" 'FNR == 1 { file_index++; next }
+      file_index == 1 { base_comp += $7; base_dec += $8; next }
+      { size += $3; arch += $4; comp += $7; dec += $8 }
+      END { printf "| %s | %.4f | %.3f | %.3f | %.2f | %.2f | %.2fx | %.2fx |\n",
+        step, arch / size, comp, dec, size / 1e6 / comp, size / 1e6 / dec,
+        base_comp / comp, base_dec / dec }' \
+      "$dir/$first/raw/bench.csv" "$dir/$step/raw/bench.csv"
+  done
 fi

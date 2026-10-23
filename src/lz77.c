@@ -12,6 +12,29 @@
 #define MAX_CHAIN   256
 #define NO_POS      UINT64_MAX
 
+typedef struct
+{
+  FILE *stream;
+  size_t used;
+  uint8_t bytes[BITIO_BLOCK_SIZE];
+} OutputBlock;
+
+static void
+output_flush (OutputBlock *output)
+{
+  if (output->used > 0)
+    fwrite (output->bytes, 1, output->used, output->stream);
+  output->used = 0;
+}
+
+static inline void
+output_byte (OutputBlock *output, uint8_t byte)
+{
+  if (output->used == sizeof (output->bytes))
+    output_flush (output);
+  output->bytes[output->used++] = byte;
+}
+
 static inline uint16_t
 hash3 (const uint8_t *bytes)
 {
@@ -146,6 +169,9 @@ lz77_decompress (const char *in_path, const char *out_path)
     }
   BitReader br;
   br_init (&br, fin);
+  OutputBlock output;
+  output.stream = fout;
+  output.used = 0;
   uint8_t window[WINDOW_SIZE] = { 0 };
   uint64_t win_pos = 0;
   int status = 0;
@@ -159,7 +185,7 @@ lz77_decompress (const char *in_path, const char *out_path)
 	  int literal = br_read (&br, 8);
 	  if (literal == -1)
 	    break;
-	  fputc ((uint8_t) literal, fout);
+	  output_byte (&output, (uint8_t) literal);
 	  window[win_pos % WINDOW_SIZE] = (uint8_t) literal;
 	  win_pos++;
 	}
@@ -183,12 +209,13 @@ lz77_decompress (const char *in_path, const char *out_path)
 	  for (uint32_t offset = 0; offset < len; offset++)
 	    {
 	      uint8_t byte = window[(src + offset) % WINDOW_SIZE];
-	      fputc (byte, fout);
+	      output_byte (&output, byte);
 	      window[(win_pos + offset) % WINDOW_SIZE] = byte;
 	    }
 	  win_pos += len;
 	}
     }
+  output_flush (&output);
   if (ferror (fin) || ferror (fout))
     status = -1;
   fclose (fin);

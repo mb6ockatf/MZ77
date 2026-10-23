@@ -1,0 +1,61 @@
+    44.40%  prof     prof                  [.] lz77_compress
+            |
+            ---lz77_compress
+               main
+               __libc_start_call_main
+
+    19.59%  prof     libc.so.6             [.] __memmove_avx_unaligned_erms
+            |
+            ---__memmove_avx_unaligned_erms
+               |          
+                --19.53%--main
+                          __libc_start_call_main
+
+     9.12%  prof     prof                  [.] bw_write
+            |
+            ---bw_write
+               |          
+               |--7.86%--lz77_compress
+               |          main
+               |          __libc_start_call_main
+               |          
+                --1.26%--main
+                          __libc_start_call_main
+
+     8.73%  prof     prof                  [.] lz77_decompress
+            |
+            ---lz77_decompress
+               main
+               __libc_start_call_main
+
+     7.02%  prof     libc.so.6             [.] fputc
+            |
+            ---fputc
+               |          
+               |--0.94%--main
+               |          __libc_start_call_main
+               |          
+                --0.77%--lz77_compress
+                          main
+                          __libc_start_call_main
+
+     6.85%  prof     prof                  [.] br_read
+            |
+            ---br_read
+               |          
+               |--5.23%--lz77_decompress
+               |          main
+               |          __libc_start_call_main
+               |          
+                --1.62%--main
+                          __libc_start_call_main
+
+     2.93%  prof     libc.so.6             [.] _IO_getc
+            |
+            ---_IO_getc
+               lz77_decompress
+               main
+               __libc_start_call_main
+
+
+

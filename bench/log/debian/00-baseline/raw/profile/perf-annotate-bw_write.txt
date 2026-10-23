@@ -1,0 +1,54 @@
+ Percent |	Source code & Disassembly of prof for cycles:u (166 samples, percent: local period)
+---------------------------------------------------------------------------------------------------
+         :
+         :
+         :
+         : 3    Disassembly of section .text:
+         :
+         : 5    0000000000003aa0 <bw_write>:
+    4.22 :   3aa0:   lea    -0x1(%rdx),%eax
+    0.60 :   3aa3:   cmp    $0x1f,%eax
+    1.80 :   3aa6:   jbe    3ab0 <bw_write+0x10>
+    0.00 :   3aa8:   ret
+    0.00 :   3aa9:   nopl   0x0(%rax)
+    0.00 :   3ab0:   push   %rbp
+    1.81 :   3ab1:   mov    %edx,%ecx
+    0.00 :   3ab3:   mov    $0xffffffffffffffff,%rax
+    0.60 :   3aba:   shl    %cl,%rax
+    0.60 :   3abd:   not    %rax
+    3.61 :   3ac0:   mov    %rsp,%rbp
+    0.00 :   3ac3:   and    %eax,%esi
+    0.00 :   3ac5:   push   %r12
+    3.01 :   3ac7:   mov    %rdi,%r12
+    0.60 :   3aca:   push   %rbx
+    0.00 :   3acb:   mov    0x8(%rdi),%rax
+    7.84 :   3acf:   shl    %cl,%rax
+    0.00 :   3ad2:   add    0x10(%r12),%ecx
+    0.00 :   3ad7:   or     %rax,%rsi
+    1.81 :   3ada:   mov    %ecx,0x10(%r12)
+    6.63 :   3adf:   mov    %rsi,0x8(%r12)
+    0.00 :   3ae4:   mov    %rsi,%rdi
+    0.00 :   3ae7:   cmp    $0x7,%ecx
+    0.60 :   3aea:   jle    3b38 <bw_write+0x98>
+    0.00 :   3aec:   mov    $0xffffffffffffffff,%rbx
+    3.02 :   3af3:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   3afe:   xchg   %ax,%ax
+    1.81 :   3b00:   sub    $0x8,%ecx
+    6.62 :   3b03:   mov    (%r12),%rsi
+    4.22 :   3b07:   shr    %cl,%rdi
+    0.00 :   3b0a:   movzbl %dil,%edi
+    4.22 :   3b0e:   call   2140 <fputc@plt>
+    4.83 :   3b13:   mov    0x10(%r12),%eax
+    9.65 :   3b18:   mov    %rbx,%rdi
+    0.00 :   3b1b:   lea    -0x8(%rax),%ecx
+    0.60 :   3b1e:   shl    %cl,%rdi
+    1.21 :   3b21:   mov    %ecx,0x10(%r12)
+    3.01 :   3b26:   not    %rdi
+    0.60 :   3b29:   and    0x8(%r12),%rdi
+    2.99 :   3b2e:   mov    %rdi,0x8(%r12)
+    3.61 :   3b33:   cmp    $0x7,%ecx
+    0.00 :   3b36:   jg     3b00 <bw_write+0x60>
+    0.00 :   3b38:   pop    %rbx
+   17.45 :   3b39:   pop    %r12
+    1.81 :   3b3b:   pop    %rbp
+    0.60 :   3b3c:   ret

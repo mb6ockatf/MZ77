@@ -1,0 +1,16 @@
+# started on Fri Oct 23 01:19:13 2026
+
+
+ Performance counter stats for '/home/aushou/mz77/bench/bin/prof --mode=compress --repeat=1 /home/aushou/mz77/bench/corpus/silesia/dickens' (5 runs):
+
+     1,150,022,899      cycles:u                                                                ( +-  0.81% )  (62.39%)
+     2,746,949,504      instructions:u                   #    2.39  insn per cycle              ( +-  0.04% )  (62.39%)
+       540,846,753      branches:u                                                              ( +-  0.08% )  (62.39%)
+        15,812,405      branch-misses:u                  #    2.92% of all branches             ( +-  0.04% )  (62.39%)
+        33,639,850      cache-references:u                                                      ( +- 14.21% )  (62.65%)
+           185,535      cache-misses:u                   #    0.55% of all cache refs           ( +- 24.79% )  (62.69%)
+     1,101,575,458      L1-dcache-loads                                                         ( +-  0.10% )  (62.69%)
+        23,388,885      L1-dcache-load-misses            #    2.12% of all L1-dcache accesses   ( +- 11.90% )  (62.43%)
+
+           0.27927 +- 0.00216 seconds time elapsed  ( +-  0.77% )
+

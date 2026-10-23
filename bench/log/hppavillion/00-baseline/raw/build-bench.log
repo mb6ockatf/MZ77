@@ -1,0 +1,6 @@
+make: Entering directory '/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench'
+gcc -DHAVE_CONFIG_H -I. -I..  -I../src  -O3 -DNDEBUG -fhardened  -MT mz77_bench-bench.o -MD -MP -MF .deps/mz77_bench-bench.Tpo -c -o mz77_bench-bench.o `test -f 'bench.c' || echo './'`bench.c
+mv -f .deps/mz77_bench-bench.Tpo .deps/mz77_bench-bench.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -O3 -DNDEBUG -fhardened    -o mz77-bench mz77_bench-bench.o ../src/libmz77codec.a 
+libtool: link: gcc -O3 -DNDEBUG -fhardened -o mz77-bench mz77_bench-bench.o  ../src/libmz77codec.a
+make: Leaving directory '/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench'

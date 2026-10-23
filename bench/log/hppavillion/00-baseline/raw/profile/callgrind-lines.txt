@@ -1,0 +1,366 @@
+--------------------------------------------------------------------------------
+Profile data file '/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/log/hppavillion/00-baseline/raw/profile/callgrind.out' (creator: callgrind-3.24.0)
+--------------------------------------------------------------------------------
+I1 cache: 
+D1 cache: 
+LL cache: 
+Timerange: Basic block 0 - 698210047
+Trigger: Program termination
+Profiled target:  /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/bin/prof --repeat=1 /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/corpus/silesia/dickens (PID 27792, part 1)
+Events recorded:  Ir
+Events shown:     Ir
+Event sort order: Ir
+Thresholds:       99
+Include dirs:     
+User annotated:   /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c
+                  /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/lz77.c
+Auto-annotation:  on
+
+--------------------------------------------------------------------------------
+Ir                     
+--------------------------------------------------------------------------------
+3,458,992,748 (100.0%)  PROGRAM TOTALS
+
+--------------------------------------------------------------------------------
+Ir                      file:function
+--------------------------------------------------------------------------------
+1,597,008,848 (46.17%)  /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/lz77.c:lz77_compress [/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/bin/prof]
+  681,283,994 (19.70%)  ./string/../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:__memcpy_avx_unaligned_erms [/usr/lib/x86_64-linux-gnu/libc.so.6]
+  328,206,552 ( 9.49%)  ./libio/./libio/fputc.c:fputc [/usr/lib/x86_64-linux-gnu/libc.so.6]
+  300,318,039 ( 8.68%)  /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:br_read [/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/bin/prof]
+  241,432,223 ( 6.98%)  /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_write [/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/bin/prof]
+  206,833,086 ( 5.98%)  /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/lz77.c:lz77_decompress [/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/bin/prof]
+   99,484,768 ( 2.88%)  ./libio/./libio/getc.c:getc [/usr/lib/x86_64-linux-gnu/libc.so.6]
+
+--------------------------------------------------------------------------------
+-- User-annotated source: /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c
+--------------------------------------------------------------------------------
+Ir                  
+
+         .           #include <config.h>
+         .           #include "bitio.h"
+         .           
+         .           void
+         .           br_init (BitReader *br, FILE *fp)
+         .           {
+         1 ( 0.00%)    br->fp = fp;
+         1 ( 0.00%)    br->buf = 0;
+         1 ( 0.00%)    br->bits = 0;
+         1 ( 0.00%)  }
+         .           
+         .           int
+         .           br_read (BitReader *br, int n)
+46,609,614 ( 1.35%)  {
+23,304,807 ( 0.67%)    if (n <= 0 || n > 32)
+         .               return -1;
+38,276,879 ( 1.11%)    while (br->bits < n)
+         .               {
+18,654,253 ( 0.54%)        int c = fgetc (br->fp);
+99,732,806 ( 2.88%)  => ./libio/./libio/getc.c:getc (6,218,083x)
+       666 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+12,436,166 ( 0.36%)        if (c == EOF)
+         .           	return -1;
+31,090,410 ( 0.90%)        br->buf = (br->buf << 8) | (uint8_t) c;
+18,654,246 ( 0.54%)        br->bits += 8;
+         .               }
+15,536,536 ( 0.45%)    int shift = br->bits - n;
+33,608,980 ( 0.97%)    uint32_t val = (uint32_t) ((br->buf >> shift) & ((1ULL << n) - 1));
+ 7,768,268 ( 0.22%)    br->bits -= n;
+15,536,536 ( 0.45%)    br->buf &= ((1ULL << br->bits) - 1);
+ 7,768,268 ( 0.22%)    return (int) val;
+31,073,076 ( 0.90%)  }
+         .           
+         .           void
+         4 ( 0.00%)  bw_init (BitWriter *bw, FILE *fp)
+         .           {
+         .             bw->fp = fp;
+         .             bw->buf = 0;
+         .             bw->bits = 0;
+         .           }
+         .           
+         .           void
+         .           bw_flush (BitWriter *bw)
+         .           {
+33,204,493 ( 0.96%)    while (bw->bits >= 8)
+         .               {
+12,436,164 ( 0.36%)        uint8_t byte = (uint8_t) (bw->buf >> (bw->bits - 8));
+24,872,332 ( 0.72%)        fputc (byte, bw->fp);
+124,638,262 ( 3.60%)  => ./libio/./libio/fputc.c:fputc (6,218,082x)
+       710 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+24,872,328 ( 0.72%)        bw->buf &= ((1ULL << (bw->bits - 8)) - 1);
+ 6,218,082 ( 0.18%)        bw->bits -= 8;
+         .               }
+         .           }
+         .           
+         .           void
+         .           bw_write (BitWriter *bw, uint32_t val, int n)
+38,841,340 ( 1.12%)  {
+23,304,804 ( 0.67%)    if (n <= 0 || n > 32)
+         .               return;
+38,841,340 ( 1.12%)    bw->buf = (bw->buf << n) | (val & ((1ULL << n) - 1));
+15,536,536 ( 0.45%)    bw->bits += n;
+         .             bw_flush (bw);
+23,304,804 ( 0.67%)  }
+         .           
+         .           void
+         .           bw_finish (BitWriter *bw)
+         .           {
+         4 ( 0.00%)    if (bw->bits > 0)
+         .               {
+         .                 uint8_t byte = (uint8_t) (bw->buf << (8 - bw->bits));
+         .                 fputc (byte, bw->fp);
+         .                 bw->buf = 0;
+         .                 bw->bits = 0;
+         .               }
+         .           }
+
+--------------------------------------------------------------------------------
+-- User-annotated source: /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/lz77.c
+--------------------------------------------------------------------------------
+Ir                   
+
+-- line 10 ----------------------------------------
+          .           #define MIN_MATCH   3
+          .           #define HT_SIZE     65536
+          .           #define MAX_CHAIN   256
+          .           #define NO_POS      UINT64_MAX
+          .           
+          .           static inline uint16_t
+          .           hash3 (const uint8_t *bytes)
+          .           {
+ 81,442,785 ( 2.35%)    return ((uint16_t) bytes[0] << 10) ^ (bytes[1] << 4) ^ bytes[2];
+          .           }
+          .           
+          .           static inline uint8_t
+          .           byte_at (const uint8_t *window, const uint8_t *buf, uint64_t win_pos,
+          .           	 uint64_t pos)
+          .           {
+146,666,716 ( 4.24%)    if (pos < win_pos)
+219,976,896 ( 6.36%)      return window[pos % WINDOW_SIZE];
+  5,804,332 ( 0.17%)    return buf[pos - win_pos];
+          .           }
+          .           
+          .           static inline void
+          .           ht_insert (uint64_t *ht_heads, uint64_t *ht_next, const uint8_t *bytes,
+          .           	   uint64_t pos)
+          .           {
+          .             uint16_t hash = hash3 (bytes);
+ 30,577,332 ( 0.88%)    ht_next[pos % WINDOW_SIZE] = ht_heads[hash];
+ 10,192,444 ( 0.29%)    ht_heads[hash] = pos;
+          .           }
+          .           
+          .           int
+          .           lz77_compress (const char *in_path, const char *out_path)
+          6 ( 0.00%)  {
+          8 ( 0.00%)    FILE *fin = fopen (in_path, "rb");
+        724 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        615 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fin)
+          6 ( 0.00%)      return -1;
+          5 ( 0.00%)    FILE *fout = fopen (out_path, "wb");
+        619 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fout)
+          .               {
+          .                 fclose (fin);
+          .                 return -1;
+          .               }
+          .             BitWriter bw;
+          5 ( 0.00%)    bw_init (&bw, fout);
+          4 ( 0.00%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_init (1x)
+          5 ( 0.00%)    uint8_t window[WINDOW_SIZE] = { 0 };
+      4,114 ( 0.00%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          9 ( 0.00%)    uint64_t *ht_heads = malloc (HT_SIZE * sizeof (uint64_t));
+        703 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        351 ( 0.00%)  => ./malloc/./malloc/malloc.c:malloc (1x)
+          4 ( 0.00%)    uint64_t *ht_next = malloc (WINDOW_SIZE * sizeof (uint64_t));
+        173 ( 0.00%)  => ./malloc/./malloc/malloc.c:malloc (1x)
+          4 ( 0.00%)    if (!ht_heads || !ht_next)
+          .               {
+          .                 free (ht_heads);
+          .                 free (ht_next);
+          .                 fclose (fin);
+          .                 fclose (fout);
+          .                 return -1;
+          .               }
+          .             for (size_t slot = 0; slot < HT_SIZE; slot++)
+          6 ( 0.00%)      ht_heads[slot] = NO_POS;
+    524,306 ( 0.02%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          .             for (size_t slot = 0; slot < WINDOW_SIZE; slot++)
+          5 ( 0.00%)      ht_next[slot] = NO_POS;
+     32,786 ( 0.00%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          .             uint8_t buf[WINDOW_SIZE];
+         12 ( 0.00%)    size_t buf_len = fread (buf, 1, sizeof (buf), fin);
+        451 ( 0.00%)  => ./libio/./libio/iofread.c:fread (1x)
+        689 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+          1 ( 0.00%)    uint64_t win_pos = 0;
+     10,954 ( 0.00%)    while (buf_len > 0)
+          .               {
+  2,898,303 ( 0.08%)        size_t best_len = 0;
+  2,898,303 ( 0.08%)        uint64_t best_dist = 0;
+     13,688 ( 0.00%)        if (buf_len >= MIN_MATCH)
+          .           	{
+  8,694,909 ( 0.25%)  	  uint64_t pos = ht_heads[hash3 (buf)];
+          .           	  int chain_left = MAX_CHAIN;
+  2,898,303 ( 0.08%)  	  while (pos != NO_POS && pos < win_pos
+165,763,598 ( 4.79%)  		 && win_pos - pos <= WINDOW_SIZE && chain_left-- > 0)
+          .           	    {
+ 16,170,300 ( 0.47%)  	      size_t len = 0;
+          .           	      while (len < MAX_MATCH && len < buf_len
+497,159,735 (14.37%)  		     && byte_at (window, buf, win_pos, pos + len) == buf[len])
+ 57,163,059 ( 1.65%)  		len++;
+ 32,340,600 ( 0.93%)  	      if (len > best_len)
+          .           		{
+  2,735,994 ( 0.08%)  		  best_len = len;
+  2,735,993 ( 0.08%)  		  best_dist = win_pos - pos;
+  5,471,986 ( 0.16%)  		  if (len == MAX_MATCH)
+          .           		    break;
+          .           		}
+ 48,510,897 ( 1.40%)  	      uint64_t next = ht_next[pos % WINDOW_SIZE];
+ 32,340,598 ( 0.93%)  	      if (next == NO_POS || next >= pos)
+          .           		break;
+ 16,168,402 ( 0.47%)  	      pos = next;
+          .           	    }
+          .           	}
+          .                 size_t advance;
+ 11,593,208 ( 0.34%)        if (best_len >= MIN_MATCH)
+          .           	{
+  9,858,300 ( 0.29%)  	  bw_write (&bw, 1, 1);
+ 47,814,872 ( 1.38%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_write (1,971,660x)
+  9,858,300 ( 0.29%)  	  bw_write (&bw, (uint32_t) (best_dist - 1), 12);
+139,148,945 ( 4.02%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_write (1,971,660x)
+ 13,801,620 ( 0.40%)  	  bw_write (&bw, (uint32_t) (best_len - MIN_MATCH), 8);
+106,556,818 ( 3.08%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_write (1,971,660x)
+          .           	  advance = best_len;
+          .           	}
+          .                 else
+          .           	{
+  5,559,864 ( 0.16%)  	  bw_write (&bw, 0, 1);
+ 22,469,228 ( 0.65%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_write (926,644x)
+  3,706,576 ( 0.11%)  	  bw_write (&bw, buf[0], 8);
+ 50,081,332 ( 1.45%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_write (926,644x)
+  2,779,932 ( 0.08%)  	  advance = 1;
+          .           	}
+ 23,283,196 ( 0.67%)        for (size_t offset = 0; offset < advance; offset++)
+          .           	{
+ 40,769,784 ( 1.18%)  	  window[win_pos % WINDOW_SIZE] = buf[offset];
+ 47,967,162 ( 1.39%)  	  if (offset + MIN_MATCH <= buf_len)
+          .           	    ht_insert (ht_heads, ht_next, &buf[offset], win_pos);
+ 10,192,446 ( 0.29%)  	  win_pos++;
+          .           	}
+ 23,186,436 ( 0.67%)        memmove (buf, buf + advance, buf_len - advance);
+680,699,157 (19.68%)  => ./string/../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:__memcpy_avx_unaligned_erms (2,898,304x)
+        703 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+          .                 buf_len -= advance;
+  5,796,608 ( 0.17%)        if (buf_len < MAX_MATCH)
+     19,166 ( 0.00%)  	buf_len += fread (buf + buf_len, 1, sizeof (buf) - buf_len, fin);
+  1,822,074 ( 0.05%)  => ./libio/./libio/iofread.c:fread (2,738x)
+          .               }
+          2 ( 0.00%)    bw_finish (&bw);
+          4 ( 0.00%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:bw_finish (1x)
+          7 ( 0.00%)    free (ht_heads);
+        659 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         71 ( 0.00%)  => ./malloc/./malloc/malloc.c:free (1x)
+          3 ( 0.00%)    free (ht_next);
+        161 ( 0.00%)  => ./malloc/./malloc/malloc.c:free (1x)
+         16 ( 0.00%)    int status = (ferror (fin) || ferror (fout)) ? -1 : 0;
+        686 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         12 ( 0.00%)  => ./libio/./libio/ferror.c:ferror (2x)
+          7 ( 0.00%)    fclose (fin);
+        679 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        556 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          3 ( 0.00%)    if (fclose (fout) != 0)
+        710 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          .               status = -1;
+          .             return status;
+          5 ( 0.00%)  }
+          .           
+          .           int
+          .           lz77_decompress (const char *in_path, const char *out_path)
+          6 ( 0.00%)  {
+          4 ( 0.00%)    FILE *fin = fopen (in_path, "rb");
+        469 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fin)
+          6 ( 0.00%)      return -1;
+          6 ( 0.00%)    FILE *fout = fopen (out_path, "wb");
+        473 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fout)
+          .               {
+          .                 fclose (fin);
+          .                 return -1;
+          .               }
+          .             BitReader br;
+          4 ( 0.00%)    br_init (&br, fin);
+          4 ( 0.00%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:br_init (1x)
+          5 ( 0.00%)    uint8_t window[WINDOW_SIZE] = { 0 };
+      4,114 ( 0.00%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          2 ( 0.00%)    uint64_t win_pos = 0;
+          2 ( 0.00%)    int status = 0;
+          .             while (1)
+          .               {
+ 11,593,220 ( 0.34%)        int flag = br_read (&br, 1);
+ 91,678,661 ( 2.65%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:br_read (2,898,305x)
+  5,796,610 ( 0.17%)        if (flag == -1)
+          .           	break;
+  5,796,608 ( 0.17%)        if (flag == 0)
+          .           	{
+  3,706,576 ( 0.11%)  	  int literal = br_read (&br, 8);
+ 52,850,868 ( 1.53%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:br_read (926,644x)
+  1,853,288 ( 0.05%)  	  if (literal == -1)
+          .           	    break;
+  3,706,576 ( 0.11%)  	  fputc ((uint8_t) literal, fout);
+ 18,568,716 ( 0.54%)  => ./libio/./libio/fputc.c:fputc (926,644x)
+  2,779,932 ( 0.08%)  	  window[win_pos % WINDOW_SIZE] = (uint8_t) literal;
+  1,853,288 ( 0.05%)  	  win_pos++;
+          .           	}
+          .                 else
+          .           	{
+  7,886,640 ( 0.23%)  	  int dist_enc = br_read (&br, 12);
+143,055,922 ( 4.14%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:br_read (1,971,660x)
+  5,914,980 ( 0.17%)  	  int len_enc = br_read (&br, 8);
+112,466,060 ( 3.25%)  => /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/src/bitio.c:br_read (1,971,660x)
+  7,886,640 ( 0.23%)  	  if (dist_enc == -1 || len_enc == -1)
+          .           	    {
+          .           	      status = -1;
+          .           	      break;
+          .           	    }
+          .           	  uint32_t dist = (uint32_t) dist_enc + 1;
+          .           	  uint32_t len = (uint32_t) len_enc + MIN_MATCH;
+  5,914,980 ( 0.17%)  	  if (dist > win_pos)
+          .           	    {
+          .           	      status = -1;
+          .           	      break;
+          .           	    }
+ 13,801,620 ( 0.40%)  	  uint64_t src = win_pos - dist;
+ 31,740,726 ( 0.92%)  	  for (uint32_t offset = 0; offset < len; offset++)
+          .           	    {
+ 37,063,208 ( 1.07%)  	      uint8_t byte = window[(src + offset) % WINDOW_SIZE];
+ 27,797,406 ( 0.80%)  	      fputc (byte, fout);
+185,733,366 ( 5.37%)  => ./libio/./libio/fputc.c:fputc (9,265,802x)
+ 27,797,406 ( 0.80%)  	      window[(win_pos + offset) % WINDOW_SIZE] = byte;
+          .           	    }
+  3,943,320 ( 0.11%)  	  win_pos += len;
+          .           	}
+          .               }
+          8 ( 0.00%)    if (ferror (fin) || ferror (fout))
+         12 ( 0.00%)  => ./libio/./libio/ferror.c:ferror (2x)
+          4 ( 0.00%)      status = -1;
+          3 ( 0.00%)    fclose (fin);
+        524 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          3 ( 0.00%)    if (fclose (fout) != 0)
+        710 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          .               status = -1;
+          .             return status;
+          5 ( 0.00%)  }
+
+--------------------------------------------------------------------------------
+The following files chosen for auto-annotation could not be found:
+--------------------------------------------------------------------------------
+  ./libio/./libio/fputc.c
+  ./libio/./libio/getc.c
+  ./string/../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S
+
+--------------------------------------------------------------------------------
+Ir                     
+--------------------------------------------------------------------------------
+2,345,592,208 (67.81%)  events annotated
+

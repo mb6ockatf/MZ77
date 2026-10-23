@@ -1,0 +1,16 @@
+# started on Fri Oct 23 01:27:54 2026
+
+
+ Performance counter stats for '/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/bin/prof --archives --repeat=1 /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/log/hppavillion/00-baseline/raw/profile/input.lz77' (5 runs):
+
+       347,527,849      cycles:u                                                                ( +-  0.28% )
+       811,385,987      instructions:u                   #    2.33  insn per cycle              ( +-  0.00% )
+       155,082,989      branches:u                                                              ( +-  0.00% )
+         3,744,070      branch-misses:u                  #    2.41% of all branches             ( +-  0.10% )
+            14,481      cache-references:u                                                      ( +-  2.63% )
+             9,552      cache-misses:u                   #   65.96% of all cache refs           ( +-  3.25% )
+       212,079,226      L1-dcache-loads                                                         ( +-  0.00% )
+            29,971      L1-dcache-load-misses            #    0.01% of all L1-dcache accesses   ( +- 11.93% )
+
+          0.099085 +- 0.000346 seconds time elapsed  ( +-  0.35% )
+

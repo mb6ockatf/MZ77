@@ -1,0 +1,20 @@
+Optimisations of the MZ77 codec
+===============================
+
+One file per optimisation, in the order they were applied.  Each says
+what changed, why it should help, how correctness was checked, and what
+the measurements showed.  The measurements themselves, with every raw
+log, are in bench/log/MACHINE/STEP/; bench/log/MACHINE/SUMMARY.md puts
+all steps side by side.
+
+  11-block-io.md          #11  block I/O instead of a call per byte
+  12-inline-bitio.md      #12  inline bit reader and writer
+  14-no-memmove.md        #14  one buffer for window and look-ahead
+  15-compare-8-bytes.md   #15  compare 8 bytes at a time in the match loop
+  16-avx512bw.md          #16  AVX-512BW match compare (Intel Tiger Lake)
+  avx2.md                      AVX2 match compare (AMD Zen 2)
+  13-lto-pgo.md           #13  link-time and profile-guided optimisation
+
+The archive format never changes: every step produces archives that are
+byte-identical to the original program's (raw/archives.sha256 in every
+step, compared in SUMMARY.md).

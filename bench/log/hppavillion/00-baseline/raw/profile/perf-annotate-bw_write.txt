@@ -1,0 +1,43 @@
+ Percent |	Source code & Disassembly of prof for cycles:u (130 samples, percent: local period)
+---------------------------------------------------------------------------------------------------
+         :
+         :
+         :
+         : 3    Disassembly of section .text:
+         :
+         : 5    0000000000003ad0 <bw_write>:
+    9.26 :   3ad0:   lea    -0x1(%rdx),%eax
+    0.00 :   3ad3:   cmp    $0x1f,%eax
+    0.00 :   3ad6:   jbe    3ae0 <bw_write+0x10>
+    0.00 :   3ad8:   ret
+    0.00 :   3ad9:   nopl   0x0(%rax)
+    2.37 :   3ae0:   push   %rbp
+    2.36 :   3ae1:   mov    %esi,%esi
+    3.19 :   3ae3:   mov    %rsp,%rbp
+    5.47 :   3ae6:   push   %rbx
+    4.61 :   3ae7:   mov    %rdi,%rbx
+    3.81 :   3aea:   bzhi   %rdx,%rsi,%rdi
+    0.72 :   3aef:   sub    $0x8,%rsp
+    3.70 :   3af3:   shlx   %rdx,0x8(%rbx),%rax
+    4.51 :   3af9:   add    0x10(%rbx),%edx
+    0.79 :   3afc:   or     %rax,%rdi
+    3.92 :   3aff:   mov    %rdi,0x8(%rbx)
+   16.16 :   3b03:   mov    %edx,0x10(%rbx)
+    0.00 :   3b06:   cmp    $0x7,%edx
+    0.00 :   3b09:   jle    3b3c <bw_write+0x6c>
+    1.63 :   3b0b:   nopl   0x0(%rax,%rax,1)
+    0.75 :   3b10:   sub    $0x8,%edx
+    3.09 :   3b13:   mov    (%rbx),%rsi
+    2.34 :   3b16:   shrx   %rdx,%rdi,%rdi
+    1.55 :   3b1b:   movzbl %dil,%edi
+    0.00 :   3b1f:   call   2140 <fputc@plt>
+    2.34 :   3b24:   mov    0x10(%rbx),%eax
+    5.27 :   3b27:   lea    -0x8(%rax),%edx
+    3.07 :   3b2a:   bzhi   %rdx,0x8(%rbx),%rdi
+    3.91 :   3b30:   mov    %edx,0x10(%rbx)
+    0.00 :   3b33:   mov    %rdi,0x8(%rbx)
+    2.34 :   3b37:   cmp    $0x7,%edx
+    0.00 :   3b3a:   jg     3b10 <bw_write+0x40>
+    2.99 :   3b3c:   mov    -0x8(%rbp),%rbx
+    5.26 :   3b40:   leave
+    4.58 :   3b41:   ret

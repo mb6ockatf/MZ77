@@ -1,0 +1,15 @@
+[01:02:58] start build: make -C /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00 -j4
+[01:02:58] done  build
+[01:02:58] start check: make -C /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00 check
+[01:02:59] done  check
+[01:02:59] start build-bench: make -C /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench mz77-bench
+[01:03:00] done  build-bench
+[01:03:00] start bench: taskset -c 3 make -C /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench bench REPEAT=9
+[01:05:39] done  bench
+[01:05:39] start archives
+[01:05:55] done  archives
+[01:05:55] start bench-compare: taskset -c 3 make -C /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench bench-compare REPEAT=9
+[01:27:13] done  bench-compare
+[01:27:13] start profile: taskset -c 3 make -C /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench profile
+[01:27:26] FAILED profile (exit 2), see raw/profile.log
+profile exit 0

@@ -1,0 +1,15 @@
+[01:21:09] start build: make -C /home/aushou/mz77 -j16
+[01:21:10] done  build
+[01:21:10] start check: make -C /home/aushou/mz77 check
+[01:21:11] done  check
+[01:21:11] start build-bench: make -C /home/aushou/mz77/bench mz77-bench
+[01:21:11] done  build-bench
+[01:21:11] start bench: taskset -c 15 make -C /home/aushou/mz77/bench bench REPEAT=9
+[01:22:56] done  bench
+[01:22:56] start archives
+[01:23:07] done  archives
+[01:23:07] start bench-compare: taskset -c 15 make -C /home/aushou/mz77/bench bench-compare REPEAT=9
+[01:36:52] done  bench-compare
+[01:36:52] start profile: taskset -c 15 make -C /home/aushou/mz77/bench profile
+[01:37:24] done  profile
+[01:37:24] results in /home/aushou/mz77/bench/log/debian/01-block-io

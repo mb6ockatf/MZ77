@@ -28,7 +28,7 @@ perf stat -r 5 -e "$events" -o "$out/perf-stat-compress.txt" -- \
 perf stat -r 5 -e "$events" -o "$out/perf-stat-decompress.txt" -- \
   "$benchdir/bin/prof" --archives --repeat=1 "$archive" >/dev/null
 echo "== perf record"
-perf record -q -e cycles:u -F 4999 -g -o "$out/perf.data" -- \
+perf record -q -e cycles:u -F 4999 -g --user-callchains -o "$out/perf.data" -- \
   "$benchdir/bin/prof" $bench_args >/dev/null 2>&1
 perf report -q -i "$out/perf.data" --stdio --no-children --percent-limit=0.5 \
   > "$out/perf-report.txt" 2>/dev/null

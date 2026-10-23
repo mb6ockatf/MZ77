@@ -1,0 +1,22 @@
+make: Entering directory '/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench'
+CC='gcc' MZ77_SRCDIR='/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00' MZ77_BUILDDIR='/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00' MZ77_BENCH='/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/mz77-bench' \
+  /bin/bash ./bench.sh
+file                  size     archive  ratio    comp_s  decomp_s comp_MB/s dec_MB/s
+mixed.dat         20000000     7944005  0.397    6.3548    0.1791     3.15   111.66
+random.dat        20000000    22496386  1.125    0.6602    0.2078    30.29    96.25
+text.dat          20000000     7334892  0.367    0.6900    0.1646    28.99   121.53
+zeros.dat         20000000      203492  0.010    0.0768    0.0767   260.53   260.91
+dickens           10192446     6218082  0.610    0.4483    0.1218    22.74    83.66
+mozilla           51220480    25706424  0.502    2.4176    0.4964    21.19   103.18
+mr                 9970564     5134536  0.515    0.4612    0.0912    21.62   109.33
+nci               33553445     5893099  0.176    0.9580    0.1993    35.02   168.33
+ooffice            6152192     4148219  0.674    0.2905    0.0753    21.18    81.67
+osdb              10085684     7700169  0.763    0.4022    0.1188    25.08    84.86
+reymont            6627202     3027324  0.457    0.3366    0.0631    19.69   105.06
+samba             21606400     8223633  0.381    0.8583    0.1811    25.17   119.32
+sao                7251944     6486631  0.894    0.3323    0.0953    21.83    76.11
+webster           41458703    19025582  0.459    1.1064    0.3167    37.47   130.89
+x-ray              8474240     8051031  0.950    0.2567    0.0886    33.01    95.60
+xml                5345280     1160183  0.217    0.0900    0.0273    59.36   195.68
+results in /tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench/log/hppavillion/00-baseline/raw
+make: Leaving directory '/tmp/claude-1000/-home-mb6ockatf-Documents-projects-dataground-d-notes-programming-languages-d-MZ77/10081491-6115-405f-a3dc-d27464d6bbe3/scratchpad/wt00/bench'

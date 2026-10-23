@@ -1,0 +1,15 @@
+[01:28:32] start build: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 -j4
+[01:28:33] done  build
+[01:28:33] start check: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 check
+[01:28:34] done  check
+[01:28:34] start build-bench: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench mz77-bench
+[01:28:34] done  build-bench
+[01:28:34] start bench: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench REPEAT=9
+[01:30:57] done  bench
+[01:30:57] start archives
+[01:31:13] done  archives
+[01:31:13] start bench-compare: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench-compare REPEAT=9
+[01:51:06] done  bench-compare
+[01:51:06] start profile: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench profile
+[01:51:53] done  profile
+[01:51:53] results in /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/01-block-io

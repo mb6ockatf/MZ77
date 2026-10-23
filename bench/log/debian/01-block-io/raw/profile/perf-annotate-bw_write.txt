@@ -1,0 +1,24 @@
+ Percent |	Source code & Disassembly of prof for cycles:u (42 samples, percent: local period)
+--------------------------------------------------------------------------------------------------
+         :
+         :
+         :
+         : 3    Disassembly of section .text:
+         :
+         : 5    0000000000003ca0 <bw_write>:
+   13.68 :   3ca0:   lea    -0x1(%rdx),%eax
+    0.00 :   3ca3:   cmp    $0x1f,%eax
+    0.00 :   3ca6:   jbe    3cb0 <bw_write+0x10>
+    0.00 :   3ca8:   ret
+    0.00 :   3ca9:   nopl   0x0(%rax)
+    0.00 :   3cb0:   mov    %edx,%ecx
+    3.22 :   3cb2:   mov    $0xffffffffffffffff,%rax
+    0.00 :   3cb9:   add    %edx,0x10(%rdi)
+   41.48 :   3cbc:   shl    %cl,%rax
+    0.00 :   3cbf:   not    %rax
+    2.46 :   3cc2:   and    %eax,%esi
+    0.00 :   3cc4:   mov    0x8(%rdi),%rax
+    4.88 :   3cc8:   shl    %cl,%rax
+    7.29 :   3ccb:   or     %rax,%rsi
+    7.35 :   3cce:   mov    %rsi,0x8(%rdi)
+   19.62 :   3cd2:   jmp    3be0 <bw_flush>

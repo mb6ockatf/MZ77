@@ -1,0 +1,727 @@
+--------------------------------------------------------------------------------
+Profile data file '/home/aushou/mz77/bench/log/debian/01-block-io/raw/profile/callgrind.out' (creator: callgrind-3.24.0)
+--------------------------------------------------------------------------------
+I1 cache: 
+D1 cache: 
+LL cache: 
+Timerange: Basic block 0 - 618922821
+Trigger: Program termination
+Profiled target:  /home/aushou/mz77/bench/bin/prof --repeat=1 /home/aushou/mz77/bench/corpus/silesia/dickens (PID 9702, part 1)
+Events recorded:  Ir
+Events shown:     Ir
+Event sort order: Ir
+Thresholds:       99
+Include dirs:     
+User annotated:   
+Auto-annotation:  on
+
+--------------------------------------------------------------------------------
+Ir                     
+--------------------------------------------------------------------------------
+3,281,521,465 (100.0%)  PROGRAM TOTALS
+
+--------------------------------------------------------------------------------
+Ir                      file:function
+--------------------------------------------------------------------------------
+3,281,521,465 (100.0%)  ???:0x000000000001d2c0 [/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2]
+3,281,396,701 (100.0%)  ???:(below main) [/home/aushou/mz77/bench/bin/prof]
+3,281,396,690 (100.0%)  ./csu/../csu/libc-start.c:__libc_start_main@@GLIBC_2.34 [/usr/lib/x86_64-linux-gnu/libc.so.6]
+3,281,396,527 (100.0%)  ./csu/../sysdeps/nptl/libc_start_call_main.h:(below main) [/usr/lib/x86_64-linux-gnu/libc.so.6]
+3,281,394,834 (100.0%)  /home/aushou/mz77/bench/bench.c:main
+3,281,393,959 (100.0%)  bench.c:main [/home/aushou/mz77/bench/bin/prof]
+2,661,423,010 (81.10%)  /home/aushou/mz77/src/lz77.c:lz77_compress [/home/aushou/mz77/bench/bin/prof]
+  681,283,860 (20.76%)  ./string/../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:__memcpy_avx_unaligned_erms [/usr/lib/x86_64-linux-gnu/libc.so.6]
+  618,529,807 (18.85%)  /home/aushou/mz77/src/lz77.c:lz77_decompress [/home/aushou/mz77/bench/bin/prof]
+  391,179,821 (11.92%)  /home/aushou/mz77/src/bitio.c:br_read [/home/aushou/mz77/bench/bin/prof]
+  341,759,314 (10.41%)  /home/aushou/mz77/src/bitio.c:bw_write [/home/aushou/mz77/bench/bin/prof]
+  233,003,562 ( 7.10%)  /home/aushou/mz77/src/bitio.c:bw_flush [/home/aushou/mz77/bench/bin/prof]
+    1,893,799 ( 0.06%)  ./libio/./libio/iofread.c:fread [/usr/lib/x86_64-linux-gnu/libc.so.6]
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: bench.c
+--------------------------------------------------------------------------------
+Ir             
+
+-- line 24 ----------------------------------------
+    .             bool archives;
+    .             char work_dir[PATH_MAX];
+    .           } BenchOptions;
+    .           
+    .           static double
+    .           now_seconds (void)
+    .           {
+    .             struct timespec moment;
+   22 ( 0.00%)    clock_gettime (CLOCK_MONOTONIC, &moment);
+  721 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+   40 ( 0.00%)  => ./time/../sysdeps/unix/sysv/linux/clock_gettime.c:clock_gettime@@GLIBC_2.17 (4x)
+   26 ( 0.00%)    return (double) moment.tv_sec + (double) moment.tv_nsec / 1e9;
+    .           }
+    .           
+    .           static int
+    .           compare_doubles (const void *left, const void *right)
+    .           {
+    .             double left_value = *(const double *) left;
+    .             double right_value = *(const double *) right;
+    .             return (left_value > right_value) - (left_value < right_value);
+    .           }
+    .           
+    .           static double
+    .           median (double *values, int count)
+   14 ( 0.00%)  {
+   12 ( 0.00%)    qsort (values, (size_t) count, sizeof (double), compare_doubles);
+  630 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+   50 ( 0.00%)  => ./stdlib/./stdlib/qsort.c:qsort (2x)
+   14 ( 0.00%)    if (count % 2 == 1)
+    6 ( 0.00%)      return values[count / 2];
+    .             return (values[count / 2 - 1] + values[count / 2]) / 2.0;
+    8 ( 0.00%)  }
+    .           
+    .           static long long
+    .           file_size (const char *path)
+    .           {
+    .             struct stat info;
+   18 ( 0.00%)    if (stat (path, &info) != 0)
+  613 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+   24 ( 0.00%)  => ./io/../sysdeps/unix/sysv/linux/stat64.c:stat (2x)
+    .               return -1;
+    3 ( 0.00%)    return (long long) info.st_size;
+    .           }
+    .           
+    .           static bool
+    .           files_equal (const char *left_path, const char *right_path)
+    .           {
+    6 ( 0.00%)    FILE *left = fopen (left_path, "rb");
+  469 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+    5 ( 0.00%)    FILE *right = fopen (right_path, "rb");
+  469 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+    5 ( 0.00%)    bool equal = left && right;
+    .             static unsigned char left_block[COPY_CHUNK];
+    .             static unsigned char right_block[COPY_CHUNK];
+    8 ( 0.00%)    while (equal)
+    .               {
+1,099 ( 0.00%)        size_t left_count = fread (left_block, 1, sizeof (left_block), left);
+27,366 ( 0.00%)  => ./libio/./libio/iofread.c:fread (157x)
+  942 ( 0.00%)        size_t right_count = fread (right_block, 1, sizeof (right_block), right);
+27,366 ( 0.00%)  => ./libio/./libio/iofread.c:fread (157x)
+  314 ( 0.00%)        if (left_count != right_count
+1,103 ( 0.00%)  	  || memcmp (left_block, right_block, left_count) != 0)
+1,356,816 ( 0.04%)  => ./string/../sysdeps/x86_64/multiarch/memcmp-avx2-movbe.S:__memcmp_avx2_movbe (157x)
+  660 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+    .           	equal = false;
+  314 ( 0.00%)        else if (left_count == 0)
+    .           	break;
+    .               }
+    .             if (left)
+    5 ( 0.00%)      fclose (left);
+  524 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+    2 ( 0.00%)    if (right)
+    5 ( 0.00%)      fclose (right);
+  575 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+    .             return equal;
+    .           }
+    .           
+    .           static const char *
+    .           base_name (const char *path)
+    .           {
+   10 ( 0.00%)    const char *slash = strrchr (path, '/');
+  661 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+   38 ( 0.00%)  => ./string/../sysdeps/x86_64/multiarch/strrchr-avx2.S:__strrchr_avx2 (1x)
+    5 ( 0.00%)    return slash ? slash + 1 : path;
+    .           }
+    .           
+    .           static uint32_t
+    .           next_random (uint32_t *state)
+    .           {
+    .             *state ^= *state << 13;
+    .             *state ^= *state >> 17;
+    .             *state ^= *state << 5;
+-- line 99 ----------------------------------------
+-- line 195 ----------------------------------------
+    .           	     "compress_s,decompress_s,compress_mb_s,decompress_mb_s\n");
+    .             return csv;
+    .           }
+    .           
+    .           static int
+    .           bench_file (const BenchOptions *options, const char *input_path, FILE *csv)
+    .           {
+    .             long long size = file_size (input_path);
+    2 ( 0.00%)    if (size < 0)
+    .               {
+    .                 perror (input_path);
+    .                 return EXIT_FAILURE;
+    .               }
+    .             char archive[PATH_MAX + 32], restored[PATH_MAX + 32];
+    2 ( 0.00%)    if (options->archives)
+    .               snprintf (archive, sizeof (archive), "%s", input_path);
+    3 ( 0.00%)    else if (options->keep_path)
+    .               snprintf (archive, sizeof (archive), "%s", options->keep_path);
+    .             else
+   10 ( 0.00%)      snprintf (archive, sizeof (archive), "%s/archive.lz77", options->work_dir);
+  370 ( 0.00%)  => ./stdio-common/./stdio-common/snprintf.c:snprintf (1x)
+    7 ( 0.00%)    snprintf (restored, sizeof (restored), "%s/restored", options->work_dir);
+  370 ( 0.00%)  => ./stdio-common/./stdio-common/snprintf.c:snprintf (1x)
+    .             double compress_times[MAX_REPEATS], decompress_times[MAX_REPEATS];
+    .             int status = EXIT_SUCCESS;
+    2 ( 0.00%)    if (options->mode == BENCH_DECOMPRESS && !options->archives
+    .                 && lz77_compress (input_path, archive) != 0)
+    .               {
+    .                 fprintf (stderr, "mz77-bench: %s: compression failed\n", input_path);
+    .                 return EXIT_FAILURE;
+    .               }
+   15 ( 0.00%)    for (int run = 0; run < options->repeats; run++)
+    .               {
+    2 ( 0.00%)        compress_times[run] = decompress_times[run] = 0.0;
+    2 ( 0.00%)        if (options->mode != BENCH_DECOMPRESS)
+    .           	{
+    .           	  double start = now_seconds ();
+    4 ( 0.00%)  	  int result = lz77_compress (input_path, archive);
+2,661,423,010 (81.10%)  => /home/aushou/mz77/src/lz77.c:lz77_compress (1x)
+    3 ( 0.00%)  	  compress_times[run] = now_seconds () - start;
+    2 ( 0.00%)  	  if (result != 0)
+    .           	    {
+    .           	      fprintf (stderr, "mz77-bench: %s: compression failed\n",
+    .           		       input_path);
+    .           	      status = EXIT_FAILURE;
+    .           	      break;
+    .           	    }
+    .           	}
+    3 ( 0.00%)        if (options->mode != BENCH_COMPRESS)
+    .           	{
+    .           	  double start = now_seconds ();
+    4 ( 0.00%)  	  int result = lz77_decompress (archive, restored);
+618,529,807 (18.85%)  => /home/aushou/mz77/src/lz77.c:lz77_decompress (1x)
+    3 ( 0.00%)  	  decompress_times[run] = now_seconds () - start;
+    2 ( 0.00%)  	  if (result != 0)
+    .           	    {
+    .           	      fprintf (stderr, "mz77-bench: %s: decompression failed\n",
+    .           		       input_path);
+    .           	      status = EXIT_FAILURE;
+    .           	      break;
+    .           	    }
+    4 ( 0.00%)  	  if (run == 0 && !options->archives
+    2 ( 0.00%)  	      && !files_equal (input_path, restored))
+    .           	    {
+    .           	      fprintf (stderr, "mz77-bench: %s: round trip mismatch\n",
+    .           		       input_path);
+    .           	      status = EXIT_FAILURE;
+    .           	      break;
+    .           	    }
+    .           	}
+    .               }
+    .             long long archive_size = file_size (archive);
+    2 ( 0.00%)    if (options->archives)
+    .               {
+    .                 archive_size = size;
+    4 ( 0.00%)        size = file_size (restored);
+    .               }
+    2 ( 0.00%)    else if (!options->keep_path)
+    8 ( 0.00%)      remove (archive);
+  642 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+   12 ( 0.00%)  => ./stdio-common/../sysdeps/posix/remove.c:remove (1x)
+    3 ( 0.00%)    remove (restored);
+   12 ( 0.00%)  => ./stdio-common/../sysdeps/posix/remove.c:remove (1x)
+    2 ( 0.00%)    if (status != EXIT_SUCCESS)
+    .               return status;
+    5 ( 0.00%)    double compress_s = median (compress_times, options->repeats);
+  684 ( 0.00%)  => bench.c:median (1x)
+    4 ( 0.00%)    double decompress_s = median (decompress_times, options->repeats);
+   50 ( 0.00%)  => bench.c:median (1x)
+    5 ( 0.00%)    double megabytes = (double) size / 1e6;
+    7 ( 0.00%)    double ratio = size > 0 ? (double) archive_size / (double) size : 0.0;
+    7 ( 0.00%)    double compress_rate = compress_s > 0 ? megabytes / compress_s : 0.0;
+    5 ( 0.00%)    double decompress_rate = decompress_s > 0 ? megabytes / decompress_s : 0.0;
+   11 ( 0.00%)    printf ("%-14s %11lld %11lld %6.3f %9.4f %9.4f %8.2f %8.2f\n",
+7,839 ( 0.00%)  => ./stdio-common/./stdio-common/printf.c:printf (1x)
+    .           	  base_name (input_path), size, archive_size, ratio, compress_s,
+    .           	  decompress_s, compress_rate, decompress_rate);
+    2 ( 0.00%)    if (csv)
+    2 ( 0.00%)      fprintf (csv, "%s,%s,%lld,%lld,%.4f,%d,%.6f,%.6f,%.3f,%.3f\n",
+    .           	     options->label, base_name (input_path), size, archive_size,
+    .           	     ratio, options->repeats, compress_s, decompress_s,
+    .           	     compress_rate, decompress_rate);
+    .             return EXIT_SUCCESS;
+    .           }
+    .           
+    .           static void
+    .           show_usage (FILE *stream, const char *program)
+-- line 291 ----------------------------------------
+-- line 309 ----------------------------------------
+    .           	   "  -s, --size=BYTES    size of each generated file"
+    .           	   " (default 20000000)\n"
+    .           	   "  -h, --help          display this help and exit\n", program,
+    .           	   program);
+    .           }
+    .           
+    .           int
+    .           main (int argc, char **argv)
+   12 ( 0.00%)  {
+    .             static const struct option long_options[] = {
+    .               {"repeat", required_argument, NULL, 'r'},
+    .               {"mode", required_argument, NULL, 'm'},
+    .               {"csv", required_argument, NULL, 'c'},
+    .               {"label", required_argument, NULL, 'l'},
+    .               {"archives", no_argument, NULL, 'a'},
+    .               {"keep", required_argument, NULL, 'k'},
+    .               {"work-dir", required_argument, NULL, 'w'},
+    .               {"generate", required_argument, NULL, 'g'},
+    .               {"size", required_argument, NULL, 's'},
+    .               {"help", no_argument, NULL, 'h'},
+    .               {NULL, 0, NULL, 0}
+    .             };
+  524 ( 0.00%)    BenchOptions options = {.repeats = 5,.mode = BENCH_BOTH,.label = "" };
+    .             const char *generate_dir = NULL;
+    9 ( 0.00%)    const char *work_parent = access ("/dev/shm", W_OK) == 0 ? "/dev/shm"
+  733 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+    5 ( 0.00%)  => ./io/../sysdeps/unix/sysv/linux/access.c:access (1x)
+    6 ( 0.00%)      : "/tmp";
+    .             long long generate_size = 20000000;
+    .             int option;
+   18 ( 0.00%)    while ((option = getopt_long (argc, argv, "r:m:c:l:ak:w:g:s:h", long_options,
+  682 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+  749 ( 0.00%)  => ./posix/./posix/getopt1.c:getopt_long (2x)
+    4 ( 0.00%)  				NULL)) != -1)
+    .               {
+    7 ( 0.00%)        switch (option)
+    .           	{
+    .           	case 'r':
+    .           	  options.repeats = atoi (optarg);
+    3 ( 0.00%)  	  if (options.repeats < 1 || options.repeats > MAX_REPEATS)
+    .           	    {
+    .           	      fprintf (stderr, "%s: --repeat must be 1 to %d\n", argv[0],
+    .           		       MAX_REPEATS);
+    .           	      return EXIT_FAILURE;
+    .           	    }
+    .           	  break;
+    .           	case 'm':
+    .           	  if (strcmp (optarg, "both") == 0)
+-- line 352 ----------------------------------------
+-- line 385 ----------------------------------------
+    .           	case 'h':
+    .           	  show_usage (stdout, argv[0]);
+    .           	  return EXIT_SUCCESS;
+    .           	default:
+    .           	  show_usage (stderr, argv[0]);
+    .           	  return EXIT_FAILURE;
+    .           	}
+    .               }
+    2 ( 0.00%)    if (generate_dir)
+    .               return generate_corpus (generate_dir, generate_size);
+    3 ( 0.00%)    if (options.archives)
+    .               options.mode = BENCH_DECOMPRESS;
+    4 ( 0.00%)    if (optind >= argc)
+    .               {
+    .                 show_usage (stderr, argv[0]);
+    .                 return EXIT_FAILURE;
+    .               }
+    2 ( 0.00%)    if (options.keep_path && (options.archives || optind + 1 != argc))
+    .               {
+    .                 fprintf (stderr, "%s: --keep needs exactly one FILE and no --archives\n",
+    .           	       argv[0]);
+    .                 return EXIT_FAILURE;
+    .               }
+   14 ( 0.00%)    snprintf (options.work_dir, sizeof (options.work_dir),
+  680 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+  370 ( 0.00%)  => ./stdio-common/./stdio-common/snprintf.c:snprintf (1x)
+    .           	    "%s/mz77-bench.XXXXXX", work_parent);
+    9 ( 0.00%)    if (!mkdtemp (options.work_dir))
+  650 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+  323 ( 0.00%)  => ./misc/./misc/mkdtemp.c:mkdtemp (1x)
+    .               {
+    .                 perror (options.work_dir);
+    .                 return EXIT_FAILURE;
+    .               }
+    5 ( 0.00%)    FILE *csv = options.csv_path ? open_csv (options.csv_path) : NULL;
+    1 ( 0.00%)    if (options.csv_path && !csv)
+    .               return EXIT_FAILURE;
+   20 ( 0.00%)    printf ("%-14s %11s %11s %6s %9s %9s %8s %8s\n", "file", "size",
+4,661 ( 0.00%)  => ./stdio-common/./stdio-common/printf.c:printf (1x)
+  626 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+    .           	  "archive", "ratio", "comp_s", "decomp_s", "comp_MB/s", "dec_MB/s");
+    1 ( 0.00%)    int status = EXIT_SUCCESS;
+   12 ( 0.00%)    for (int arg_index = optind; arg_index < argc; arg_index++)
+    4 ( 0.00%)      if (bench_file (&options, argv[arg_index], csv) != EXIT_SUCCESS)
+    .                 status = EXIT_FAILURE;
+    4 ( 0.00%)    if (csv)
+    .               fclose (csv);
+    8 ( 0.00%)    rmdir (options.work_dir);
+  621 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+    5 ( 0.00%)  => ./io/../sysdeps/unix/sysv/linux/rmdir.c:rmdir (1x)
+    2 ( 0.00%)    return status;
+    9 ( 0.00%)  }
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /home/aushou/mz77/bench/bench.c
+--------------------------------------------------------------------------------
+  No information has been collected for /home/aushou/mz77/bench/bench.c
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /home/aushou/mz77/src/bitio.c
+--------------------------------------------------------------------------------
+Ir                  
+
+         .           #include <config.h>
+         .           #include "bitio.h"
+         .           
+         .           void
+         .           br_init (BitReader *br, FILE *fp)
+         .           {
+         1 ( 0.00%)    br->fp = fp;
+         1 ( 0.00%)    br->buf = 0;
+         1 ( 0.00%)    br->bits = 0;
+         2 ( 0.00%)    br->block_pos = 0;
+         .             br->block_len = 0;
+         1 ( 0.00%)  }
+         .           
+         .           int
+         .           br_read (BitReader *br, int width)
+62,146,152 ( 1.89%)  {
+23,304,807 ( 0.71%)    if (width <= 0 || width > 32)
+         1 ( 0.00%)      return -1;
+35,740,971 ( 1.09%)    while (br->bits < width)
+         .               {
+17,668,527 ( 0.54%)        if (br->block_pos == br->block_len)
+         .           	{
+10,465,394 ( 0.32%)  	  br->block_len = fread (br->block, 1, sizeof (br->block), br->fp);
+    16,874 ( 0.00%)  => ./libio/./libio/iofread.c:fread (96x)
+        96 ( 0.00%)  	  br->block_pos = 0;
+       477 ( 0.00%)  	  if (br->block_len == 0)
+         .           	    return -1;
+         .           	}
+49,744,466 ( 1.52%)        br->buf = (br->buf << 8) | br->block[br->block_pos++];
+18,654,246 ( 0.57%)        br->bits += 8;
+         .               }
+15,536,536 ( 0.47%)    int shift = br->bits - width;
+56,913,784 ( 1.73%)    uint32_t val = (uint32_t) ((br->buf >> shift) & ((1ULL << width) - 1));
+ 7,768,268 ( 0.24%)    br->bits -= width;
+46,609,608 ( 1.42%)    br->buf &= ((1ULL << br->bits) - 1);
+         .             return (int) val;
+46,609,614 ( 1.42%)  }
+         .           
+         .           void
+         .           bw_init (BitWriter *bw, FILE *fp)
+         .           {
+         1 ( 0.00%)    bw->fp = fp;
+         1 ( 0.00%)    bw->buf = 0;
+         1 ( 0.00%)    bw->bits = 0;
+         1 ( 0.00%)    bw->block_len = 0;
+         1 ( 0.00%)  }
+         .           
+         .           static void
+         .           bw_put_byte (BitWriter *bw, uint8_t byte)
+         .           {
+22,899,751 ( 0.70%)    if (bw->block_len == sizeof (bw->block))
+         .               {
+ 5,232,361 ( 0.16%)        fwrite (bw->block, 1, bw->block_len, bw->fp);
+    76,830 ( 0.00%)  => ./libio/./libio/iofwrite.c:fwrite (94x)
+       658 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         .                 bw->block_len = 0;
+         .               }
+24,872,140 ( 0.76%)    bw->block[bw->block_len++] = byte;
+         .           }
+         .           
+         .           void
+         .           bw_flush (BitWriter *bw)
+36,622,551 ( 1.12%)  {
+35,740,968 ( 1.09%)    while (bw->bits >= 8)
+         .               {
+23,886,039 ( 0.73%)        bw_put_byte (bw, (uint8_t) (bw->buf >> (bw->bits - 8)));
+43,526,950 ( 1.33%)        bw->buf &= ((1ULL << (bw->bits - 8)) - 1);
+ 6,218,082 ( 0.19%)        bw->bits -= 8;
+         .               }
+33,927,233 ( 1.03%)  }
+         .           
+         .           void
+         .           bw_write (BitWriter *bw, uint32_t val, int width)
+         .           {
+23,304,804 ( 0.71%)    if (width <= 0 || width > 32)
+         .               return;
+69,914,412 ( 2.13%)    bw->buf = (bw->buf << width) | (val & ((1ULL << width) - 1));
+ 7,768,268 ( 0.24%)    bw->bits += width;
+ 7,768,268 ( 0.24%)    bw_flush (bw);
+233,003,562 ( 7.10%)  => /home/aushou/mz77/src/bitio.c:bw_flush (7,768,268x)
+         .           }
+         .           
+         .           void
+         .           bw_finish (BitWriter *bw)
+         7 ( 0.00%)  {
+         3 ( 0.00%)    if (bw->bits > 0)
+         .               {
+         .                 bw_put_byte (bw, (uint8_t) (bw->buf << (8 - bw->bits)));
+         .                 bw->buf = 0;
+         .                 bw->bits = 0;
+         .               }
+         3 ( 0.00%)    if (bw->block_len > 0)
+         6 ( 0.00%)      fwrite (bw->block, 1, bw->block_len, bw->fp);
+       935 ( 0.00%)  => ./libio/./libio/iofwrite.c:fwrite (1x)
+         1 ( 0.00%)    bw->block_len = 0;
+         6 ( 0.00%)  }
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /home/aushou/mz77/src/lz77.c
+--------------------------------------------------------------------------------
+Ir                   
+
+-- line 17 ----------------------------------------
+          .             FILE *stream;
+          .             size_t used;
+          .             uint8_t bytes[BITIO_BLOCK_SIZE];
+          .           } OutputBlock;
+          .           
+          .           static void
+          .           output_flush (OutputBlock *output)
+          .           {
+  5,914,982 ( 0.18%)    if (output->used > 0)
+      1,083 ( 0.00%)      fwrite (output->bytes, 1, output->used, output->stream);
+    127,905 ( 0.00%)  => ./libio/./libio/iofwrite.c:fwrite (156x)
+          1 ( 0.00%)    output->used = 0;
+        608 ( 0.00%)  }
+          .           
+          .           static inline void
+          .           output_byte (OutputBlock *output, uint8_t byte)
+          .           {
+ 22,238,180 ( 0.68%)    if (output->used == sizeof (output->bytes))
+          .               output_flush (output);
+ 39,842,843 ( 1.21%)    output->bytes[output->used++] = byte;
+          .           }
+          .           
+          .           static inline uint16_t
+          .           hash3 (const uint8_t *bytes)
+          .           {
+ 81,442,785 ( 2.48%)    return ((uint16_t) bytes[0] << 10) ^ (bytes[1] << 4) ^ bytes[2];
+          .           }
+          .           
+          .           static inline uint8_t
+          .           byte_at (const uint8_t *window, const uint8_t *buf, uint64_t win_pos,
+          .           	 uint64_t pos)
+          .           {
+146,666,716 ( 4.47%)    if (pos < win_pos)
+219,976,896 ( 6.70%)      return window[pos % WINDOW_SIZE];
+ 80,859,226 ( 2.46%)    return buf[pos - win_pos];
+          .           }
+          .           
+          .           static inline void
+          .           ht_insert (uint64_t *ht_heads, uint64_t *ht_next, const uint8_t *bytes,
+          .           	   uint64_t pos)
+          .           {
+          .             uint16_t hash = hash3 (bytes);
+ 40,769,776 ( 1.24%)    ht_next[pos % WINDOW_SIZE] = ht_heads[hash];
+ 10,192,444 ( 0.31%)    ht_heads[hash] = pos;
+          .           }
+          .           
+          .           int
+          .           lz77_compress (const char *in_path, const char *out_path)
+          9 ( 0.00%)  {
+          8 ( 0.00%)    FILE *fin = fopen (in_path, "rb");
+        679 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        615 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fin)
+          .               return -1;
+          5 ( 0.00%)    FILE *fout = fopen (out_path, "wb");
+        619 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fout)
+          .               {
+          .                 fclose (fin);
+          .                 return -1;
+          .               }
+          .             BitWriter bw;
+          5 ( 0.00%)    bw_init (&bw, fout);
+          5 ( 0.00%)  => /home/aushou/mz77/src/bitio.c:bw_init (1x)
+        516 ( 0.00%)    uint8_t window[WINDOW_SIZE] = { 0 };
+          9 ( 0.00%)    uint64_t *ht_heads = malloc (HT_SIZE * sizeof (uint64_t));
+        658 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        351 ( 0.00%)  => ./malloc/./malloc/malloc.c:malloc (1x)
+          4 ( 0.00%)    uint64_t *ht_next = malloc (WINDOW_SIZE * sizeof (uint64_t));
+        173 ( 0.00%)  => ./malloc/./malloc/malloc.c:malloc (1x)
+          4 ( 0.00%)    if (!ht_heads || !ht_next)
+          .               {
+          .                 free (ht_heads);
+          .                 free (ht_next);
+          .                 fclose (fin);
+          .                 fclose (fout);
+          .                 return -1;
+          .               }
+          .             for (size_t slot = 0; slot < HT_SIZE; slot++)
+          9 ( 0.00%)      ht_heads[slot] = NO_POS;
+    524,306 ( 0.02%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+        705 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+          .             for (size_t slot = 0; slot < WINDOW_SIZE; slot++)
+          5 ( 0.00%)      ht_next[slot] = NO_POS;
+     32,786 ( 0.00%)  => ./string/../sysdeps/x86_64/multiarch/memset-vec-unaligned-erms.S:__memset_avx2_unaligned_erms (1x)
+          .             uint8_t buf[WINDOW_SIZE];
+         12 ( 0.00%)    size_t buf_len = fread (buf, 1, sizeof (buf), fin);
+        451 ( 0.00%)  => ./libio/./libio/iofread.c:fread (1x)
+        621 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+          1 ( 0.00%)    uint64_t win_pos = 0;
+      8,217 ( 0.00%)    while (buf_len > 0)
+          .               {
+  2,898,303 ( 0.09%)        size_t best_len = 0;
+  2,898,303 ( 0.09%)        uint64_t best_dist = 0;
+      5,476 ( 0.00%)        if (buf_len >= MIN_MATCH)
+          .           	{
+  8,694,909 ( 0.26%)  	  uint64_t pos = ht_heads[hash3 (buf)];
+          .           	  int chain_left = MAX_CHAIN;
+  2,898,303 ( 0.09%)  	  while (pos != NO_POS && pos < win_pos
+149,593,298 ( 4.56%)  		 && win_pos - pos <= WINDOW_SIZE && chain_left-- > 0)
+          .           	    {
+ 16,170,300 ( 0.49%)  	      size_t len = 0;
+          .           	      while (len < MAX_MATCH && len < buf_len
+448,648,835 (13.67%)  		     && byte_at (window, buf, win_pos, pos + len) == buf[len])
+ 57,163,059 ( 1.74%)  		len++;
+ 32,340,600 ( 0.99%)  	      if (len > best_len)
+          .           		{
+  2,735,994 ( 0.08%)  		  best_len = len;
+  2,735,993 ( 0.08%)  		  best_dist = win_pos - pos;
+  5,471,986 ( 0.17%)  		  if (len == MAX_MATCH)
+          .           		    break;
+          .           		}
+ 48,510,897 ( 1.48%)  	      uint64_t next = ht_next[pos % WINDOW_SIZE];
+ 32,340,598 ( 0.99%)  	      if (next == NO_POS || next >= pos)
+          .           		break;
+ 16,168,402 ( 0.49%)  	      pos = next;
+          .           	    }
+          .           	}
+          .                 size_t advance;
+  8,694,906 ( 0.26%)        if (best_len >= MIN_MATCH)
+          .           	{
+ 11,829,960 ( 0.36%)  	  bw_write (&bw, 1, 1);
+ 44,110,064 ( 1.34%)  => /home/aushou/mz77/src/bitio.c:bw_write (1,971,660x)
+  9,858,300 ( 0.30%)  	  bw_write (&bw, (uint32_t) (best_dist - 1), 12);
+123,271,003 ( 3.76%)  => /home/aushou/mz77/src/bitio.c:bw_write (1,971,660x)
+  9,858,300 ( 0.30%)  	  bw_write (&bw, (uint32_t) (best_len - MIN_MATCH), 8);
+104,524,476 ( 3.19%)  => /home/aushou/mz77/src/bitio.c:bw_write (1,971,660x)
+  5,914,980 ( 0.18%)  	  advance = best_len;
+          .           	}
+          .                 else
+          .           	{
+  5,559,864 ( 0.17%)  	  bw_write (&bw, 0, 1);
+ 20,725,907 ( 0.63%)  => /home/aushou/mz77/src/bitio.c:bw_write (926,644x)
+  3,706,576 ( 0.11%)  	  bw_write (&bw, buf[0], 8);
+ 49,127,864 ( 1.50%)  => /home/aushou/mz77/src/bitio.c:bw_write (926,644x)
+ 10,548,200 ( 0.32%)  	  advance = 1;
+          .           	}
+ 49,464,696 ( 1.51%)        for (size_t offset = 0; offset < advance; offset++)
+          .           	{
+ 40,769,784 ( 1.24%)  	  window[win_pos % WINDOW_SIZE] = buf[offset];
+ 30,577,341 ( 0.93%)  	  if (offset + MIN_MATCH <= buf_len)
+          .           	    ht_insert (ht_heads, ht_next, &buf[offset], win_pos);
+          .           	  win_pos++;
+          .           	}
+ 28,983,044 ( 0.88%)        memmove (buf, buf + advance, buf_len - advance);
+680,699,157 (20.74%)  => ./string/../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:__memcpy_avx_unaligned_erms (2,898,304x)
+        658 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+          .                 buf_len -= advance;
+ 11,593,216 ( 0.35%)        if (buf_len < MAX_MATCH)
+     19,166 ( 0.00%)  	buf_len += fread (buf + buf_len, 1, sizeof (buf) - buf_len, fin);
+  1,821,742 ( 0.06%)  => ./libio/./libio/iofread.c:fread (2,738x)
+          .               }
+          2 ( 0.00%)    bw_finish (&bw);
+        962 ( 0.00%)  => /home/aushou/mz77/src/bitio.c:bw_finish (1x)
+          7 ( 0.00%)    free (ht_heads);
+        660 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         71 ( 0.00%)  => ./malloc/./malloc/malloc.c:free (1x)
+          3 ( 0.00%)    free (ht_next);
+        161 ( 0.00%)  => ./malloc/./malloc/malloc.c:free (1x)
+         16 ( 0.00%)    int status = (ferror (fin) || ferror (fout)) ? -1 : 0;
+        641 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+         12 ( 0.00%)  => ./libio/./libio/ferror.c:ferror (2x)
+          7 ( 0.00%)    fclose (fin);
+        634 ( 0.00%)  => ./elf/../sysdeps/x86_64/dl-trampoline.h:_dl_runtime_resolve_xsave (1x)
+        556 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          5 ( 0.00%)    if (fclose (fout) != 0)
+        710 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          .               status = -1;
+          .             return status;
+      5,483 ( 0.00%)  }
+          .           
+          .           int
+          .           lz77_decompress (const char *in_path, const char *out_path)
+          9 ( 0.00%)  {
+          4 ( 0.00%)    FILE *fin = fopen (in_path, "rb");
+        469 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fin)
+          .               return -1;
+          5 ( 0.00%)    FILE *fout = fopen (out_path, "wb");
+        473 ( 0.00%)  => ./libio/./libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+          2 ( 0.00%)    if (!fout)
+          .               {
+          .                 fclose (fin);
+          .                 return -1;
+          .               }
+          .             BitReader br;
+          4 ( 0.00%)    br_init (&br, fin);
+          6 ( 0.00%)  => /home/aushou/mz77/src/bitio.c:br_init (1x)
+          .             OutputBlock output;
+          2 ( 0.00%)    output.stream = fout;
+          2 ( 0.00%)    output.used = 0;
+        515 ( 0.00%)    uint8_t window[WINDOW_SIZE] = { 0 };
+          1 ( 0.00%)    uint64_t win_pos = 0;
+          1 ( 0.00%)    int status = 0;
+          .             while (1)
+          .               {
+  8,694,915 ( 0.26%)        int flag = br_read (&br, 1);
+113,399,384 ( 3.46%)  => /home/aushou/mz77/src/bitio.c:br_read (2,898,305x)
+  5,796,610 ( 0.18%)        if (flag == -1)
+          .           	break;
+  5,796,608 ( 0.18%)        if (flag == 0)
+          .           	{
+  3,706,576 ( 0.11%)  	  int literal = br_read (&br, 8);
+ 50,041,155 ( 1.52%)  => /home/aushou/mz77/src/bitio.c:br_read (926,644x)
+  1,853,288 ( 0.06%)  	  if (literal == -1)
+          .           	    break;
+          .           	  output_byte (&output, (uint8_t) literal);
+  2,779,932 ( 0.08%)  	  window[win_pos % WINDOW_SIZE] = (uint8_t) literal;
+  1,853,288 ( 0.06%)  	  win_pos++;
+          .           	}
+          .                 else
+          .           	{
+  7,886,640 ( 0.24%)  	  int dist_enc = br_read (&br, 12);
+121,264,152 ( 3.70%)  => /home/aushou/mz77/src/bitio.c:br_read (1,971,660x)
+  5,914,980 ( 0.18%)  	  int len_enc = br_read (&br, 8);
+106,475,130 ( 3.24%)  => /home/aushou/mz77/src/bitio.c:br_read (1,971,660x)
+  7,886,640 ( 0.24%)  	  if (dist_enc == -1 || len_enc == -1)
+          .           	    {
+          .           	      status = -1;
+          .           	      break;
+          .           	    }
+          .           	  uint32_t dist = (uint32_t) dist_enc + 1;
+  1,971,660 ( 0.06%)  	  uint32_t len = (uint32_t) len_enc + MIN_MATCH;
+  5,914,980 ( 0.18%)  	  if (dist > win_pos)
+          .           	    {
+          .           	      status = -1;
+          .           	      break;
+          .           	    }
+  3,943,320 ( 0.12%)  	  uint64_t src = win_pos - dist;
+ 33,712,386 ( 1.03%)  	  for (uint32_t offset = 0; offset < len; offset++)
+          .           	    {
+ 27,797,406 ( 0.85%)  	      uint8_t byte = window[(src + offset) % WINDOW_SIZE];
+          .           	      output_byte (&output, byte);
+ 27,797,406 ( 0.85%)  	      window[(win_pos + offset) % WINDOW_SIZE] = byte;
+          .           	    }
+  5,914,980 ( 0.18%)  	  win_pos += len;
+          .           	}
+          .               }
+          .             output_flush (&output);
+         11 ( 0.00%)    if (ferror (fin) || ferror (fout))
+         12 ( 0.00%)  => ./libio/./libio/ferror.c:ferror (2x)
+          .               status = -1;
+          3 ( 0.00%)    fclose (fin);
+        524 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          5 ( 0.00%)    if (fclose (fout) != 0)
+        710 ( 0.00%)  => ./libio/./libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+          .               status = -1;
+          .             return status;
+          9 ( 0.00%)  }
+
+--------------------------------------------------------------------------------
+The following files chosen for auto-annotation could not be found:
+--------------------------------------------------------------------------------
+  ./csu/../csu/libc-start.c
+  ./csu/../sysdeps/nptl/libc_start_call_main.h
+  ./libio/./libio/iofread.c
+  ./string/../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S
+
+--------------------------------------------------------------------------------
+Ir                     
+--------------------------------------------------------------------------------
+2,596,645,231 (79.13%)  events annotated
+

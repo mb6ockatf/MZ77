@@ -1,0 +1,18 @@
+step:       01-block-io
+machine:    debian
+started:    2026-10-23T08:21:09Z
+base:       1f70c33a71ca5505b6d9dd035b3b38cdbb029b32
+tree:       base plus uncommitted.patch (sha256 ab5757ecbbb0231f)
+cpu:        AMD Ryzen 7 5700U with Radeon Graphics
+threads:    16
+pinned to:  CPU 15
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (Debian 14.2.0-19) 14.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       1.53 1.79 1.69
+memory:     29795 MiB available of 31472
+finished:   2026-10-23T08:37:24Z

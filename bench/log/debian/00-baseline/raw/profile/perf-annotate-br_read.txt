@@ -1,0 +1,64 @@
+ Percent |	Source code & Disassembly of prof for cycles:u (131 samples, percent: local period)
+---------------------------------------------------------------------------------------------------
+         :
+         :
+         :
+         : 3    Disassembly of section .text:
+         :
+         : 5    0000000000003960 <br_read>:
+    6.86 :   3960:   lea    -0x1(%rsi),%eax
+    0.76 :   3963:   cmp    $0x1f,%eax
+    3.05 :   3966:   ja     3a02 <br_read+0xa2>
+    0.00 :   396c:   push   %rbp
+    5.34 :   396d:   mov    %rsp,%rbp
+    0.00 :   3970:   push   %r12
+    0.00 :   3972:   mov    %rdi,%r12
+    0.00 :   3975:   push   %rbx
+    2.29 :   3976:   mov    0x10(%rdi),%ecx
+    9.14 :   3979:   mov    %esi,%ebx
+    0.00 :   397b:   cmp    %ecx,%esi
+    0.00 :   397d:   jg     39ad <br_read+0x4d>
+    0.00 :   397f:   jmp    39c5 <br_read+0x65>
+    0.00 :   3981:   nopl   0x0(%rax)
+    0.76 :   3988:   mov    0x8(%r12),%rdx
+    0.00 :   398d:   movzbl %al,%eax
+    0.00 :   3990:   shl    $0x8,%rdx
+    0.00 :   3994:   or     %rax,%rdx
+    2.29 :   3997:   mov    0x10(%r12),%eax
+    0.00 :   399c:   mov    %rdx,0x8(%r12)
+    9.19 :   39a1:   lea    0x8(%rax),%ecx
+    0.00 :   39a4:   mov    %ecx,0x10(%r12)
+    1.53 :   39a9:   cmp    %ebx,%ecx
+    0.00 :   39ab:   jge    39c9 <br_read+0x69>
+    0.00 :   39ad:   mov    (%r12),%rdi
+    7.64 :   39b1:   call   2130 <fgetc@plt>
+    0.00 :   39b6:   cmp    $0xffffffff,%eax
+    0.00 :   39b9:   jne    3988 <br_read+0x28>
+    0.00 :   39bb:   pop    %rbx
+    0.00 :   39bc:   mov    $0xffffffff,%eax
+    0.00 :   39c1:   pop    %r12
+    0.00 :   39c3:   pop    %rbp
+    0.00 :   39c4:   ret
+    0.76 :   39c5:   mov    0x8(%rdi),%rdx
+    7.64 :   39c9:   mov    %ecx,%esi
+    2.29 :   39cb:   mov    $0xffffffffffffffff,%rax
+    0.00 :   39d2:   sub    %ebx,%esi
+    0.00 :   39d4:   mov    %esi,%ecx
+    2.30 :   39d6:   mov    %esi,0x10(%r12)
+   16.03 :   39db:   shl    %cl,%rax
+    0.00 :   39de:   mov    %ebx,%ecx
+    2.29 :   39e0:   not    %rax
+    1.53 :   39e3:   and    %rdx,%rax
+    3.06 :   39e6:   mov    %rax,0x8(%r12)
+    3.06 :   39eb:   mov    $0x1,%eax
+    0.00 :   39f0:   pop    %rbx
+    0.77 :   39f1:   shl    %cl,%rax
+    1.52 :   39f4:   mov    %esi,%ecx
+    0.00 :   39f6:   pop    %r12
+    2.26 :   39f8:   pop    %rbp
+    0.76 :   39f9:   sub    $0x1,%eax
+    4.58 :   39fc:   shr    %cl,%rdx
+    0.76 :   39ff:   and    %edx,%eax
+    1.52 :   3a01:   ret
+    0.00 :   3a02:   mov    $0xffffffff,%eax
+    0.00 :   3a07:   ret

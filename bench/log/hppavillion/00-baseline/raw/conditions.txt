@@ -1,0 +1,16 @@
+step:       00-baseline
+machine:    hppavillion
+started:    2026-10-22T22:02:58Z
+base:       1f70c33a71ca5505b6d9dd035b3b38cdbb029b32
+tree:       clean
+cpu:        11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz
+threads:    4
+pinned to:  CPU 3
+governor:   powersave
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (GCC) 16.2.0
+configure:  --enable-release
+repeat:     9
+load:       0.70 0.32 0.22
+memory:     2761 MiB available of 7589

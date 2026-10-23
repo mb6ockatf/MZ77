@@ -1,0 +1,16 @@
+step:       00-baseline
+machine:    debian
+started:    2026-10-23T08:00:59Z
+base:       1f70c33a71ca5505b6d9dd035b3b38cdbb029b32
+tree:       clean
+cpu:        AMD Ryzen 7 5700U with Radeon Graphics
+threads:    16
+pinned to:  CPU 15
+governor:   powersave
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (Debian 14.2.0-19) 14.2.0
+configure:  --enable-release
+repeat:     9
+load:       1.05 1.02 1.00
+memory:     29825 MiB available of 31472

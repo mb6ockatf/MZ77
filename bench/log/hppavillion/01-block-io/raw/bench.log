@@ -1,0 +1,22 @@
+make: Entering directory '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench'
+CC='gcc' MZ77_SRCDIR='/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77' MZ77_BUILDDIR='/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77' MZ77_BENCH='/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/mz77-bench' \
+  /bin/bash ./bench.sh
+file                  size     archive  ratio    comp_s  decomp_s comp_MB/s dec_MB/s
+mixed.dat         20000000     7944005  0.397    5.0550    0.0887     3.96   225.36
+random.dat        20000000    22496386  1.125    0.8639    0.1967    23.15   101.69
+text.dat          20000000     7334892  0.367    0.8034    0.1114    24.89   179.61
+zeros.dat         20000000      203492  0.010    0.0680    0.0618   293.99   323.68
+dickens           10192446     6218082  0.610    0.4421    0.0878    23.05   116.06
+mozilla           51220480    25706424  0.502    2.2603    0.3460    22.66   148.05
+mr                 9970564     5134536  0.515    0.4265    0.0624    23.38   159.84
+nci               33553445     5893099  0.176    0.8992    0.1181    37.32   284.06
+ooffice            6152192     4148219  0.674    0.1943    0.0381    31.66   161.61
+osdb              10085684     7700169  0.763    0.2686    0.0603    37.55   167.39
+reymont            6627202     3027324  0.457    0.2231    0.0309    29.70   214.19
+samba             21606400     8223633  0.381    0.5563    0.0862    38.84   250.73
+sao                7251944     6486631  0.894    0.2315    0.0506    31.32   143.46
+webster           41458703    19025582  0.459    1.1166    0.2115    37.13   196.01
+x-ray              8474240     8051031  0.950    0.3409    0.0809    24.86   104.74
+xml                5345280     1160183  0.217    0.1217    0.0219    43.90   244.51
+results in /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/01-block-io/raw
+make: Leaving directory '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench'
