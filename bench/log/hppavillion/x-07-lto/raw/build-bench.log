@@ -1,0 +1,8 @@
+make: Entering directory '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench'
+gcc -DHAVE_CONFIG_H -I. -I..  -I../src  -O3 -DNDEBUG -fhardened -flto=auto   -MT mz77_bench-bench.o -MD -MP -MF .deps/mz77_bench-bench.Tpo -c -o mz77_bench-bench.o `test -f 'bench.c' || echo './'`bench.c
+mv -f .deps/mz77_bench-bench.Tpo .deps/mz77_bench-bench.Po
+/bin/bash ../libtool  --tag=CC   --mode=link gcc -O3 -DNDEBUG -fhardened -flto=auto   -flto=auto -Wl,-z,relro,-z,now  -o mz77-bench mz77_bench-bench.o ../src/libmz77codec.a 
+libtool: link: gcc -O3 -DNDEBUG -fhardened -flto=auto -flto=auto -Wl,-z -Wl,relro -Wl,-z -Wl,now -o mz77-bench mz77_bench-bench.o  ../src/libmz77codec.a
+gcc: warning: linker hardening options not enabled by '-fhardened' because other link options were specified on the command line
+gcc: warning: linker hardening options not enabled by '-fhardened' because other link options were specified on the command line
+make: Leaving directory '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench'

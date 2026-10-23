@@ -1,0 +1,18 @@
+step:       x-07-lto
+machine:    debian
+started:    2026-10-24T07:43:10Z
+base:       55149a1ce8c786e4163e584d519c6210bb98f1bd
+tree:       base plus uncommitted.patch (sha256 69b23d1b98819124)
+cpu:        AMD Ryzen 7 5700U with Radeon Graphics
+threads:    16
+pinned to:  CPU 15
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (Debian 14.2.0-19) 14.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       1.16 1.19 1.29
+memory:     30031 MiB available of 31472
+finished:   2026-10-24T07:50:05Z

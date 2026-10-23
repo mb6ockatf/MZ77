@@ -1,0 +1,15 @@
+[00:50:14] start build: make -C /home/aushou/mz77 -j16
+[00:50:14] done  build
+[00:50:14] start check: make -C /home/aushou/mz77 check
+[00:50:14] done  check
+[00:50:14] start build-bench: make -C /home/aushou/mz77/bench mz77-bench
+[00:50:14] done  build-bench
+[00:50:14] start bench: taskset -c 15 make -C /home/aushou/mz77/bench bench REPEAT=9
+[00:50:52] done  bench
+[00:50:52] start archives
+[00:50:56] done  archives
+[00:50:56] start bench-compare: taskset -c 15 make -C /home/aushou/mz77/bench bench-compare REPEAT=9
+[00:57:07] done  bench-compare
+[00:57:07] start profile: taskset -c 15 make -C /home/aushou/mz77/bench profile
+[00:57:24] done  profile
+[00:57:24] results in /home/aushou/mz77/bench/log/debian/07-lto-pgo

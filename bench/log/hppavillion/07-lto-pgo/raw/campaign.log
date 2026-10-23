@@ -1,0 +1,15 @@
+[00:54:48] start build: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 -j4
+[00:54:48] done  build
+[00:54:48] start check: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 check
+[00:54:49] done  check
+[00:54:49] start build-bench: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench mz77-bench
+[00:54:49] done  build-bench
+[00:54:49] start bench: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench REPEAT=9
+[00:55:57] done  bench
+[00:55:57] start archives
+[00:56:03] done  archives
+[00:56:03] start bench-compare: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench-compare REPEAT=9
+[01:05:30] done  bench-compare
+[01:05:30] start profile: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench profile
+[01:05:58] done  profile
+[01:05:58] results in /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/07-lto-pgo

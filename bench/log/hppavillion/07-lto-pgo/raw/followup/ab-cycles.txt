@@ -1,0 +1,29 @@
+# Follow-up A/B after the campaign runs, 2026-10-24 ~01:06 MSK, GCC 16.2, default match path (AVX-512).
+# bench17 = 55149a1 --enable-release before #13; bench13lto = 55149a1 + raw/uncommitted.patch, --enable-release (LTO), rebuilt after the run;
+# bench13pgo = the same after make pgo (the binary measured in this step).
+# taskset -c 3 perf stat -x, -e cycles:u,instructions:u BENCH --mode=MODE --repeat=1 FILES
+# --mode=decompress without --archives compresses each file first; decompression alone is the decompress line minus the compress line.
+compress all bench17 cycles:u=15.057G instructions:u=36.475G 
+compress all bench13lto cycles:u=15.157G instructions:u=35.815G 
+compress all bench13pgo cycles:u=15.849G instructions:u=31.272G 
+compress all bench17 cycles:u=15.020G instructions:u=36.475G 
+compress all bench13lto cycles:u=14.663G instructions:u=35.815G 
+compress all bench13pgo cycles:u=15.452G instructions:u=31.272G 
+compress silesia bench17 cycles:u=8.549G instructions:u=19.183G 
+compress silesia bench13lto cycles:u=8.368G instructions:u=18.697G 
+compress silesia bench13pgo cycles:u=8.520G instructions:u=16.547G 
+compress silesia bench17 cycles:u=8.446G instructions:u=19.183G 
+compress silesia bench13lto cycles:u=8.289G instructions:u=18.697G 
+compress silesia bench13pgo cycles:u=8.498G instructions:u=16.547G 
+decompress all bench17 cycles:u=18.366G instructions:u=44.689G 
+decompress all bench13lto cycles:u=18.005G instructions:u=43.990G 
+decompress all bench13pgo cycles:u=17.959G instructions:u=38.999G 
+decompress all bench17 cycles:u=18.284G instructions:u=44.689G 
+decompress all bench13lto cycles:u=18.360G instructions:u=43.990G 
+decompress all bench13pgo cycles:u=19.439G instructions:u=38.999G 
+decompress silesia bench17 cycles:u=11.690G instructions:u=25.177G 
+decompress silesia bench13lto cycles:u=10.869G instructions:u=24.659G 
+decompress silesia bench13pgo cycles:u=10.916G instructions:u=22.215G 
+decompress silesia bench17 cycles:u=11.078G instructions:u=25.177G 
+decompress silesia bench13lto cycles:u=10.916G instructions:u=24.659G 
+decompress silesia bench13pgo cycles:u=10.921G instructions:u=22.215G 

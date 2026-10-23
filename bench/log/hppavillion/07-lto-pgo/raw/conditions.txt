@@ -1,0 +1,18 @@
+step:       07-lto-pgo
+machine:    hppavillion
+started:    2026-10-23T21:54:48Z
+base:       55149a1ce8c786e4163e584d519c6210bb98f1bd
+tree:       base plus uncommitted.patch (sha256 69b23d1b98819124)
+cpu:        11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz
+threads:    4
+pinned to:  CPU 3
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (GCC) 16.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       1.39 1.46 1.39
+memory:     2515 MiB available of 7589
+finished:   2026-10-23T22:05:58Z

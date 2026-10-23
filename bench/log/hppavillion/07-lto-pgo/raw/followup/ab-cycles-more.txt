@@ -1,0 +1,6 @@
+# Five more alternating rounds after ab-cycles.txt, 2026-10-24 01:08 MSK: compression of all files, cycles:u in G.
+round 1 bench17=14.799 bench13lto=14.628 bench13pgo=14.761
+round 2 bench17=15.143 bench13lto=14.831 bench13pgo=15.942
+round 3 bench17=15.715 bench13lto=14.704 bench13pgo=14.939
+round 4 bench17=15.339 bench13lto=14.907 bench13pgo=14.966
+round 5 bench17=15.706 bench13lto=14.679 bench13pgo=14.795

@@ -18,7 +18,8 @@ AC_ARG_ENABLE([debug],
 AC_ARG_ENABLE([release],
 	      [AS_HELP_STRING([--enable-release], [compile with optimizations for release])],
 	      [if test "x$enable_release" = xyes; then
-	       PROFILE_CFLAGS="-O3 -DNDEBUG -fhardened"
+	       PROFILE_CFLAGS="-O3 -DNDEBUG -fhardened -flto=auto"
+	       PROFILE_LDFLAGS="-flto=auto -Wl,-z,relro,-z,now"
 	       fi],
 	       [enable_release=no])
 AC_ARG_ENABLE([profile],
@@ -40,6 +41,10 @@ if test -n "$PROFILE_CFLAGS" && test "x$mz77_user_cflags" != xset; then
 fi
 AC_SUBST([PROFILE_CFLAGS])
 AC_SUBST([PROFILE_LDFLAGS])
+if test "x$enable_release" = xyes; then
+	AC_CHECK_TOOLS([AR], [gcc-ar ar], [false])
+	AC_CHECK_TOOLS([RANLIB], [gcc-ranlib ranlib], [:])
+fi
 gl_EARLY
 AM_PROG_AR
 LT_INIT

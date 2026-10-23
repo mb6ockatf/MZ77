@@ -1,0 +1,16 @@
+# started on Sat Oct 24 00:57:12 2026
+
+
+ Performance counter stats for '/home/aushou/mz77/bench/bin/prof --archives --repeat=1 /home/aushou/mz77/bench/log/debian/07-lto-pgo/raw/profile/input.lz77' (5 runs):
+
+       169,942,221      cycles:u                                                                ( +-  0.60% )  (51.49%)
+       346,451,372      instructions:u                   #    2.04  insn per cycle              ( +-  0.21% )  (60.17%)
+        55,095,116      branches:u                                                              ( +-  0.10% )  (68.85%)
+         3,972,692      branch-misses:u                  #    7.21% of all branches             ( +-  0.47% )  (73.95%)
+           495,916      cache-references:u                                                      ( +-  1.68% )  (73.97%)
+            16,221      cache-misses:u                   #    3.27% of all cache refs           ( +- 11.22% )  (65.88%)
+       133,363,278      L1-dcache-loads                                                         ( +-  0.31% )  (57.20%)
+           297,350      L1-dcache-load-misses            #    0.22% of all L1-dcache accesses   ( +-  0.50% )  (48.50%)
+
+          0.046164 +- 0.000135 seconds time elapsed  ( +-  0.29% )
+

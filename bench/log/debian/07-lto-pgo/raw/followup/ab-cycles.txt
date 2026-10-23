@@ -1,0 +1,23 @@
+# Follow-up A/B after the campaign runs, debian clock 2026-10-24 00:58 (reads as MSK), GCC 14.2.
+# bench17 = 55149a1 --enable-release before #13 (no LTO); bench13pgo = 55149a1 + raw/uncommitted.patch, --enable-release (LTO) after make pgo.
+# taskset -c 15 perf stat -x, -e cycles:u,instructions:u BENCH --mode=MODE --repeat=1 FILES
+compress all bench17 cycles:u=14.456G instructions:u=40.301G 
+compress all bench13pgo cycles:u=13.485G instructions:u=32.990G 
+compress all bench17 cycles:u=14.395G instructions:u=40.301G 
+compress all bench13pgo cycles:u=13.542G instructions:u=32.990G 
+compress silesia bench17 cycles:u=8.816G instructions:u=21.074G 
+compress silesia bench13pgo cycles:u=8.149G instructions:u=17.623G 
+compress silesia bench17 cycles:u=8.815G instructions:u=21.074G 
+compress silesia bench13pgo cycles:u=8.196G instructions:u=17.623G 
+decompress all bench17 cycles:u=17.790G instructions:u=48.493G 
+decompress all bench13pgo cycles:u=16.700G instructions:u=40.937G 
+decompress all bench17 cycles:u=17.759G instructions:u=48.493G 
+decompress all bench13pgo cycles:u=16.696G instructions:u=40.937G 
+decompress silesia bench17 cycles:u=11.312G instructions:u=27.074G 
+decompress silesia bench13pgo cycles:u=10.526G instructions:u=23.434G 
+decompress silesia bench17 cycles:u=11.241G instructions:u=27.074G 
+decompress silesia bench13pgo cycles:u=10.493G instructions:u=23.434G 
+# Note: --mode=decompress without --archives compresses each file first
+# (untimed by the benchmark, but counted by perf), so decompression alone
+# is the decompress line minus the compress line: about 3.35 G cycles
+# with bench17 and 3.19 G with bench13pgo over all files.

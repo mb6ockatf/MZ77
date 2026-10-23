@@ -3,7 +3,7 @@
 EXTRA_PROGRAMS = mz77-bench
 mz77_bench_SOURCES = bench.c
 mz77_bench_CPPFLAGS = -I$(top_srcdir)/src
-mz77_bench_CFLAGS = $(PROFILE_CFLAGS)
+mz77_bench_CFLAGS = $(PROFILE_CFLAGS) $(PGO_CFLAGS)
 mz77_bench_LDFLAGS = $(PROFILE_LDFLAGS)
 mz77_bench_LDADD = $(top_builddir)/src/libmz77codec.a
 dist_noinst_SCRIPTS = common.sh fetch-silesia.sh bench.sh compare.sh profile.sh \

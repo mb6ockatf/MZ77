@@ -1,0 +1,111 @@
+diff --git a/Makefile.am b/Makefile.am
+index b7296f6..bbabfae 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -5,8 +5,37 @@ EXTRA_DIST = m4/gnulib-cache.m4
+ 
+ clean-local:
+ 	find . -name '*.orig' -exec rm -f {} +
++	rm -rf pgo-data pgo-train
+ 
+ bench bench-compare profile corpus: all
+ 	cd bench && $(MAKE) $(AM_MAKEFLAGS) $@
+ 
+ .PHONY: bench bench-compare profile corpus
++
++# Profile-guided build: instrument, train on test/input and a small
++# synthetic set (not the benchmark corpus), then rebuild with the profile.
++# Every match routine the CPU supports is trained; -fprofile-partial-training
++# keeps the untrained ones optimised normally.
++PGO_DIR = $(abs_top_builddir)/pgo-data
++PGO_TRAIN = $(abs_top_builddir)/pgo-train
++PGO_GENERATE = -fprofile-generate -fprofile-dir='$(PGO_DIR)'
++PGO_USE = -fprofile-use -fprofile-partial-training \
++	  -fprofile-dir='$(PGO_DIR)' -Wno-missing-profile
++pgo:
++	rm -rf '$(PGO_DIR)' '$(PGO_TRAIN)'
++	$(MAKE) $(AM_MAKEFLAGS) clean
++	$(MAKE) $(AM_MAKEFLAGS) all PGO_CFLAGS="$(PGO_GENERATE)"
++	cd bench && $(MAKE) $(AM_MAKEFLAGS) mz77-bench PGO_CFLAGS="$(PGO_GENERATE)"
++	bench/mz77-bench --generate='$(PGO_TRAIN)' --size=4000000 > /dev/null
++	for match in auto avx2 word; do \
++	  MZ77_MATCH=$$match bench/mz77-bench --repeat=1 \
++	    $(top_srcdir)/test/input/* '$(PGO_TRAIN)'/*.dat > /dev/null || exit 1; \
++	done
++	rm -rf '$(PGO_TRAIN)'
++	cd src && $(MAKE) $(AM_MAKEFLAGS) clean
++	cd test && $(MAKE) $(AM_MAKEFLAGS) clean
++	cd bench && $(MAKE) $(AM_MAKEFLAGS) clean
++	$(MAKE) $(AM_MAKEFLAGS) all PGO_CFLAGS="$(PGO_USE)"
++	cd bench && $(MAKE) $(AM_MAKEFLAGS) mz77-bench PGO_CFLAGS="$(PGO_USE)"
++
++.PHONY: pgo
+diff --git a/bench/Makefile.am b/bench/Makefile.am
+index abaee1d..bfbc62d 100644
+--- a/bench/Makefile.am
++++ b/bench/Makefile.am
+@@ -3,7 +3,7 @@
+ EXTRA_PROGRAMS = mz77-bench
+ mz77_bench_SOURCES = bench.c
+ mz77_bench_CPPFLAGS = -I$(top_srcdir)/src
+-mz77_bench_CFLAGS = $(PROFILE_CFLAGS)
++mz77_bench_CFLAGS = $(PROFILE_CFLAGS) $(PGO_CFLAGS)
+ mz77_bench_LDFLAGS = $(PROFILE_LDFLAGS)
+ mz77_bench_LDADD = $(top_builddir)/src/libmz77codec.a
+ dist_noinst_SCRIPTS = common.sh fetch-silesia.sh bench.sh compare.sh profile.sh \
+diff --git a/configure.ac b/configure.ac
+index 210f0cf..66809f1 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -18,7 +18,8 @@ AC_ARG_ENABLE([debug],
+ AC_ARG_ENABLE([release],
+ 	      [AS_HELP_STRING([--enable-release], [compile with optimizations for release])],
+ 	      [if test "x$enable_release" = xyes; then
+-	       PROFILE_CFLAGS="-O3 -DNDEBUG -fhardened"
++	       PROFILE_CFLAGS="-O3 -DNDEBUG -fhardened -flto=auto"
++	       PROFILE_LDFLAGS="-flto=auto -Wl,-z,relro,-z,now"
+ 	       fi],
+ 	       [enable_release=no])
+ AC_ARG_ENABLE([profile],
+@@ -40,6 +41,10 @@ if test -n "$PROFILE_CFLAGS" && test "x$mz77_user_cflags" != xset; then
+ fi
+ AC_SUBST([PROFILE_CFLAGS])
+ AC_SUBST([PROFILE_LDFLAGS])
++if test "x$enable_release" = xyes; then
++	AC_CHECK_TOOLS([AR], [gcc-ar ar], [false])
++	AC_CHECK_TOOLS([RANLIB], [gcc-ranlib ranlib], [:])
++fi
+ gl_EARLY
+ AM_PROG_AR
+ LT_INIT
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 85f756f..c8c91d3 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -1,11 +1,11 @@
+ bin_PROGRAMS = mz77
+ noinst_LIBRARIES = libmz77codec.a
+ libmz77codec_a_SOURCES = lz77.c lz77.h bitio.c bitio.h
+-libmz77codec_a_CFLAGS = $(PROFILE_CFLAGS)
++libmz77codec_a_CFLAGS = $(PROFILE_CFLAGS) $(PGO_CFLAGS)
+ mz77_SOURCES = \
+ 	       main.c antidebugger.c antidebugger.h dt.h \
+ 	       messages.c messages.h queue.c queue.h
+-mz77_CFLAGS = $(GTK4_CFLAGS) $(PROFILE_CFLAGS)
++mz77_CFLAGS = $(GTK4_CFLAGS) $(PROFILE_CFLAGS) $(PGO_CFLAGS)
+ mz77_LDFLAGS = $(PROFILE_LDFLAGS)
+ mz77_LDADD = libmz77codec.a $(GTK4_LIBS) -lpthread
+ CLEANFILES = gmon.out
+diff --git a/test/Makefile.am b/test/Makefile.am
+index 76e97c1..bb3e0fa 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -1,7 +1,7 @@
+ check_PROGRAMS = roundtrip
+ roundtrip_SOURCES = roundtrip.c
+ roundtrip_CPPFLAGS = -I$(top_srcdir)/src
+-roundtrip_CFLAGS = $(PROFILE_CFLAGS)
++roundtrip_CFLAGS = $(PROFILE_CFLAGS) $(PGO_CFLAGS)
+ roundtrip_LDFLAGS = $(PROFILE_LDFLAGS)
+ roundtrip_LDADD = $(top_builddir)/src/libmz77codec.a
+ 
