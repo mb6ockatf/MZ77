@@ -144,6 +144,8 @@ TAGS
 /bench/bin/
 /bench/pgo-data/
 /bench/pgo-train/
+/pgo-data/
+/pgo-train/
 gmon.out
 /bench/log/**/perf.data*
 /bench/log/**/input.lz77

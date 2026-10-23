@@ -62,8 +62,10 @@ Compiles src/lz77.c, src/bitio.c and bench/bench.c directly with each of
   O3-native                     -march=native: machine-dependent
   O3-native-lto                 plus link-time optimisation
   O3-native-lto-pgo             plus profile-guided optimisation, trained
-                                on test/input and a small synthetic set,
-                                not on the measured corpus
+                                on a 4 MB synthetic set from the same
+                                generator and seeds as generated/ (so
+                                it overlaps the start of those files);
+                                silesia is not used for training
 
 variants.csv has one row per variant and file; variants.txt totals each
 variant over the corpus.  The list is at the top of bench/compare.sh.
@@ -95,8 +97,10 @@ English text), else generated/text.dat.
   cachegrind.txt             simulated cache and branch-predictor misses
   summary.txt                the headline numbers from all of the above
 
-perf needs kernel.perf_event_paranoid <= 2 (the Debian default is 2);
-the scripts count user-space events only, so no root is needed.
+perf needs kernel.perf_event_paranoid <= 2; the scripts count
+user-space events only, so no root is needed to run them.  Some
+systems boot with 3 (the debian benchmark machine did after a reboot);
+set it with 'sudo sysctl kernel.perf_event_paranoid=1'.
 
 callgrind and cachegrind run the program about 50 times slower but give
 the same counts on every run, which makes them the best way to compare
@@ -123,3 +127,20 @@ describes the layout and the list of steps.
 
   bench/campaign.sh 01-block-io
   REPEAT=5 SKIP_PROFILE=1 bench/campaign.sh 01-block-io-quick
+
+Comparing every step at once: steps.sh
+--------------------------------------
+
+bench/steps.sh rebuilds the codec as it was at every step of the
+optimisation work (the commits are listed at the top of the script),
+with the release flags of that step, and counts the CPU cycles each
+build needs to compress and decompress the whole corpus, in
+alternating rounds on one core.  Cycle counts do not depend on the
+clock frequency, so this is the fairest step-to-step comparison on a
+laptop.  It needs perf and the git history.
+
+  bench/steps.sh
+  ROUNDS=5 CPU=3 bench/steps.sh
+
+steps.txt has the medians and the speed-ups against the previous step
+and the baseline; steps-raw.txt has every measurement.

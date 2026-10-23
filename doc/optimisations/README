@@ -1,6 +1,9 @@
 Optimisations of the MZ77 codec
 ===============================
 
+Start with RESULTS.md: which numbers to quote in the report, where
+every benchmark result is, and how to reproduce the measurements.
+
 One file per optimisation, in the order they were applied.  Each says
 what changed, why it should help, how correctness was checked, and what
 the measurements showed.  The measurements themselves, with every raw

@@ -11,6 +11,14 @@ One directory per machine, one directory per measured step inside it:
                                    conditions, what the numbers say
     raw/                           everything the run printed, unedited
 
+  bench/log/MACHINE/x-NN-NAME/     an extra run of step NN's build on
+                                   another code path (MZ77_MATCH) or
+                                   without PGO; not part of the chain
+  bench/log/MACHINE/steps/         bench/steps.sh at the end: every
+                                   step rebuilt and counted in CPU
+                                   cycles, back to back; the numbers to
+                                   quote (doc/optimisations/RESULTS.md)
+
 Each step is measured with bench/campaign.sh STEP, which records:
 
   raw/conditions.txt     commit, uncommitted changes, CPU, governor,
@@ -51,11 +59,22 @@ Machines
 Steps
 -----
 
-  00-baseline           dev at b5f6d00 plus the measuring scripts
-  01-block-io           #11
-  02-inline-bitio       #12
-  03-no-memmove         #14
-  04-compare-8-bytes    #15
-  05-avx512bw           #16, measured on hppavillion
-  06-avx2               AVX2 match compare, measured on debian
-  07-lto-pgo            #13
+  00-baseline           1f70c33: dev at b5f6d00 plus the measuring
+                        scripts
+  01-block-io           #11, cc7a482
+  02-inline-bitio       #12, 08b2ec5
+  03-no-memmove         #14, 08b2ec5 plus its raw/uncommitted.patch
+                        (#14 and #15 were committed together)
+  04-compare-8-bytes    #15, c1c1f4a
+  05-avx512bw           #16, 02312cd; x-05-word on hppavillion
+  06-avx2               AVX2 match compare, 55149a1; x-06-avx2 on
+                        hppavillion
+  07-lto-pgo            #13, 5d53dc4 after make pgo; x-07-lto is the
+                        same without PGO
+
+Each step's raw/conditions.txt names the commit it was measured on
+(base) and raw/uncommitted.patch the change on top of it, which is
+what the following commit contains.  The sources measured as 03 and
+04 were first committed as 836c993 and a239af8 and then squashed into
+c1c1f4a, so 836c993 is not in the published history; 03's source is
+rebuilt from 08b2ec5 and its patch instead.
