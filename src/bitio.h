@@ -24,10 +24,32 @@ typedef struct {
 } BitWriter;
 
 void br_init(BitReader *br, FILE *fp);
-int  br_read(BitReader *br, int width);
+void br_refill(BitReader *br);
 
 void bw_init(BitWriter *bw, FILE *fp);
-void bw_write(BitWriter *bw, uint32_t val, int width);
+void bw_drain(BitWriter *bw);
 void bw_flush(BitWriter *bw);
 void bw_finish(BitWriter *bw);
+
+static inline int
+br_read (BitReader *br, int width)
+{
+  if (br->bits < width)
+    {
+      br_refill (br);
+      if (br->bits < width)
+	return -1;
+    }
+  br->bits -= width;
+  return (int) ((br->buf >> br->bits) & ((1ULL << width) - 1));
+}
+
+static inline void
+bw_write (BitWriter *bw, uint32_t val, int width)
+{
+  bw->buf = (bw->buf << width) | (val & ((1ULL << width) - 1));
+  bw->bits += width;
+  if (bw->bits >= 32)
+    bw_drain (bw);
+}
 #endif

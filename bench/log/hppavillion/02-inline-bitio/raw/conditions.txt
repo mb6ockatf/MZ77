@@ -1,0 +1,18 @@
+step:       02-inline-bitio
+machine:    hppavillion
+started:    2026-10-23T00:22:21Z
+base:       cc7a48263b95be66392c4bdb9f494ed673930079
+tree:       base plus uncommitted.patch (sha256 018f3d436fa9639c)
+cpu:        11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz
+threads:    4
+pinned to:  CPU 3
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (GCC) 16.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       0.29 0.22 0.18
+memory:     2800 MiB available of 7589
+finished:   2026-10-23T00:46:28Z

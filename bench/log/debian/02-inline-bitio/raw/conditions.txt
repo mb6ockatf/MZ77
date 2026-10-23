@@ -1,0 +1,18 @@
+step:       02-inline-bitio
+machine:    debian
+started:    2026-10-23T10:20:46Z
+base:       cc7a48263b95be66392c4bdb9f494ed673930079
+tree:       base plus uncommitted.patch (sha256 85d2b0862c93b425)
+cpu:        AMD Ryzen 7 5700U with Radeon Graphics
+threads:    16
+pinned to:  CPU 15
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (Debian 14.2.0-19) 14.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       1.00 1.00 1.00
+memory:     29769 MiB available of 31472
+finished:   2026-10-23T10:36:20Z

@@ -1,0 +1,15 @@
+[03:22:21] start build: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 -j4
+[03:22:22] done  build
+[03:22:22] start check: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 check
+[03:22:22] done  check
+[03:22:22] start build-bench: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench mz77-bench
+[03:22:23] done  build-bench
+[03:22:23] start bench: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench REPEAT=9
+[03:24:52] done  bench
+[03:24:52] start archives
+[03:25:07] done  archives
+[03:25:07] start bench-compare: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench-compare REPEAT=9
+[03:45:38] done  bench-compare
+[03:45:38] start profile: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench profile
+[03:46:28] done  profile
+[03:46:28] results in /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/02-inline-bitio

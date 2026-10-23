@@ -1,0 +1,9 @@
+# Follow-up A/B after the campaign run, 2026-10-23 ~04:05 MSK.
+# bench11 = cc7a482 (#11), bench12 = cc7a482 + raw/uncommitted.patch (#12),
+# both built in ~/mz77 with --enable-release (GCC 14.2).
+# taskset -c 15 perf stat -x, -e cycles:u BENCH --mode=compress --repeat=1 FILE
+# file      #11 G    #12 G
+mixed.dat    14.393   12.911
+mozilla       6.978    6.872
+nci           2.814    2.454
+dickens       1.135    1.078

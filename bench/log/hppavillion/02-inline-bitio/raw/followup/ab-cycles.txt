@@ -1,0 +1,33 @@
+# Follow-up A/B after the campaign run, 2026-10-23 ~04:00 MSK.
+# bench11 = cc7a482 (#11), bench12 = cc7a482 + raw/uncommitted.patch (#12),
+# both built in the main tree with --enable-release (GCC 16.2).
+# taskset -c 3 perf stat -x, -e cycles:u,instructions:u BENCH --mode=compress --repeat=1 FILES
+# Whole corpus, alternating runs:
+#11 cycles:u=41.595G instructions:u=112.737G
+#12 cycles:u=43.060G instructions:u=109.996G
+#11 cycles:u=42.041G instructions:u=112.867G
+#12 cycles:u=43.813G instructions:u=109.996G
+# Per file, cycles:u in G (one run each): file #11 #12 #11/#12
+mixed.dat 16.188 17.186 0.942x
+random.dat 2.210 2.100 1.052x
+text.dat 2.057 2.071 0.993x
+zeros.dat 0.166 0.172 0.965x
+dickens 1.151 1.139 1.011x
+mozilla 5.840 6.051 0.965x
+mr 1.122 1.140 0.984x
+nci 2.342 2.437 0.961x
+ooffice 0.736 0.731 1.007x
+osdb 0.977 0.961 1.017x
+reymont 0.878 0.862 1.019x
+samba 2.165 2.142 1.011x
+sao 0.832 0.827 1.006x
+webster 4.070 3.997 1.018x
+x-ray 0.864 0.846 1.021x
+xml 0.311 0.312 0.997x
+# Wall-time A/B (ab-wall.csv): 5 rounds alternating #11 and #12, --repeat=3,
+# whole-corpus compression totals per round:
+# round 1: #11 20.13 s  #12 13.62 s
+# round 2: #11 14.97 s  #12 22.21 s
+# round 3: #11 16.78 s  #12 17.40 s
+# round 4: #11 21.48 s  #12 17.91 s
+# round 5: #11 16.35 s  #12 14.78 s

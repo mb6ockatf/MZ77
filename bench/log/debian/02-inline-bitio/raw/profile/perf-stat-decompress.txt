@@ -1,0 +1,16 @@
+# started on Fri Oct 23 03:35:59 2026
+
+
+ Performance counter stats for '/home/aushou/mz77/bench/bin/prof --archives --repeat=1 /home/aushou/mz77/bench/log/debian/02-inline-bitio/raw/profile/input.lz77' (5 runs):
+
+       163,009,964      cycles:u                                                                ( +-  0.28% )  (48.62%)
+       346,349,468      instructions:u                   #    2.12  insn per cycle              ( +-  0.04% )  (52.80%)
+        55,152,104      branches:u                                                              ( +-  0.08% )  (61.36%)
+         4,248,531      branch-misses:u                  #    7.70% of all branches             ( +-  0.30% )  (69.94%)
+           496,645      cache-references:u                                                      ( +-  0.64% )  (74.32%)
+            10,005      cache-misses:u                   #    2.01% of all cache refs           ( +-  5.24% )  (72.89%)
+       128,519,898      L1-dcache-loads                                                         ( +-  0.12% )  (64.32%)
+           300,027      L1-dcache-load-misses            #    0.23% of all L1-dcache accesses   ( +-  0.47% )  (55.75%)
+
+         0.0474371 +- 0.0000360 seconds time elapsed  ( +-  0.08% )
+

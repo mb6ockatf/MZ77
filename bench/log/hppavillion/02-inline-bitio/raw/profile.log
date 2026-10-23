@@ -1,0 +1,81 @@
+make: Entering directory '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench'
+CC='gcc' MZ77_SRCDIR='/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77' MZ77_BUILDDIR='/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77' /bin/bash ./profile.sh
+profiling on /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/corpus/silesia/dickens
+== gprof
+== perf stat
+== perf record
+./profile.sh: line 37: 31092 Segmentation fault      ( perf annotate -q -i "$out/perf.data" --stdio --no-source -s "$func" > "$out/perf-annotate-$func.txt" ) 2> /dev/null
+== callgrind
+== cachegrind
+--31910-- warning: L3 cache found, using its data for the LL simulation.
+input: /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/corpus/silesia/dickens (10192446 bytes)
+
+gprof flat profile (top 10):
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 29.62      0.45     0.45        5     0.09     0.20  lz77_compress
+ 22.38      0.79     0.34                             _init
+ 16.13      1.04     0.25 366666790     0.00     0.00  byte_at
+  6.25      1.13     0.10 65453735     0.00     0.00  hash3
+  4.61      1.20     0.07 38841345     0.00     0.00  br_read
+  4.61      1.27     0.07  7375590     0.00     0.00  bw_drain
+  3.95      1.33     0.06 50962220     0.00     0.00  ht_insert
+  3.95      1.39     0.06 38841340     0.00     0.00  bw_write
+  3.95      1.45     0.06        5     0.01     0.04  lz77_decompress
+  1.97      1.48     0.03  4389935     0.00     0.00  br_refill
+perf stat, compress only (mean of 5 runs):
+  1,134,872,527      cycles:u                                                                ( +-  0.26% )
+  2,406,431,392      instructions:u                   #    2.12  insn per cycle              ( +-  0.04% )
+  501,650,534      branches:u                                                              ( +-  0.02% )
+  17,775,172      branch-misses:u                  #    3.54% of all branches             ( +-  0.09% )
+  242,196      cache-references:u                                                      ( +-  1.84% )
+  72,643      cache-misses:u                   #   29.99% of all cache refs           ( +-  1.85% )
+  469,720,241      L1-dcache-loads                                                         ( +-  0.08% )
+  11,592,870      L1-dcache-load-misses            #    2.47% of all L1-dcache accesses   ( +-  0.89% )
+  0.48698 +- 0.00598 seconds time elapsed  ( +-  1.23% )
+
+perf stat, decompress only (mean of 5 runs):
+  189,554,200      cycles:u                                                                ( +-  0.48% )
+  335,995,662      instructions:u                   #    1.77  insn per cycle              ( +-  0.00% )
+  53,334,903      branches:u                                                              ( +-  0.00% )
+  4,010,332      branch-misses:u                  #    7.52% of all branches             ( +-  0.21% )
+  13,973      cache-references:u                                                      ( +- 11.40% )
+  6,891      cache-misses:u                   #   49.32% of all cache refs           ( +-  4.59% )
+  50,029,352      L1-dcache-loads                                                         ( +-  0.00% )
+  298,979      L1-dcache-load-misses            #    0.60% of all L1-dcache accesses   ( +-  0.52% )
+  0.08522 +- 0.00147 seconds time elapsed  ( +-  1.72% )
+
+perf hottest source lines:
+    18.97%  lz77.c:107
+     6.20%  lz77.c:103
+     6.04%  memmove-vec-unaligned-erms.S:491
+     5.92%  lz77.c:108
+     3.94%  lz77.c:117
+     3.68%  lz77.c:123
+     3.55%  memmove-vec-unaligned-erms.S:484
+     3.31%  lz77.c:49
+     2.80%  lz77.c:116
+     2.54%  bitio.c:26
+     2.30%  memmove-vec-unaligned-erms.S:488
+     2.14%  lz77.c:59
+     1.70%  bitio.h:53
+     1.69%  bitio.c:51
+     1.65%  lz77.c:215
+
+cachegrind totals (I = instructions, D1/LL = L1/last-level data
+cache misses, Bc/Bcm = conditional branches and mispredictions):
+  Ir     2,756,444,812
+  I1mr   1,922
+  ILmr   1,813
+  Dr     518,539,916
+  D1mr   8,487,782
+  DLmr   3,517
+  Dw     342,320,379
+  D1mw   731,809
+  DLmw   11,289
+  Bc     423,379,052
+  Bcm    36,373,060
+  Bi     2,917,631
+  Bim    350
+results in /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/02-inline-bitio/raw/profile
+make: Leaving directory '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench'

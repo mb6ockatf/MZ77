@@ -1,0 +1,37 @@
+    63.17%  prof     prof                  [.] lz77_compress
+            |
+            ---lz77_compress
+               main
+               __libc_start_call_main
+
+    18.07%  prof     libc.so.6             [.] __memmove_evex_unaligned_erms
+            |
+            ---__memmove_evex_unaligned_erms
+               |          
+                --17.99%--main
+                          __libc_start_call_main
+
+     9.89%  prof     prof                  [.] lz77_decompress
+            |
+            ---lz77_decompress
+               main
+               __libc_start_call_main
+
+     4.65%  prof     prof                  [.] br_refill
+            |
+            ---br_refill
+               |          
+                --4.20%--lz77_decompress
+                          main
+                          __libc_start_call_main
+
+     3.78%  prof     prof                  [.] bw_drain
+            |
+            ---bw_drain
+               |          
+                --3.28%--lz77_compress
+                          main
+                          __libc_start_call_main
+
+
+

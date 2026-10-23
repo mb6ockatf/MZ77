@@ -1,0 +1,15 @@
+[03:20:46] start build: make -C /home/aushou/mz77 -j16
+[03:20:47] done  build
+[03:20:47] start check: make -C /home/aushou/mz77 check
+[03:20:48] done  check
+[03:20:48] start build-bench: make -C /home/aushou/mz77/bench mz77-bench
+[03:20:48] done  build-bench
+[03:20:48] start bench: taskset -c 15 make -C /home/aushou/mz77/bench bench REPEAT=9
+[03:22:24] done  bench
+[03:22:24] start archives
+[03:22:35] done  archives
+[03:22:35] start bench-compare: taskset -c 15 make -C /home/aushou/mz77/bench bench-compare REPEAT=9
+[03:35:52] done  bench-compare
+[03:35:52] start profile: taskset -c 15 make -C /home/aushou/mz77/bench profile
+[03:36:20] done  profile
+[03:36:20] results in /home/aushou/mz77/bench/log/debian/02-inline-bitio
