@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#if defined __x86_64__ || defined __i386__
+#define MZ77_X86 1
+#include <immintrin.h>
+#endif
 #define WINDOW_SIZE 4096
 #define MAX_MATCH   258
 #define MIN_MATCH   3
@@ -67,6 +71,43 @@ match_length (const uint8_t *candidate, const uint8_t *cursor, size_t limit)
   return len;
 }
 
+#ifdef MZ77_X86
+__attribute__ ((target ("avx512bw,avx512vl")))
+static inline size_t
+match_length_avx512 (const uint8_t *candidate, const uint8_t *cursor,
+		     size_t limit)
+{
+  size_t len = 0;
+  while (len + 64 <= limit)
+    {
+      __m512i candidate_bytes = _mm512_loadu_si512 (candidate + len);
+      __m512i cursor_bytes = _mm512_loadu_si512 (cursor + len);
+      __mmask64 unequal = _mm512_cmpneq_epi8_mask (candidate_bytes,
+						   cursor_bytes);
+      if (unequal != 0)
+	return len + (size_t) __builtin_ctzll (unequal);
+      len += 64;
+    }
+  if (len < limit)
+    {
+      __mmask64 tail = (1ULL << (limit - len)) - 1;
+      __m512i candidate_bytes = _mm512_maskz_loadu_epi8 (tail, candidate + len);
+      __m512i cursor_bytes = _mm512_maskz_loadu_epi8 (tail, cursor + len);
+      __mmask64 unequal = _mm512_mask_cmpneq_epi8_mask (tail, candidate_bytes,
+							cursor_bytes);
+      if (unequal != 0)
+	return len + (size_t) __builtin_ctzll (unequal);
+    }
+  return limit;
+}
+#endif
+
+enum MatchKind
+{
+  MATCH_WORD,
+  MATCH_AVX512
+};
+
 static inline void
 ht_insert (uint64_t *ht_heads, uint64_t *ht_next, const uint8_t *bytes,
 	   uint64_t pos)
@@ -76,18 +117,10 @@ ht_insert (uint64_t *ht_heads, uint64_t *ht_next, const uint8_t *bytes,
   ht_heads[hash] = pos;
 }
 
-int
-lz77_compress (const char *in_path, const char *out_path)
+__attribute__ ((always_inline))
+static inline int
+compress_stream (FILE *fin, FILE *fout, enum MatchKind kind)
 {
-  FILE *fin = fopen (in_path, "rb");
-  if (!fin)
-    return -1;
-  FILE *fout = fopen (out_path, "wb");
-  if (!fout)
-    {
-      fclose (fin);
-      return -1;
-    }
   BitWriter bw;
   bw_init (&bw, fout);
   uint64_t *ht_heads = malloc (HT_SIZE * sizeof (uint64_t));
@@ -96,8 +129,6 @@ lz77_compress (const char *in_path, const char *out_path)
     {
       free (ht_heads);
       free (ht_next);
-      fclose (fin);
-      fclose (fout);
       return -1;
     }
   for (size_t slot = 0; slot < HT_SIZE; slot++)
@@ -123,7 +154,13 @@ lz77_compress (const char *in_path, const char *out_path)
 		 && win_pos - pos <= WINDOW_SIZE && chain_left-- > 0)
 	    {
 	      const uint8_t *candidate = data + (pos - data_base);
-	      size_t len = match_length (candidate, cursor, limit);
+	      size_t len;
+#ifdef MZ77_X86
+	      if (kind == MATCH_AVX512)
+		len = match_length_avx512 (candidate, cursor, limit);
+	      else
+#endif
+		len = match_length (candidate, cursor, limit);
 	      if (len > best_len)
 		{
 		  best_len = len;
@@ -182,7 +219,64 @@ lz77_compress (const char *in_path, const char *out_path)
   bw_finish (&bw);
   free (ht_heads);
   free (ht_next);
-  int status = (ferror (fin) || ferror (fout)) ? -1 : 0;
+  return 0;
+}
+
+static int
+compress_word (FILE *fin, FILE *fout)
+{
+  return compress_stream (fin, fout, MATCH_WORD);
+}
+
+#ifdef MZ77_X86
+__attribute__ ((target ("avx512bw,avx512vl")))
+static int
+compress_avx512 (FILE *fin, FILE *fout)
+{
+  return compress_stream (fin, fout, MATCH_AVX512);
+}
+#endif
+
+static enum MatchKind
+match_kind (void)
+{
+  const char *forced = getenv ("MZ77_MATCH");
+  if (forced && strcmp (forced, "word") == 0)
+    return MATCH_WORD;
+#ifdef MZ77_X86
+  __builtin_cpu_init ();
+  if (__builtin_cpu_supports ("avx512bw")
+      && __builtin_cpu_supports ("avx512vl"))
+    return MATCH_AVX512;
+#endif
+  return MATCH_WORD;
+}
+
+int
+lz77_compress (const char *in_path, const char *out_path)
+{
+  FILE *fin = fopen (in_path, "rb");
+  if (!fin)
+    return -1;
+  FILE *fout = fopen (out_path, "wb");
+  if (!fout)
+    {
+      fclose (fin);
+      return -1;
+    }
+  int result;
+  switch (match_kind ())
+    {
+#ifdef MZ77_X86
+    case MATCH_AVX512:
+      result = compress_avx512 (fin, fout);
+      break;
+#endif
+    default:
+      result = compress_word (fin, fout);
+      break;
+    }
+  int status = (result != 0 || ferror (fin) || ferror (fout)) ? -1 : 0;
   fclose (fin);
   if (fclose (fout) != 0)
     status = -1;

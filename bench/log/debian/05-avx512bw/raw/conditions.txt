@@ -1,0 +1,18 @@
+step:       05-avx512bw
+machine:    debian
+started:    2026-10-24T07:01:39Z
+base:       c1c1f4adaba3e6543090aa2bc73bed240602757d
+tree:       base plus uncommitted.patch (sha256 3eb05e1020db49cd)
+cpu:        AMD Ryzen 7 5700U with Radeon Graphics
+threads:    16
+pinned to:  CPU 15
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (Debian 14.2.0-19) 14.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       1.12 1.07 1.02
+memory:     30193 MiB available of 31472
+finished:   2026-10-24T07:09:02Z

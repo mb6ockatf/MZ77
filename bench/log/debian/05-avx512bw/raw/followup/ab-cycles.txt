@@ -1,0 +1,9 @@
+# Follow-up A/B after the campaign run, debian clock 00:09 (about MSK), GCC 14.2, --enable-release.
+# bench15 = c1c1f4a (#15), bench16 = c1c1f4a + raw/uncommitted.patch (#16, word fallback: no AVX-512 here).
+# taskset -c 15 perf stat -x, -e cycles:u,instructions:u BENCH --mode=compress --repeat=1 CORPUS
+#15 cycles:u=16.329G instructions:u=41.297G 
+#16 cycles:u=16.231G instructions:u=41.211G 
+#15 cycles:u=16.241G instructions:u=41.297G 
+#16 cycles:u=16.179G instructions:u=41.211G 
+#15 cycles:u=16.320G instructions:u=41.297G 
+#16 cycles:u=16.244G instructions:u=41.211G 

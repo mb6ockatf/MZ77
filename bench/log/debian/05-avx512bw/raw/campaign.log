@@ -1,0 +1,15 @@
+[00:01:39] start build: make -C /home/aushou/mz77 -j16
+[00:01:40] done  build
+[00:01:40] start check: make -C /home/aushou/mz77 check
+[00:01:41] done  check
+[00:01:41] start build-bench: make -C /home/aushou/mz77/bench mz77-bench
+[00:01:41] done  build-bench
+[00:01:41] start bench: taskset -c 15 make -C /home/aushou/mz77/bench bench REPEAT=9
+[00:02:25] done  bench
+[00:02:25] start archives
+[00:02:29] done  archives
+[00:02:29] start bench-compare: taskset -c 15 make -C /home/aushou/mz77/bench bench-compare REPEAT=9
+[00:08:46] done  bench-compare
+[00:08:46] start profile: taskset -c 15 make -C /home/aushou/mz77/bench profile
+[00:09:02] done  profile
+[00:09:02] results in /home/aushou/mz77/bench/log/debian/05-avx512bw

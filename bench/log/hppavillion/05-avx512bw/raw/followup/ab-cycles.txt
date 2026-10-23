@@ -1,0 +1,26 @@
+# Follow-up A/B after the campaign run, 2026-10-24 ~00:13 MSK, GCC 16.2, --enable-release.
+# bench15 = c1c1f4a (#15); bench16 = c1c1f4a + raw/uncommitted.patch (#16), run as is (AVX-512) and with MZ77_MATCH=word.
+# taskset -c 3 perf stat -x, -e cycles:u,instructions:u BENCH --mode=compress --repeat=1 CORPUS
+#15 cycles:u=18.147G instructions:u=45.139G 
+#16-word cycles:u=18.582G instructions:u=45.139G 
+#16-avx512 cycles:u=14.885G instructions:u=36.475G 
+#15 cycles:u=18.289G instructions:u=45.139G 
+#16-word cycles:u=18.558G instructions:u=45.139G 
+#16-avx512 cycles:u=14.890G instructions:u=36.475G 
+# Per file, cycles:u in G: file #15 #16-word #16-avx512 #15/#16-avx512
+mixed.dat 7.236 7.501 5.048 1.433x
+random.dat 0.522 0.560 0.543 0.962x
+text.dat 0.938 0.953 0.806 1.163x
+zeros.dat 0.096 0.095 0.089 1.077x
+dickens 0.533 0.541 0.508 1.048x
+mozilla 2.708 2.848 2.462 1.100x
+mr 0.451 0.445 0.413 1.092x
+nci 1.193 1.188 0.953 1.252x
+ooffice 0.342 0.345 0.330 1.037x
+osdb 0.373 0.378 0.352 1.061x
+reymont 0.380 0.384 0.357 1.065x
+samba 0.790 0.791 0.682 1.158x
+sao 0.326 0.327 0.312 1.043x
+webster 1.881 1.924 1.643 1.145x
+x-ray 0.361 0.367 0.345 1.046x
+xml 0.148 0.149 0.127 1.163x

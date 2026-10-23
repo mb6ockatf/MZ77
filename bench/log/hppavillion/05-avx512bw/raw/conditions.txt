@@ -1,0 +1,18 @@
+step:       05-avx512bw
+machine:    hppavillion
+started:    2026-10-23T21:02:41Z
+base:       c1c1f4adaba3e6543090aa2bc73bed240602757d
+tree:       base plus uncommitted.patch (sha256 3eb05e1020db49cd)
+cpu:        11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz
+threads:    4
+pinned to:  CPU 3
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (GCC) 16.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       0.73 0.41 0.28
+memory:     2745 MiB available of 7589
+finished:   2026-10-23T21:12:51Z

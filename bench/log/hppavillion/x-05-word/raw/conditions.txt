@@ -1,0 +1,18 @@
+step:       x-05-word
+machine:    hppavillion
+started:    2026-10-23T21:14:09Z
+base:       c1c1f4adaba3e6543090aa2bc73bed240602757d
+tree:       base plus uncommitted.patch (sha256 3eb05e1020db49cd)
+cpu:        11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz
+threads:    4
+pinned to:  CPU 3
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (GCC) 16.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: word
+load:       0.92 1.20 0.85
+memory:     2501 MiB available of 7589
+finished:   2026-10-23T21:15:23Z

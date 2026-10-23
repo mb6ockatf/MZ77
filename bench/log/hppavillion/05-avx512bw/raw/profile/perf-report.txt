@@ -1,0 +1,35 @@
+    67.46%  prof     prof                  [.] compress_avx512
+            |
+            ---compress_avx512
+               lz77_compress
+               main
+               __libc_start_call_main
+
+    18.66%  prof     prof                  [.] lz77_decompress
+            |
+            ---lz77_decompress
+               main
+               __libc_start_call_main
+
+     7.19%  prof     prof                  [.] br_refill
+            |
+            ---br_refill
+               |          
+               |--5.84%--lz77_decompress
+               |          main
+               |          __libc_start_call_main
+               |          
+                --1.35%--main
+                          __libc_start_call_main
+
+     6.37%  prof     prof                  [.] bw_drain
+            |
+            ---bw_drain
+               |          
+                --6.06%--compress_avx512
+                          lz77_compress
+                          main
+                          __libc_start_call_main
+
+
+

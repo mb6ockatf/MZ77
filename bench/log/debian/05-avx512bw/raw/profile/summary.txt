@@ -1,0 +1,69 @@
+input: /home/aushou/mz77/bench/corpus/silesia/dickens (10192446 bytes)
+
+gprof flat profile (top 10):
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 33.35      0.17     0.17        5    34.01    65.02  compress_word
+ 23.54      0.29     0.12 80851500     0.00     0.00  match_length
+ 17.65      0.38     0.09        5    18.01    28.01  lz77_decompress
+  7.85      0.42     0.04                             _init
+  3.92      0.44     0.02 50962230     0.00     0.00  output_byte
+  3.92      0.46     0.02  7375590     0.00     0.00  bw_drain
+  3.92      0.48     0.02  4389935     0.00     0.00  br_refill
+  1.96      0.49     0.01 50962220     0.00     0.00  ht_insert
+  1.96      0.50     0.01 38841345     0.00     0.00  br_read
+  0.98      0.51     0.01 38841340     0.00     0.00  bw_write
+perf stat, compress only (mean of 5 runs):
+  524,593,317      cycles:u                                                                ( +-  0.30% )  (63.08%)
+  1,086,965,880      instructions:u                   #    2.07  insn per cycle              ( +-  0.04% )  (63.07%)
+  193,610,091      branches:u                                                              ( +-  0.11% )  (63.07%)
+  7,733,629      branch-misses:u                  #    3.99% of all branches             ( +-  0.08% )  (63.07%)
+  53,093,933      cache-references:u                                                      ( +-  0.13% )  (63.07%)
+  200,090      cache-misses:u                   #    0.38% of all cache refs           ( +-  6.87% )  (61.54%)
+  290,610,330      L1-dcache-loads                                                         ( +-  0.03% )  (61.54%)
+  36,879,231      L1-dcache-load-misses            #   12.69% of all L1-dcache accesses   ( +-  0.21% )  (61.54%)
+  0.129803 +- 0.000402 seconds time elapsed  ( +-  0.31% )
+
+perf stat, decompress only (mean of 5 runs):
+  168,708,678      cycles:u                                                                ( +-  1.22% )  (47.60%)
+  346,879,631      instructions:u                   #    2.06  insn per cycle              ( +-  0.11% )  (56.38%)
+  55,169,748      branches:u                                                              ( +-  0.11% )  (65.14%)
+  4,087,425      branch-misses:u                  #    7.41% of all branches             ( +-  1.16% )  (73.71%)
+  481,720      cache-references:u                                                      ( +-  0.70% )  (73.69%)
+  12,917      cache-misses:u                   #    2.68% of all cache refs           ( +- 14.62% )  (69.92%)
+  133,853,431      L1-dcache-loads                                                         ( +-  0.47% )  (61.16%)
+  297,326      L1-dcache-load-misses            #    0.22% of all L1-dcache accesses   ( +-  0.24% )  (52.39%)
+  0.0465220 +- 0.0000978 seconds time elapsed  ( +-  0.21% )
+
+perf hottest source lines:
+     9.13%  lz77.c:57
+     8.74%  lz77.c:154
+     7.73%  lz77.c:117
+     7.21%  lz77.c:164
+     7.21%  lz77.c:62
+     6.76%  bitio.h:37
+     6.14%  lz77.c:178
+     3.99%  lz77.c:46
+     3.70%  lz77.c:38
+     3.11%  lz77.c:172
+     2.72%  bitio.h:50
+     2.46%  bitio.c:51
+     2.13%  bitio.h:53
+     2.09%  lz77.c:116
+     1.86%  bitio.c:26
+
+cachegrind totals (I = instructions, D1/LL = L1/last-level data
+cache misses, Bc/Bcm = conditional branches and mispredictions):
+  Ir     1,441,906,377
+  I1mr   1,948
+  ILmr   1,834
+  Dr     222,940,027
+  D1mr   12,831,544
+  DLmr   4,363
+  Dw     133,419,967
+  D1mw   882,899
+  DLmw   10,304
+  Bc     184,989,649
+  Bcm    16,057,728
+  Bi     5,213
+  Bim    297
