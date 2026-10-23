@@ -1,0 +1,80 @@
+make: Entering directory '/home/aushou/mz77/bench'
+CC='gcc' MZ77_SRCDIR='/home/aushou/mz77' MZ77_BUILDDIR='/home/aushou/mz77' /bin/bash ./profile.sh
+profiling on /home/aushou/mz77/bench/corpus/silesia/dickens
+== gprof
+== perf stat
+== perf record
+== callgrind
+== cachegrind
+--5534-- warning: L3 cache found, using its data for the LL simulation.
+input: /home/aushou/mz77/bench/corpus/silesia/dickens (10192446 bytes)
+
+gprof flat profile (top 10):
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 20.01      0.09     0.09        5    18.01    51.02  lz77_compress
+ 14.45      0.16     0.07 80851500     0.00     0.00  match_length
+ 14.45      0.22     0.07 38841345     0.00     0.00  br_read
+ 13.34      0.28     0.06  4389935     0.00     0.00  br_refill
+ 11.12      0.33     0.05                             _init
+  8.89      0.37     0.04 65453735     0.00     0.00  hash3
+  5.56      0.40     0.03 38841340     0.00     0.00  bw_write
+  4.45      0.42     0.02  7375590     0.00     0.00  bw_drain
+  4.45      0.44     0.02        5     4.00    29.01  lz77_decompress
+  3.33      0.45     0.02 50962220     0.00     0.00  ht_insert
+perf stat, compress only (mean of 5 runs):
+  498,839,040      cycles:u                                                                ( +-  0.11% )  (60.76%)
+  1,033,396,347      instructions:u                   #    2.07  insn per cycle              ( +-  0.02% )  (60.76%)
+  192,858,055      branches:u                                                              ( +-  0.02% )  (60.78%)
+  6,955,578      branch-misses:u                  #    3.61% of all branches             ( +-  0.03% )  (61.67%)
+  54,001,286      cache-references:u                                                      ( +-  0.36% )  (64.94%)
+  201,767      cache-misses:u                   #    0.37% of all cache refs           ( +-  4.72% )  (65.38%)
+  271,617,267      L1-dcache-loads                                                         ( +-  0.02% )  (64.49%)
+  36,648,607      L1-dcache-load-misses            #   13.49% of all L1-dcache accesses   ( +-  0.22% )  (61.22%)
+  0.123295 +- 0.000138 seconds time elapsed  ( +-  0.11% )
+
+perf stat, decompress only (mean of 5 runs):
+  174,878,564      cycles:u                                                                ( +-  1.31% )  (47.99%)
+  344,603,506      instructions:u                   #    1.97  insn per cycle              ( +-  0.37% )  (52.20%)
+  54,687,646      branches:u                                                              ( +-  0.07% )  (60.87%)
+  4,106,156      branch-misses:u                  #    7.51% of all branches             ( +-  0.82% )  (69.52%)
+  488,169      cache-references:u                                                      ( +-  0.99% )  (73.98%)
+  12,171      cache-misses:u                   #    2.49% of all cache refs           ( +- 15.40% )  (73.82%)
+  126,683,334      L1-dcache-loads                                                         ( +-  0.29% )  (65.14%)
+  298,032      L1-dcache-load-misses            #    0.24% of all L1-dcache accesses   ( +-  0.17% )  (56.47%)
+  0.047056 +- 0.000251 seconds time elapsed  ( +-  0.53% )
+
+perf hottest source lines:
+     8.53%  lz77.c:76
+     8.27%  lz77.c:53
+     8.11%  lz77.c:129
+     7.04%  bitio.h:37
+     6.83%  lz77.c:141
+     5.01%  lz77.c:58
+     4.52%  lz77.c:42
+     4.27%  lz77.c:122
+     3.97%  lz77.c:34
+     3.86%  lz77.c:123
+     2.80%  lz77.c:49
+     2.68%  lz77.c:135
+     2.32%  bitio.c:51
+     2.31%  lz77.c:75
+     2.27%  bitio.c:26
+
+cachegrind totals (I = instructions, D1/LL = L1/last-level data
+cache misses, Bc/Bcm = conditional branches and mispredictions):
+  Ir     1,387,418,612
+  I1mr   1,894
+  ILmr   1,799
+  Dr     214,504,639
+  D1mr   12,797,466
+  DLmr   4,383
+  Dw     122,802,877
+  D1mw   882,725
+  DLmw   10,289
+  Bc     182,262,724
+  Bcm    14,888,730
+  Bi     5,213
+  Bim    300
+results in /home/aushou/mz77/bench/log/debian/04-compare-8-bytes/raw/profile
+make: Leaving directory '/home/aushou/mz77/bench'

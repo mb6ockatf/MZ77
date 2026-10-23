@@ -1,0 +1,19 @@
+step:       04-compare-8-bytes
+machine:    debian
+started:    2026-10-23T22:04:15Z
+base:       836c9936a8e83c29b810ac1f35d8e201561b2517
+tree:       base plus uncommitted.patch (sha256 76e82127be705d17)
+cpu:        AMD Ryzen 7 5700U with Radeon Graphics
+threads:    16
+pinned to:  CPU 15
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (Debian 14.2.0-19) 14.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       0.98 0.65 0.29
+memory:     30181 MiB available of 31472
+finished:   2026-10-24T06:19:04Z
+finished:   2026-10-24T06:20:52Z

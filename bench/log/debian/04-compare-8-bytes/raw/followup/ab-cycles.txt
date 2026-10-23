@@ -1,0 +1,24 @@
+# Follow-up A/B after the campaign run, 2026-10-23 ~23:22 MSK, GCC 14.2, --enable-release.
+# bench14 = 836c993 (#14), bench15 = 836c993 + raw/uncommitted.patch (#15).
+# taskset -c 15 perf stat -x, -e cycles:u,instructions:u BENCH --mode=compress --repeat=1 CORPUS
+#14 cycles:u=28.246G instructions:u=63.779G 
+#15 cycles:u=16.208G instructions:u=41.298G 
+#14 cycles:u=28.210G instructions:u=63.779G 
+#15 cycles:u=16.308G instructions:u=41.297G 
+# Per file, cycles:u in G: file #14 #15 #14/#15
+mixed.dat 10.927 5.752 1.900x
+random.dat 0.549 0.589 0.932x
+text.dat 1.432 0.890 1.609x
+zeros.dat 0.119 0.097 1.226x
+dickens 0.706 0.514 1.374x
+mozilla 3.400 2.424 1.403x
+mr 0.623 0.415 1.501x
+nci 1.509 1.038 1.454x
+ooffice 0.400 0.317 1.262x
+osdb 0.421 0.382 1.104x
+reymont 0.566 0.359 1.575x
+samba 1.186 0.752 1.577x
+sao 0.368 0.323 1.139x
+webster 2.468 1.818 1.358x
+xml 0.200 0.145 1.378x
+x-ray 0.344 0.353 0.974x

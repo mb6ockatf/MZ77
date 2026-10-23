@@ -1,0 +1,7 @@
+date:     2026-10-23T14:33:18Z
+commit:   08b2ec5-dirty
+cpu:      AMD Ryzen 7 5700U with Radeon Graphics
+threads:  1
+governor: powersave
+kernel:   6.12.113+deb13-amd64
+compiler: gcc (Debian 14.2.0-19) 14.2.0

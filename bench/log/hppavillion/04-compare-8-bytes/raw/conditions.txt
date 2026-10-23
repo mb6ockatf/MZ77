@@ -1,0 +1,18 @@
+step:       04-compare-8-bytes
+machine:    hppavillion
+started:    2026-10-23T08:25:16Z
+base:       836c9936a8e83c29b810ac1f35d8e201561b2517
+tree:       base plus uncommitted.patch (sha256 76e82127be705d17)
+cpu:        11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz
+threads:    4
+pinned to:  CPU 3
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (GCC) 16.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       0.87 0.34 0.17
+memory:     5183 MiB available of 7589
+finished:   2026-10-23T08:35:59Z

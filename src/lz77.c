@@ -11,6 +11,7 @@
 #define HT_SIZE     65536
 #define MAX_CHAIN   256
 #define NO_POS      UINT64_MAX
+#define DATA_SIZE   65536
 
 typedef struct
 {
@@ -41,13 +42,29 @@ hash3 (const uint8_t *bytes)
   return ((uint16_t) bytes[0] << 10) ^ (bytes[1] << 4) ^ bytes[2];
 }
 
-static inline uint8_t
-byte_at (const uint8_t *window, const uint8_t *buf, uint64_t win_pos,
-	 uint64_t pos)
+static inline size_t
+match_length (const uint8_t *candidate, const uint8_t *cursor, size_t limit)
 {
-  if (pos < win_pos)
-    return window[pos % WINDOW_SIZE];
-  return buf[pos - win_pos];
+  size_t len = 0;
+  while (len + sizeof (uint64_t) <= limit)
+    {
+      uint64_t candidate_word, cursor_word;
+      memcpy (&candidate_word, candidate + len, sizeof (candidate_word));
+      memcpy (&cursor_word, cursor + len, sizeof (cursor_word));
+      uint64_t difference = candidate_word ^ cursor_word;
+      if (difference != 0)
+	{
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+	  return len + (size_t) __builtin_ctzll (difference) / 8;
+#else
+	  return len + (size_t) __builtin_clzll (difference) / 8;
+#endif
+	}
+      len += sizeof (uint64_t);
+    }
+  while (len < limit && candidate[len] == cursor[len])
+    len++;
+  return len;
 }
 
 static inline void
@@ -73,7 +90,6 @@ lz77_compress (const char *in_path, const char *out_path)
     }
   BitWriter bw;
   bw_init (&bw, fout);
-  uint8_t window[WINDOW_SIZE] = { 0 };
   uint64_t *ht_heads = malloc (HT_SIZE * sizeof (uint64_t));
   uint64_t *ht_next = malloc (WINDOW_SIZE * sizeof (uint64_t));
   if (!ht_heads || !ht_next)
@@ -88,24 +104,26 @@ lz77_compress (const char *in_path, const char *out_path)
     ht_heads[slot] = NO_POS;
   for (size_t slot = 0; slot < WINDOW_SIZE; slot++)
     ht_next[slot] = NO_POS;
-  uint8_t buf[WINDOW_SIZE];
-  size_t buf_len = fread (buf, 1, sizeof (buf), fin);
+  uint8_t data[DATA_SIZE];
+  size_t data_len = fread (data, 1, sizeof (data), fin);
+  uint64_t data_base = 0;
   uint64_t win_pos = 0;
-  while (buf_len > 0)
+  size_t look_len = data_len < WINDOW_SIZE ? data_len : WINDOW_SIZE;
+  while (look_len > 0)
     {
+      const uint8_t *cursor = data + (win_pos - data_base);
       size_t best_len = 0;
       uint64_t best_dist = 0;
-      if (buf_len >= MIN_MATCH)
+      if (look_len >= MIN_MATCH)
 	{
-	  uint64_t pos = ht_heads[hash3 (buf)];
+	  uint64_t pos = ht_heads[hash3 (cursor)];
 	  int chain_left = MAX_CHAIN;
+	  size_t limit = look_len < MAX_MATCH ? look_len : MAX_MATCH;
 	  while (pos != NO_POS && pos < win_pos
 		 && win_pos - pos <= WINDOW_SIZE && chain_left-- > 0)
 	    {
-	      size_t len = 0;
-	      while (len < MAX_MATCH && len < buf_len
-		     && byte_at (window, buf, win_pos, pos + len) == buf[len])
-		len++;
+	      const uint8_t *candidate = data + (pos - data_base);
+	      size_t len = match_length (candidate, cursor, limit);
 	      if (len > best_len)
 		{
 		  best_len = len;
@@ -130,20 +148,36 @@ lz77_compress (const char *in_path, const char *out_path)
       else
 	{
 	  bw_write (&bw, 0, 1);
-	  bw_write (&bw, buf[0], 8);
+	  bw_write (&bw, cursor[0], 8);
 	  advance = 1;
 	}
       for (size_t offset = 0; offset < advance; offset++)
 	{
-	  window[win_pos % WINDOW_SIZE] = buf[offset];
-	  if (offset + MIN_MATCH <= buf_len)
-	    ht_insert (ht_heads, ht_next, &buf[offset], win_pos);
+	  if (offset + MIN_MATCH <= look_len)
+	    ht_insert (ht_heads, ht_next, &cursor[offset], win_pos);
 	  win_pos++;
 	}
-      memmove (buf, buf + advance, buf_len - advance);
-      buf_len -= advance;
-      if (buf_len < MAX_MATCH)
-	buf_len += fread (buf + buf_len, 1, sizeof (buf) - buf_len, fin);
+      look_len -= advance;
+      if (look_len < MAX_MATCH)
+	{
+	  size_t start = (size_t) (win_pos - data_base);
+	  size_t ahead = data_len - start;
+	  if (ahead < WINDOW_SIZE)
+	    {
+	      if (data_len + (WINDOW_SIZE - ahead) > sizeof (data))
+		{
+		  size_t keep_from = start - WINDOW_SIZE;
+		  memmove (data, data + keep_from, data_len - keep_from);
+		  data_len -= keep_from;
+		  data_base += keep_from;
+		  start -= keep_from;
+		}
+	      data_len += fread (data + data_len, 1, sizeof (data) - data_len,
+				 fin);
+	      ahead = data_len - start;
+	    }
+	  look_len = ahead < WINDOW_SIZE ? ahead : WINDOW_SIZE;
+	}
     }
   bw_finish (&bw);
   free (ht_heads);

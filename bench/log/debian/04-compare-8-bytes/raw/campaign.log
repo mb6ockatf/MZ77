@@ -1,0 +1,20 @@
+[15:04:15] start build: make -C /home/aushou/mz77 -j16
+[15:04:22] done  build
+[15:04:22] start check: make -C /home/aushou/mz77 check
+[15:04:22] done  check
+[15:04:22] start build-bench: make -C /home/aushou/mz77/bench mz77-bench
+[15:04:23] done  build-bench
+[15:04:23] start bench: taskset -c 15 make -C /home/aushou/mz77/bench bench REPEAT=9
+[15:05:07] done  bench
+[15:05:07] start archives
+[15:05:12] done  archives
+[15:05:12] start bench-compare: taskset -c 15 make -C /home/aushou/mz77/bench bench-compare REPEAT=9
+[15:11:29] done  bench-compare
+[15:11:29] start profile: taskset -c 15 make -C /home/aushou/mz77/bench profile
+[15:11:32] FAILED profile (exit 2), see raw/profile.log
+[23:18:48] start profile (rerun after perf_event_paranoid was lowered): taskset -c 15 make -C /home/aushou/mz77/bench profile
+[23:19:04] done  profile
+[23:19:04] results in /home/aushou/mz77/bench/log/debian/04-compare-8-bytes
+[23:20:38] start profile (rerun after perf_event_paranoid was lowered): taskset -c 15 make -C /home/aushou/mz77/bench profile
+[23:20:52] done  profile
+[23:20:53] results in /home/aushou/mz77/bench/log/debian/04-compare-8-bytes

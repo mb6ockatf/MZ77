@@ -1,0 +1,16 @@
+# started on Fri Oct 23 07:40:05 2026
+
+
+ Performance counter stats for '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/bin/prof --mode=compress --repeat=1 /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/corpus/silesia/dickens' (5 runs):
+
+       784,361,226      cycles:u                                                                ( +-  0.21% )
+     1,321,603,165      instructions:u                   #    1.68  insn per cycle              ( +-  0.00% )
+       351,916,050      branches:u                                                              ( +-  0.00% )
+        15,602,211      branch-misses:u                  #    4.43% of all branches             ( +-  0.09% )
+           111,974      cache-references:u                                                      ( +- 10.75% )
+            35,290      cache-misses:u                   #   31.52% of all cache refs           ( +-  7.35% )
+       246,702,459      L1-dcache-loads                                                         ( +-  0.00% )
+         9,713,340      L1-dcache-load-misses            #    3.94% of all L1-dcache accesses   ( +-  0.45% )
+
+           0.31004 +- 0.00377 seconds time elapsed  ( +-  1.22% )
+

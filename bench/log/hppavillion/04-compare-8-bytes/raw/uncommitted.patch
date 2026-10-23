@@ -1,0 +1,53 @@
+diff --git a/src/lz77.c b/src/lz77.c
+index aa8655e..3dbc93d 100644
+--- a/src/lz77.c
++++ b/src/lz77.c
+@@ -42,6 +42,31 @@ hash3 (const uint8_t *bytes)
+   return ((uint16_t) bytes[0] << 10) ^ (bytes[1] << 4) ^ bytes[2];
+ }
+ 
++static inline size_t
++match_length (const uint8_t *candidate, const uint8_t *cursor, size_t limit)
++{
++  size_t len = 0;
++  while (len + sizeof (uint64_t) <= limit)
++    {
++      uint64_t candidate_word, cursor_word;
++      memcpy (&candidate_word, candidate + len, sizeof (candidate_word));
++      memcpy (&cursor_word, cursor + len, sizeof (cursor_word));
++      uint64_t difference = candidate_word ^ cursor_word;
++      if (difference != 0)
++	{
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	  return len + (size_t) __builtin_ctzll (difference) / 8;
++#else
++	  return len + (size_t) __builtin_clzll (difference) / 8;
++#endif
++	}
++      len += sizeof (uint64_t);
++    }
++  while (len < limit && candidate[len] == cursor[len])
++    len++;
++  return len;
++}
++
+ static inline void
+ ht_insert (uint64_t *ht_heads, uint64_t *ht_next, const uint8_t *bytes,
+ 	   uint64_t pos)
+@@ -93,14 +118,12 @@ lz77_compress (const char *in_path, const char *out_path)
+ 	{
+ 	  uint64_t pos = ht_heads[hash3 (cursor)];
+ 	  int chain_left = MAX_CHAIN;
++	  size_t limit = look_len < MAX_MATCH ? look_len : MAX_MATCH;
+ 	  while (pos != NO_POS && pos < win_pos
+ 		 && win_pos - pos <= WINDOW_SIZE && chain_left-- > 0)
+ 	    {
+ 	      const uint8_t *candidate = data + (pos - data_base);
+-	      size_t len = 0;
+-	      while (len < MAX_MATCH && len < look_len
+-		     && candidate[len] == cursor[len])
+-		len++;
++	      size_t len = match_length (candidate, cursor, limit);
+ 	      if (len > best_len)
+ 		{
+ 		  best_len = len;

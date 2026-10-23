@@ -1,0 +1,16 @@
+# started on Fri Oct 23 11:35:48 2026
+
+
+ Performance counter stats for '/home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/bin/prof --archives --repeat=1 /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/04-compare-8-bytes/raw/profile/input.lz77' (5 runs):
+
+       190,823,246      cycles:u                                                                ( +-  0.10% )
+       335,995,909      instructions:u                   #    1.76  insn per cycle              ( +-  0.00% )
+        53,334,946      branches:u                                                              ( +-  0.00% )
+         3,974,590      branch-misses:u                  #    7.45% of all branches             ( +-  0.02% )
+            12,906      cache-references:u                                                      ( +-  2.97% )
+             6,126      cache-misses:u                   #   47.47% of all cache refs           ( +-  6.91% )
+        50,029,368      L1-dcache-loads                                                         ( +-  0.00% )
+           296,023      L1-dcache-load-misses            #    0.59% of all L1-dcache accesses   ( +-  0.23% )
+
+          0.053687 +- 0.000298 seconds time elapsed  ( +-  0.56% )
+

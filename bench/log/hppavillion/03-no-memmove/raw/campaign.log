@@ -1,0 +1,15 @@
+[07:23:52] start build: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 -j4
+[07:23:53] done  build
+[07:23:53] start check: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 check
+[07:23:53] done  check
+[07:23:53] start build-bench: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench mz77-bench
+[07:23:54] done  build-bench
+[07:23:54] start bench: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench REPEAT=9
+[07:25:37] done  bench
+[07:25:37] start archives
+[07:25:46] done  archives
+[07:25:46] start bench-compare: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench-compare REPEAT=9
+[07:39:59] done  bench-compare
+[07:39:59] start profile: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench profile
+[07:40:27] done  profile
+[07:40:27] results in /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/03-no-memmove

@@ -1,0 +1,15 @@
+[11:25:16] start build: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 -j4
+[11:25:17] done  build
+[11:25:17] start check: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77 check
+[11:25:17] done  check
+[11:25:17] start build-bench: make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench mz77-bench
+[11:25:18] done  build-bench
+[11:25:18] start bench: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench REPEAT=9
+[11:26:23] done  bench
+[11:26:23] start archives
+[11:26:28] done  archives
+[11:26:28] start bench-compare: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench bench-compare REPEAT=9
+[11:35:42] done  bench-compare
+[11:35:42] start profile: taskset -c 3 make -C /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench profile
+[11:35:59] done  profile
+[11:35:59] results in /home/mb6ockatf/Documents/projects/dataground.d/notes/programming_languages.d/MZ77/bench/log/hppavillion/04-compare-8-bytes

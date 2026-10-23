@@ -1,0 +1,116 @@
+diff --git a/src/lz77.c b/src/lz77.c
+index b79a717..aa8655e 100644
+--- a/src/lz77.c
++++ b/src/lz77.c
+@@ -11,6 +11,7 @@
+ #define HT_SIZE     65536
+ #define MAX_CHAIN   256
+ #define NO_POS      UINT64_MAX
++#define DATA_SIZE   65536
+ 
+ typedef struct
+ {
+@@ -41,15 +42,6 @@ hash3 (const uint8_t *bytes)
+   return ((uint16_t) bytes[0] << 10) ^ (bytes[1] << 4) ^ bytes[2];
+ }
+ 
+-static inline uint8_t
+-byte_at (const uint8_t *window, const uint8_t *buf, uint64_t win_pos,
+-	 uint64_t pos)
+-{
+-  if (pos < win_pos)
+-    return window[pos % WINDOW_SIZE];
+-  return buf[pos - win_pos];
+-}
+-
+ static inline void
+ ht_insert (uint64_t *ht_heads, uint64_t *ht_next, const uint8_t *bytes,
+ 	   uint64_t pos)
+@@ -73,7 +65,6 @@ lz77_compress (const char *in_path, const char *out_path)
+     }
+   BitWriter bw;
+   bw_init (&bw, fout);
+-  uint8_t window[WINDOW_SIZE] = { 0 };
+   uint64_t *ht_heads = malloc (HT_SIZE * sizeof (uint64_t));
+   uint64_t *ht_next = malloc (WINDOW_SIZE * sizeof (uint64_t));
+   if (!ht_heads || !ht_next)
+@@ -88,23 +79,27 @@ lz77_compress (const char *in_path, const char *out_path)
+     ht_heads[slot] = NO_POS;
+   for (size_t slot = 0; slot < WINDOW_SIZE; slot++)
+     ht_next[slot] = NO_POS;
+-  uint8_t buf[WINDOW_SIZE];
+-  size_t buf_len = fread (buf, 1, sizeof (buf), fin);
++  uint8_t data[DATA_SIZE];
++  size_t data_len = fread (data, 1, sizeof (data), fin);
++  uint64_t data_base = 0;
+   uint64_t win_pos = 0;
+-  while (buf_len > 0)
++  size_t look_len = data_len < WINDOW_SIZE ? data_len : WINDOW_SIZE;
++  while (look_len > 0)
+     {
++      const uint8_t *cursor = data + (win_pos - data_base);
+       size_t best_len = 0;
+       uint64_t best_dist = 0;
+-      if (buf_len >= MIN_MATCH)
++      if (look_len >= MIN_MATCH)
+ 	{
+-	  uint64_t pos = ht_heads[hash3 (buf)];
++	  uint64_t pos = ht_heads[hash3 (cursor)];
+ 	  int chain_left = MAX_CHAIN;
+ 	  while (pos != NO_POS && pos < win_pos
+ 		 && win_pos - pos <= WINDOW_SIZE && chain_left-- > 0)
+ 	    {
++	      const uint8_t *candidate = data + (pos - data_base);
+ 	      size_t len = 0;
+-	      while (len < MAX_MATCH && len < buf_len
+-		     && byte_at (window, buf, win_pos, pos + len) == buf[len])
++	      while (len < MAX_MATCH && len < look_len
++		     && candidate[len] == cursor[len])
+ 		len++;
+ 	      if (len > best_len)
+ 		{
+@@ -130,20 +125,36 @@ lz77_compress (const char *in_path, const char *out_path)
+       else
+ 	{
+ 	  bw_write (&bw, 0, 1);
+-	  bw_write (&bw, buf[0], 8);
++	  bw_write (&bw, cursor[0], 8);
+ 	  advance = 1;
+ 	}
+       for (size_t offset = 0; offset < advance; offset++)
+ 	{
+-	  window[win_pos % WINDOW_SIZE] = buf[offset];
+-	  if (offset + MIN_MATCH <= buf_len)
+-	    ht_insert (ht_heads, ht_next, &buf[offset], win_pos);
++	  if (offset + MIN_MATCH <= look_len)
++	    ht_insert (ht_heads, ht_next, &cursor[offset], win_pos);
+ 	  win_pos++;
+ 	}
+-      memmove (buf, buf + advance, buf_len - advance);
+-      buf_len -= advance;
+-      if (buf_len < MAX_MATCH)
+-	buf_len += fread (buf + buf_len, 1, sizeof (buf) - buf_len, fin);
++      look_len -= advance;
++      if (look_len < MAX_MATCH)
++	{
++	  size_t start = (size_t) (win_pos - data_base);
++	  size_t ahead = data_len - start;
++	  if (ahead < WINDOW_SIZE)
++	    {
++	      if (data_len + (WINDOW_SIZE - ahead) > sizeof (data))
++		{
++		  size_t keep_from = start - WINDOW_SIZE;
++		  memmove (data, data + keep_from, data_len - keep_from);
++		  data_len -= keep_from;
++		  data_base += keep_from;
++		  start -= keep_from;
++		}
++	      data_len += fread (data + data_len, 1, sizeof (data) - data_len,
++				 fin);
++	      ahead = data_len - start;
++	    }
++	  look_len = ahead < WINDOW_SIZE ? ahead : WINDOW_SIZE;
++	}
+     }
+   bw_finish (&bw);
+   free (ht_heads);

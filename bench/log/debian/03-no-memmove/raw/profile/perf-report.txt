@@ -1,0 +1,30 @@
+    78.58%  prof     prof                  [.] lz77_compress
+            |
+            ---lz77_compress
+               main
+               __libc_start_call_main
+
+    14.11%  prof     prof                  [.] lz77_decompress
+            |
+            ---lz77_decompress
+               main
+               __libc_start_call_main
+
+     3.55%  prof     prof                  [.] br_refill
+            |
+            ---br_refill
+               |          
+                --3.08%--lz77_decompress
+                          main
+                          __libc_start_call_main
+
+     3.43%  prof     prof                  [.] bw_drain
+            |
+            ---bw_drain
+               |          
+                --3.34%--lz77_compress
+                          main
+                          __libc_start_call_main
+
+
+

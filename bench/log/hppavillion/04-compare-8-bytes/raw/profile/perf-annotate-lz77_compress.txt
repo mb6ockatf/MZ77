@@ -1,0 +1,364 @@
+ Percent |	Source code & Disassembly of prof for cycles:u (610 samples, percent: local period)
+---------------------------------------------------------------------------------------------------
+         :
+         :
+         :
+         : 3    Disassembly of section .text:
+         :
+         : 5    0000000000003280 <lz77_compress>:
+    0.00 :   3280:   push   %rbp
+    0.00 :   3281:   mov    %rsp,%rbp
+    0.00 :   3284:   push   %r15
+    0.00 :   3286:   push   %r14
+    0.00 :   3288:   push   %r13
+    0.00 :   328a:   push   %r12
+    0.00 :   328c:   push   %rbx
+    0.00 :   328d:   mov    %rsi,%rbx
+    0.00 :   3290:   lea    0xd6d(%rip),%rsi        # 4004 <_IO_stdin_used+0x4>
+    0.00 :   3297:   sub    $0x20068,%rsp
+    0.00 :   329e:   call   21d0 <fopen@plt>
+    0.00 :   32a3:   mov    %rax,-0x20088(%rbp)
+    0.00 :   32aa:   test   %rax,%rax
+    0.00 :   32ad:   je     38ce <lz77_compress+0x64e>
+    0.00 :   32b3:   lea    0xd4d(%rip),%rsi        # 4007 <_IO_stdin_used+0x7>
+    0.00 :   32ba:   mov    %rbx,%rdi
+    0.00 :   32bd:   call   21d0 <fopen@plt>
+    0.00 :   32c2:   mov    %rax,%r13
+    0.00 :   32c5:   test   %rax,%rax
+    0.00 :   32c8:   je     38c2 <lz77_compress+0x642>
+    0.00 :   32ce:   mov    %rax,%rsi
+    0.00 :   32d1:   lea    -0x10050(%rbp),%rdi
+    0.00 :   32d8:   call   3db0 <bw_init>
+    0.00 :   32dd:   mov    $0x80000,%edi
+    0.00 :   32e2:   call   2190 <malloc@plt>
+    0.00 :   32e7:   mov    $0x8000,%edi
+    0.00 :   32ec:   mov    %rax,-0x20060(%rbp)
+    0.00 :   32f3:   mov    %rax,%rbx
+    0.00 :   32f6:   call   2190 <malloc@plt>
+    0.00 :   32fb:   mov    %rax,-0x20058(%rbp)
+    0.00 :   3302:   test   %rbx,%rbx
+    0.00 :   3305:   je     38d8 <lz77_compress+0x658>
+    0.00 :   330b:   test   %rax,%rax
+    0.00 :   330e:   je     38d8 <lz77_compress+0x658>
+    0.00 :   3314:   mov    -0x20060(%rbp),%rdi
+    0.00 :   331b:   mov    $0x80000,%edx
+    0.00 :   3320:   mov    $0xff,%esi
+    0.00 :   3325:   call   2120 <memset@plt>
+    0.00 :   332a:   mov    -0x20058(%rbp),%rdi
+    0.00 :   3331:   mov    $0x8000,%edx
+    0.00 :   3336:   mov    $0xff,%esi
+    0.00 :   333b:   call   2120 <memset@plt>
+    0.00 :   3340:   mov    -0x20088(%rbp),%rcx
+    0.00 :   3347:   mov    $0x10000,%edx
+    0.00 :   334c:   mov    $0x1,%esi
+    0.00 :   3351:   lea    -0x20050(%rbp),%rdi
+    0.00 :   3358:   call   2090 <fread@plt>
+    0.00 :   335d:   mov    %rax,%rdx
+    0.00 :   3360:   test   %rax,%rax
+    0.00 :   3363:   je     379e <lz77_compress+0x51e>
+    0.00 :   3369:   mov    $0x1000,%eax
+    0.00 :   336e:   movq   $0x0,-0x20068(%rbp)
+    0.00 :   3379:   cmp    %rax,%rdx
+    0.00 :   337c:   mov    %rdx,-0x20078(%rbp)
+    0.00 :   3383:   cmovbe %rdx,%rax
+    0.00 :   3387:   mov    %r13,-0x20090(%rbp)
+    0.00 :   338e:   mov    %rax,%r12
+    0.00 :   3391:   xor    %eax,%eax
+    0.00 :   3393:   mov    -0x20068(%rbp),%rdi
+    0.00 :   339a:   mov    -0x20078(%rbp),%rsi
+    0.00 :   33a1:   mov    %rax,%rbx
+    0.00 :   33a4:   sub    %rdi,%rbx
+    0.00 :   33a7:   add    %rsi,%rdi
+    0.00 :   33aa:   mov    %rdi,-0x20080(%rbp)
+    0.00 :   33b1:   lea    -0x20050(%rbp,%rbx,1),%rbx
+    0.00 :   33b9:   cmp    $0x2,%r12
+    0.00 :   33bd:   ja     38ba <lz77_compress+0x63a>
+    0.34 :   33c3:   mov    -0x10048(%rbp),%rdi
+    0.00 :   33ca:   lea    (%rdi,%rdi,1),%rcx
+    0.00 :   33ce:   mov    -0x10040(%rbp),%edi
+    0.00 :   33d4:   mov    %rcx,-0x10048(%rbp)
+    0.17 :   33db:   lea    0x1(%rdi),%edx
+    0.00 :   33de:   mov    %edx,-0x10040(%rbp)
+    0.00 :   33e4:   cmp    $0x1f,%edx
+    0.00 :   33e7:   jg     36f6 <lz77_compress+0x476>
+    0.00 :   33ed:   movzbl (%rbx),%esi
+    0.00 :   33f0:   shl    $0x8,%rcx
+    0.00 :   33f4:   add    $0x8,%edx
+    0.00 :   33f7:   mov    %edx,-0x10040(%rbp)
+    0.00 :   33fd:   or     %rsi,%rcx
+    0.17 :   3400:   mov    %rcx,-0x10048(%rbp)
+    0.00 :   3407:   cmp    $0x1f,%edx
+    0.00 :   340a:   jg     36d7 <lz77_compress+0x457>
+    0.00 :   3410:   mov    $0x1,%r14d
+    0.00 :   3416:   mov    $0x3,%edx
+    0.15 :   341b:   mov    -0x20060(%rbp),%rsi
+    0.00 :   3422:   mov    -0x20058(%rbp),%rdi
+    0.00 :   3429:   lea    (%r14,%rax,1),%r13
+    0.00 :   342d:   sub    %rax,%rdx
+    0.00 :   3430:   sub    %rax,%rbx
+    0.00 :   3433:   jmp    3448 <lz77_compress+0x1c8>
+    0.00 :   3435:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   3440:   inc    %rax
+    0.00 :   3443:   cmp    %r13,%rax
+    0.00 :   3446:   je     348f <lz77_compress+0x20f>
+    0.51 :   3448:   lea    (%rdx,%rax,1),%rcx
+    0.50 :   344c:   cmp    %rcx,%r12
+    0.00 :   344f:   jb     3440 <lz77_compress+0x1c0>
+    0.66 :   3451:   movzbl 0x1(%rbx,%rax,1),%ecx
+    0.33 :   3456:   movzbl (%rbx,%rax,1),%r8d
+    0.79 :   345b:   shl    $0x4,%ecx
+    1.33 :   345e:   shl    $0xa,%r8d
+    0.66 :   3462:   xor    %r8d,%ecx
+    0.84 :   3465:   movzbl 0x2(%rbx,%rax,1),%r8d
+    0.32 :   346b:   xor    %r8d,%ecx
+    0.00 :   346e:   mov    %rax,%r8
+    0.00 :   3471:   movzwl %cx,%ecx
+    0.82 :   3474:   and    $0xfff,%r8d
+    0.00 :   347b:   mov    (%rsi,%rcx,8),%r9
+    7.04 :   347f:   mov    %rax,(%rsi,%rcx,8)
+    4.11 :   3483:   inc    %rax
+    0.16 :   3486:   mov    %r9,(%rdi,%r8,8)
+    0.51 :   348a:   cmp    %r13,%rax
+    0.00 :   348d:   jne    3448 <lz77_compress+0x1c8>
+    0.17 :   348f:   sub    %r14,%r12
+    0.49 :   3492:   cmp    $0x101,%r12
+    0.00 :   3499:   jbe    36a8 <lz77_compress+0x428>
+    0.65 :   349f:   mov    %r13,%rbx
+    0.00 :   34a2:   sub    -0x20068(%rbp),%rbx
+    1.18 :   34a9:   lea    -0x20050(%rbp,%rbx,1),%rbx
+    0.17 :   34b1:   movzbl (%rbx),%eax
+    1.67 :   34b4:   movzbl 0x1(%rbx),%edx
+    0.17 :   34b8:   mov    $0x102,%r9d
+    0.00 :   34be:   mov    %r12,-0x20070(%rbp)
+    0.00 :   34c5:   mov    -0x20060(%rbp),%rdi
+    0.17 :   34cc:   mov    $0x101,%r10d
+    0.00 :   34d2:   shl    $0x4,%edx
+    0.00 :   34d5:   shl    $0xa,%eax
+    0.17 :   34d8:   xor    %edx,%eax
+    0.50 :   34da:   movzbl 0x2(%rbx),%edx
+    0.00 :   34de:   xor    %edx,%eax
+    0.16 :   34e0:   cmp    %r9,%r12
+    0.00 :   34e3:   cmovbe %r12,%r9
+    0.00 :   34e7:   movzwl %ax,%eax
+    0.16 :   34ea:   mov    -0x20068(%rbp),%r12
+    0.00 :   34f1:   xor    %r15d,%r15d
+    0.00 :   34f4:   mov    (%rdi,%rax,8),%r8
+    5.79 :   34f8:   xor    %r14d,%r14d
+    0.00 :   34fb:   mov    %r9,%rdi
+    0.17 :   34fe:   and    $0xfffffffffffffff8,%rdi
+    0.00 :   3502:   cmp    %r13,%r8
+    0.00 :   3505:   jae    35c4 <lz77_compress+0x344>
+    0.83 :   350b:   nopl   0x0(%rax,%rax,1)
+    1.33 :   3510:   mov    %r13,%r11
+    0.17 :   3513:   sub    %r8,%r11
+    0.00 :   3516:   cmp    $0x1000,%r11
+    0.00 :   351d:   ja     35c4 <lz77_compress+0x344>
+    1.77 :   3523:   dec    %r10d
+    0.00 :   3526:   je     35c4 <lz77_compress+0x344>
+    0.82 :   352c:   mov    %r8,%rsi
+    0.00 :   352f:   xor    %eax,%eax
+    0.00 :   3531:   sub    %r12,%rsi
+    2.15 :   3534:   lea    -0x20050(%rbp,%rsi,1),%rsi
+    1.16 :   353c:   jmp    3555 <lz77_compress+0x2d5>
+    0.00 :   353e:   xchg   %ax,%ax
+    0.66 :   3540:   mov    (%rsi,%rax,1),%rdx
+    9.60 :   3544:   mov    (%rbx,%rax,1),%rcx
+    0.50 :   3548:   cmp    %rcx,%rdx
+    0.00 :   354b:   jne    3660 <lz77_compress+0x3e0>
+    0.50 :   3551:   add    $0x8,%rax
+    0.67 :   3555:   cmp    %rdi,%rax
+    0.00 :   3558:   jne    3540 <lz77_compress+0x2c0>
+    0.00 :   355a:   cmp    %r9,%rdi
+    0.00 :   355d:   jb     358c <lz77_compress+0x30c>
+    0.00 :   355f:   jmp    3787 <lz77_compress+0x507>
+    0.00 :   3564:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   356f:   data16 cs nopw 0x0(%rax,%rax,1)
+    0.00 :   357a:   nopw   0x0(%rax,%rax,1)
+    0.00 :   3580:   inc    %rax
+    0.00 :   3583:   cmp    %rax,%r9
+    0.00 :   3586:   je     3680 <lz77_compress+0x400>
+    0.00 :   358c:   movzbl (%rbx,%rax,1),%edx
+    0.00 :   3590:   cmp    %dl,(%rsi,%rax,1)
+    0.00 :   3593:   je     3580 <lz77_compress+0x300>
+    0.00 :   3595:   cmp    %rax,%r14
+    0.00 :   3598:   cmovb  %r11,%r15
+    0.00 :   359c:   cmovb  %rax,%r14
+    0.16 :   35a0:   mov    -0x20058(%rbp),%rsi
+    0.00 :   35a7:   mov    %r8,%rax
+    0.50 :   35aa:   and    $0xfff,%eax
+    0.00 :   35af:   mov    (%rsi,%rax,8),%rax
+    1.49 :   35b3:   cmp    %r8,%rax
+    0.00 :   35b6:   jae    35c4 <lz77_compress+0x344>
+    0.17 :   35b8:   mov    %rax,%r8
+    0.96 :   35bb:   cmp    %r13,%r8
+    0.00 :   35be:   jb     3510 <lz77_compress+0x290>
+    4.45 :   35c4:   mov    -0x20070(%rbp),%r12
+    5.59 :   35cb:   mov    %r13,%rax
+    0.00 :   35ce:   cmp    $0x2,%r14
+    0.00 :   35d2:   jbe    33c3 <lz77_compress+0x143>
+    0.16 :   35d8:   mov    -0x10040(%rbp),%eax
+    0.00 :   35de:   mov    -0x10048(%rbp),%rcx
+    0.00 :   35e5:   lea    0x1(%rax),%edx
+    0.00 :   35e8:   lea    0x1(%rcx,%rcx,1),%rcx
+    0.83 :   35ed:   mov    %rcx,-0x10048(%rbp)
+    1.50 :   35f4:   mov    %edx,-0x10040(%rbp)
+    0.00 :   35fa:   cmp    $0x1f,%edx
+    0.00 :   35fd:   jg     388b <lz77_compress+0x60b>
+    0.00 :   3603:   lea    -0x1(%r15),%eax
+    0.00 :   3607:   shl    $0xc,%rcx
+    0.33 :   360b:   add    $0xc,%edx
+    0.00 :   360e:   and    $0xfff,%eax
+    0.00 :   3613:   mov    %edx,-0x10040(%rbp)
+    0.00 :   3619:   or     %rcx,%rax
+    0.83 :   361c:   mov    %rax,-0x10048(%rbp)
+    0.00 :   3623:   cmp    $0x1f,%edx
+    0.00 :   3626:   jg     386d <lz77_compress+0x5ed>
+    0.17 :   362c:   lea    -0x3(%r14),%ecx
+    0.34 :   3630:   shl    $0x8,%rax
+    0.00 :   3634:   add    $0x8,%edx
+    0.00 :   3637:   movzbl %cl,%ecx
+    0.00 :   363a:   mov    %edx,-0x10040(%rbp)
+    0.17 :   3640:   or     %rcx,%rax
+    0.17 :   3643:   mov    %rax,-0x10048(%rbp)
+    0.17 :   364a:   cmp    $0x1f,%edx
+    0.00 :   364d:   jg     385c <lz77_compress+0x5dc>
+    0.00 :   3653:   mov    %r13,%rax
+    0.17 :   3656:   jmp    3416 <lz77_compress+0x196>
+    0.00 :   365b:   nopl   0x0(%rax,%rax,1)
+    2.58 :   3660:   xor    %rcx,%rdx
+    0.16 :   3663:   tzcnt  %rdx,%rdx
+   11.32 :   3668:   shr    $0x3,%rdx
+    2.63 :   366c:   add    %rdx,%rax
+    3.11 :   366f:   cmp    %rax,%r14
+    2.82 :   3672:   cmovb  %r11,%r15
+    4.34 :   3676:   cmovb  %rax,%r14
+    0.98 :   367a:   jmp    35a0 <lz77_compress+0x320>
+    0.00 :   367f:   nop
+    0.00 :   3680:   cmp    %r9,%r14
+    0.00 :   3683:   jae    35a0 <lz77_compress+0x320>
+    0.00 :   3689:   cmpq   $0x101,-0x20070(%rbp)
+    0.00 :   3694:   ja     3847 <lz77_compress+0x5c7>
+    0.00 :   369a:   mov    %r11,%r15
+    0.00 :   369d:   mov    %r9,%r14
+    0.00 :   36a0:   jmp    35a0 <lz77_compress+0x320>
+    0.00 :   36a5:   nopl   (%rax)
+    0.00 :   36a8:   mov    -0x20080(%rbp),%rax
+    0.00 :   36af:   mov    %r13,%rbx
+    0.00 :   36b2:   sub    -0x20068(%rbp),%rbx
+    0.00 :   36b9:   sub    %r13,%rax
+    0.00 :   36bc:   cmp    $0xfff,%rax
+    0.00 :   36c2:   jbe    3722 <lz77_compress+0x4a2>
+    0.00 :   36c4:   lea    -0x20050(%rbp,%rbx,1),%rbx
+    0.00 :   36cc:   mov    $0x1000,%r12d
+    0.00 :   36d2:   jmp    34b1 <lz77_compress+0x231>
+    0.00 :   36d7:   lea    -0x10050(%rbp),%rdi
+    0.17 :   36de:   mov    %rax,-0x20070(%rbp)
+    0.00 :   36e5:   call   3dd0 <bw_drain>
+    0.00 :   36ea:   mov    -0x20070(%rbp),%rax
+    0.17 :   36f1:   jmp    3410 <lz77_compress+0x190>
+    0.17 :   36f6:   lea    -0x10050(%rbp),%rdi
+    0.00 :   36fd:   mov    %rax,-0x20070(%rbp)
+    0.00 :   3704:   call   3dd0 <bw_drain>
+    0.00 :   3709:   mov    -0x10048(%rbp),%rcx
+    0.00 :   3710:   mov    -0x10040(%rbp),%edx
+    0.00 :   3716:   mov    -0x20070(%rbp),%rax
+    0.00 :   371d:   jmp    33ed <lz77_compress+0x16d>
+    0.00 :   3722:   lea    0x1000(%rbx),%rax
+    0.00 :   3729:   cmp    $0x10000,%rax
+    0.00 :   372f:   ja     380d <lz77_compress+0x58d>
+    0.00 :   3735:   mov    -0x20078(%rbp),%r15
+    0.00 :   373c:   mov    -0x20088(%rbp),%rcx
+    0.00 :   3743:   mov    $0x10000,%edx
+    0.00 :   3748:   mov    $0x1,%esi
+    0.00 :   374d:   sub    %r15,%rdx
+    0.00 :   3750:   lea    -0x20050(%rbp,%r15,1),%rdi
+    0.00 :   3758:   call   2090 <fread@plt>
+    0.00 :   375d:   lea    (%r15,%rax,1),%rdi
+    0.00 :   3761:   mov    $0x1000,%eax
+    0.00 :   3766:   mov    %rdi,%r12
+    0.00 :   3769:   mov    %rdi,-0x20078(%rbp)
+    0.00 :   3770:   sub    %rbx,%r12
+    0.00 :   3773:   cmp    %rax,%r12
+    0.00 :   3776:   cmova  %rax,%r12
+    0.00 :   377a:   cmp    %rdi,%rbx
+    0.00 :   377d:   je     3797 <lz77_compress+0x517>
+    0.00 :   377f:   mov    %r13,%rax
+    0.00 :   3782:   jmp    3393 <lz77_compress+0x113>
+    0.00 :   3787:   cmp    %rdi,%r14
+    0.00 :   378a:   cmovb  %r11,%r15
+    0.00 :   378e:   cmovb  %rdi,%r14
+    0.00 :   3792:   jmp    35a0 <lz77_compress+0x320>
+    0.00 :   3797:   mov    -0x20090(%rbp),%r13
+    0.00 :   379e:   lea    -0x10050(%rbp),%rdi
+    0.00 :   37a5:   mov    $0xffffffff,%ebx
+    0.00 :   37aa:   call   3ec0 <bw_finish>
+    0.00 :   37af:   mov    -0x20060(%rbp),%rdi
+    0.00 :   37b6:   call   2030 <free@plt>
+    0.00 :   37bb:   mov    -0x20058(%rbp),%rdi
+    0.00 :   37c2:   call   2030 <free@plt>
+    0.00 :   37c7:   mov    -0x20088(%rbp),%rdi
+    0.00 :   37ce:   call   2070 <ferror@plt>
+    0.00 :   37d3:   test   %eax,%eax
+    0.00 :   37d5:   je     38a9 <lz77_compress+0x629>
+    0.00 :   37db:   mov    -0x20088(%rbp),%rdi
+    0.00 :   37e2:   call   20b0 <fclose@plt>
+    0.00 :   37e7:   mov    %r13,%rdi
+    0.00 :   37ea:   call   20b0 <fclose@plt>
+    0.00 :   37ef:   test   %eax,%eax
+    0.00 :   37f1:   mov    $0xffffffff,%eax
+    0.00 :   37f6:   cmovne %eax,%ebx
+    0.00 :   37f9:   add    $0x20068,%rsp
+    0.00 :   3800:   mov    %ebx,%eax
+    0.00 :   3802:   pop    %rbx
+    0.00 :   3803:   pop    %r12
+    0.00 :   3805:   pop    %r13
+    0.00 :   3807:   pop    %r14
+    0.00 :   3809:   pop    %r15
+    0.00 :   380b:   pop    %rbp
+    0.00 :   380c:   ret
+    0.00 :   380d:   sub    $0x1000,%rbx
+    0.00 :   3814:   lea    -0x20050(%rbp),%rdi
+    0.00 :   381b:   sub    %rbx,-0x20078(%rbp)
+    0.00 :   3822:   lea    -0x20050(%rbp,%rbx,1),%rsi
+    0.00 :   382a:   mov    -0x20078(%rbp),%rdx
+    0.00 :   3831:   call   21b0 <memmove@plt>
+    0.00 :   3836:   add    %rbx,-0x20068(%rbp)
+    0.00 :   383d:   mov    $0x1000,%ebx
+    0.00 :   3842:   jmp    3735 <lz77_compress+0x4b5>
+    0.00 :   3847:   mov    -0x20070(%rbp),%r12
+    0.00 :   384e:   mov    %r11,%r15
+    0.00 :   3851:   mov    $0x102,%r14d
+    0.00 :   3857:   jmp    35d8 <lz77_compress+0x358>
+    0.17 :   385c:   lea    -0x10050(%rbp),%rdi
+    0.84 :   3863:   call   3dd0 <bw_drain>
+    0.00 :   3868:   jmp    3653 <lz77_compress+0x3d3>
+    0.16 :   386d:   lea    -0x10050(%rbp),%rdi
+    0.26 :   3874:   call   3dd0 <bw_drain>
+    0.00 :   3879:   mov    -0x10048(%rbp),%rax
+    0.17 :   3880:   mov    -0x10040(%rbp),%edx
+    0.15 :   3886:   jmp    362c <lz77_compress+0x3ac>
+    0.33 :   388b:   lea    -0x10050(%rbp),%rdi
+    0.17 :   3892:   call   3dd0 <bw_drain>
+    0.00 :   3897:   mov    -0x10048(%rbp),%rcx
+    0.00 :   389e:   mov    -0x10040(%rbp),%edx
+    0.00 :   38a4:   jmp    3603 <lz77_compress+0x383>
+    0.00 :   38a9:   mov    %r13,%rdi
+    0.00 :   38ac:   call   2070 <ferror@plt>
+    0.00 :   38b1:   neg    %eax
+    0.00 :   38b3:   sbb    %ebx,%ebx
+    0.00 :   38b5:   jmp    37db <lz77_compress+0x55b>
+    0.00 :   38ba:   mov    %rax,%r13
+    0.00 :   38bd:   jmp    34b1 <lz77_compress+0x231>
+    0.00 :   38c2:   mov    -0x20088(%rbp),%rdi
+    0.00 :   38c9:   call   20b0 <fclose@plt>
+    0.00 :   38ce:   mov    $0xffffffff,%ebx
+    0.00 :   38d3:   jmp    37f9 <lz77_compress+0x579>
+    0.00 :   38d8:   mov    -0x20060(%rbp),%rdi
+    0.00 :   38df:   call   2030 <free@plt>
+    0.00 :   38e4:   mov    -0x20058(%rbp),%rdi
+    0.00 :   38eb:   call   2030 <free@plt>
+    0.00 :   38f0:   mov    -0x20088(%rbp),%rdi
+    0.00 :   38f7:   call   20b0 <fclose@plt>
+    0.00 :   38fc:   mov    %r13,%rdi
+    0.00 :   38ff:   call   20b0 <fclose@plt>
+    0.00 :   3904:   jmp    38ce <lz77_compress+0x64e>

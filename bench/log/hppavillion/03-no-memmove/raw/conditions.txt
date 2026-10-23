@@ -1,0 +1,18 @@
+step:       03-no-memmove
+machine:    hppavillion
+started:    2026-10-23T04:23:52Z
+base:       08b2ec51e42a41bfd8fe619c6d864ec476e67767
+tree:       base plus uncommitted.patch (sha256 5f46cf3185864801)
+cpu:        11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz
+threads:    4
+pinned to:  CPU 3
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (GCC) 16.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       0.45 0.25 0.15
+memory:     3175 MiB available of 7589
+finished:   2026-10-23T04:40:27Z

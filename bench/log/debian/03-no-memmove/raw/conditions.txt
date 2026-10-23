@@ -1,0 +1,18 @@
+step:       03-no-memmove
+machine:    debian
+started:    2026-10-23T14:22:21Z
+base:       08b2ec51e42a41bfd8fe619c6d864ec476e67767
+tree:       base plus uncommitted.patch (sha256 5f46cf3185864801)
+cpu:        AMD Ryzen 7 5700U with Radeon Graphics
+threads:    16
+pinned to:  CPU 15
+governor:   powersave (energy preference: performance)
+power:      on AC
+kernel:     6.12.113+deb13-amd64
+compiler:   gcc (Debian 14.2.0-19) 14.2.0
+configure:  --enable-release
+repeat:     9
+MZ77_MATCH: unset (automatic choice)
+load:       1.00 1.00 1.00
+memory:     29763 MiB available of 31472
+finished:   2026-10-23T14:33:36Z

@@ -1,0 +1,15 @@
+[07:22:21] start build: make -C /home/aushou/mz77 -j16
+[07:22:22] done  build
+[07:22:22] start check: make -C /home/aushou/mz77 check
+[07:22:23] done  check
+[07:22:23] start build-bench: make -C /home/aushou/mz77/bench mz77-bench
+[07:22:23] done  build-bench
+[07:22:23] start bench: taskset -c 15 make -C /home/aushou/mz77/bench bench REPEAT=9
+[07:23:34] done  bench
+[07:23:34] start archives
+[07:23:41] done  archives
+[07:23:41] start bench-compare: taskset -c 15 make -C /home/aushou/mz77/bench bench-compare REPEAT=9
+[07:33:18] done  bench-compare
+[07:33:18] start profile: taskset -c 15 make -C /home/aushou/mz77/bench profile
+[07:33:36] done  profile
+[07:33:36] results in /home/aushou/mz77/bench/log/debian/03-no-memmove
