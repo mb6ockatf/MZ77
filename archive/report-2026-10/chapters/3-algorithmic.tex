@@ -1,0 +1,151 @@
+\chapter{Алгоритмическая оптимизация}
+\label{ch:algorithmic}
+
+\section{Общий буфер окна и упреждающего буфера}
+
+\textbf{Проблема.} Исходная программа хранит окно (4~КиБ уже сжатых данных)
+в кольцевом буфере, а упреждающий буфер "--- в отдельном массиве того же
+размера. После каждого токена весь остаток упреждающего буфера
+сдвигается к его началу (листинг~\ref{lst:memmove-before}). Как показано в
+разделе~\ref{sec:base-complexity}, это член $O(T \cdot L)$ в оценке
+сложности: на несжимаемых данных копируется около 2~КБ на каждый входной
+байт. Кроме того, каждый байт кандидата в цикле сравнения читается
+функцией \texttt{byte\_at}, которая с ветвлением выбирает между двумя
+массивами и вычисляет остаток от деления.
+
+\begin{lstlisting}[caption={Сдвиг упреждающего буфера после каждого токена (исходная программа)},label={lst:memmove-before}]
+while (len < MAX_MATCH && len < buf_len
+       && byte_at (window, buf, win_pos, pos + len) == buf[len])
+  len++;
+/* ... emit the token ... */
+memmove (buf, buf + advance, buf_len - advance);
+buf_len -= advance;
+if (buf_len < MAX_MATCH)
+  buf_len += fread (buf + buf_len, 1, sizeof (buf) - buf_len, fin);
+\end{lstlisting}
+
+\textbf{Решение.} Окно и упреждающий буфер объединены в один массив
+\texttt{data} размером 64~КиБ (листинг~\ref{lst:memmove-after}).
+Переменная \texttt{data\_base} хранит абсолютную позицию первого байта
+массива в файле, а текущая позиция "--- это просто указатель
+\texttt{cursor} внутри массива. Переход к следующему токену сводится к
+увеличению счётчика позиции. Когда в массиве остаётся меньше 4~КиБ
+непрочитанных данных, он дополняется одним вызовом \texttt{fread}; если места
+не хватает, последние 4~КиБ истории и остаток впереди (не более 8~КиБ)
+переносятся в начало массива. Такой перенос происходит один раз примерно
+на 56~КиБ входных данных вместо одного сдвига на каждый токен.
+
+Кандидат совпадения и упреждающий буфер теперь "--- два указателя в один
+массив, поэтому функция \texttt{byte\_at} больше не нужна, а цикл
+сравнения стал простым сравнением двух последовательностей байт. Длина
+упреждающего буфера \texttt{look\_len} вычисляется так же, как в исходной
+программе, потому что от неё зависит, какие позиции в конце блока попадают
+в хеш-таблицу: это сохраняет архивы неизменными.
+
+\begin{lstlisting}[caption={Дополнение общего буфера (после оптимизации)},label={lst:memmove-after}]
+look_len -= advance;
+if (look_len < MAX_MATCH)
+  {
+    size_t start = (size_t) (win_pos - data_base);
+    size_t ahead = data_len - start;
+    if (ahead < WINDOW_SIZE)
+      {
+        if (data_len + (WINDOW_SIZE - ahead) > sizeof (data))
+          {
+            size_t keep_from = start - WINDOW_SIZE;
+            memmove (data, data + keep_from, data_len - keep_from);
+            data_len -= keep_from;
+            data_base += keep_from;
+            start -= keep_from;
+          }
+        data_len += fread (data + data_len, 1,
+                           sizeof (data) - data_len, fin);
+        ahead = data_len - start;
+      }
+    look_len = ahead < WINDOW_SIZE ? ahead : WINDOW_SIZE;
+  }
+\end{lstlisting}
+
+\textbf{Изменение сложности.} Объём копирования уменьшается с
+$O(T \cdot L)$ до $O(n)$: каждый байт переносится не чаще одного раза на
+блок, а доля перенесённых байт не превышает $8/56 \approx 0{,}15$ от объёма
+входа. Оценка~\eqref{eq:base-compress} принимает вид
+\begin{equation}
+\label{eq:after-14}
+T_{\text{сж}}(n) = O\bigl(n + T \cdot C \cdot M\bigr),
+\end{equation}
+то есть из стоимости каждого токена исключено слагаемое $L = 4096$.
+Поиск совпадений при этом не меняется.
+
+\textbf{Корректность.} Проверены \texttt{make check} и совпадение архивов
+с архивами исходной программы для всех файлов корпуса, для граничных
+случаев (пустой файл, файлы длиной 1--9, 255, 256, 4095--4097,
+65\,535--65\,537 байт) и для фрагментов по 1,5~МБ, пересекающих многие
+переносы буфера.
+
+\section{Результаты алгоритмической оптимизации}
+
+Результаты приведены в таблице~\ref{tab:res-14}. Сжатие всего корпуса стало
+в 1,52 раза быстрее на debian и в 1,29 раза на hppavillion; на файлах
+корпуса Silesia "--- в 1,58 и 1,51 раза. Распаковку эта оптимизация не
+затрагивает.
+
+\begin{table}[H]
+\caption{Результаты алгоритмической оптимизации (шаг 03 против шага 02)}
+\label{tab:res-14}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|r|r|}
+\hline
+\multirow{2}{*}{\textbf{Метрика}} & \multicolumn{3}{c|}{\textbf{debian}} & \multicolumn{3}{c|}{\textbf{hppavillion}} \\
+\cline{2-7}
+ & \textbf{до} & \textbf{после} & \textbf{ускор.} & \textbf{до} & \textbf{после} & \textbf{ускор.} \\
+\hline
+Сжатие корпуса, млрд тактов & 41,94 & 27,62 & \textbf{1,52} & 40,86 & 31,65 & \textbf{1,29} \\
+\quad только Silesia & 22,72 & 14,35 & 1,58 & 20,99 & 13,90 & 1,51 \\
+Сжатие корпуса, с & 9,89 & 7,04 & 1,41 & "--- & "--- & "--- \\
+dickens: такты, млн & 1071 & 785 & 1,36 & 1135 & 784 & 1,45 \\
+dickens: команды, млн & 2428 & 1366 & 1,78 & 2406 & 1322 & 1,82 \\
+dickens: IPC & 2,27 & 1,74 & & 2,12 & 1,68 & \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+Число команд уменьшилось почти вдвое, а число тактов "--- меньше: удалённое
+копирование \texttt{memmove} выполнялось с высоким числом команд за такт
+(широкие векторные пересылки), поэтому средний IPC программы упал с 2,27 до
+1,74. Теперь время определяется поиском совпадений с его зависимыми
+переходами по цепочкам.
+
+Выигрыш на отдельных файлах (рисунок~\ref{fig:per-file-14}) тем больше, чем
+больше токенов приходится на байт входа, ведь сдвиг выполнялся один раз на
+токен. Файл random.dat, состоящий почти из одних литералов, сжимается в
+3,8~раза быстрее; двоичные файлы с короткими совпадениями (osdb, sao,
+x-ray, ooffice) "--- в 1,5--2,2~раза; тексты "--- примерно в 1,3~раза;
+zeros.dat, где каждый токен "--- совпадение максимальной длины, "---
+меньше всего.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=\textwidth, height=7cm, bar width=8pt,
+  ylabel={Ускорение сжатия, раз}, ymin=0,
+  xtick=data, xticklabels from table={data/perfile-debian.dat}{file},
+  xticklabel style={rotate=60, anchor=east, font=\small\ttfamily},
+  nodes near coords, nodes near coords style={font=\tiny, rotate=90, anchor=west},
+  enlarge x limits=0.04, grid=major, grid style={gray!25}, ymax=4.6,
+]
+\addplot[fill=gray!60] table[x=index, y=s14] {data/perfile-debian.dat};
+\draw[dashed] (axis cs:-1,1) -- (axis cs:16,1);
+\end{axis}
+\end{tikzpicture}
+\caption{Ускорение сжатия по файлам после алгоритмической оптимизации (debian, время)}
+\label{fig:per-file-14}
+\end{figure}
+
+\screenshot{perf-14}{Метрики perf stat на файле dickens после алгоритмической оптимизации}{fig:perf-14}{%
+\texttt{sed -n '/perf stat, compress/,/elapsed/p'
+bench/log/debian/03-no-memmove/raw/profile/summary.txt}; рядом то же для
+\texttt{02-inline-bitio}, чтобы видеть <<до>> и <<после>>.}

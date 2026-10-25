@@ -1,0 +1,237 @@
+\chapter{Машинно-зависимые оптимизации}
+
+Машинно-зависимые оптимизации используют особенности конкретного
+процессора: его систему команд, ширину регистров, задержки отдельных
+команд~\cite{aho,muchnick}. После сравнения по 8 байт поиск совпадений
+по-прежнему остаётся главной частью работы сжатия, и его можно ускорить
+векторными командами, сравнивающими 32 или 64~байта за одну операцию.
+Такие команды есть не у всех процессоров x86-64, поэтому программа выбирает
+реализацию во время выполнения.
+
+\section{Сравнение командами AVX-512BW}
+\label{sec:avx512}
+
+Расширение AVX-512BW~\cite{intel-intrinsics,intel-opt} имеет 512-битные
+регистры и команды сравнения байт, результат которых "--- 64-битная маска.
+Функция \texttt{match\_length\_avx512} (листинг~\ref{lst:avx512})
+загружает по 64~байта кандидата и упреждающего буфера, получает командой
+\texttt{vpcmpneqb} маску неравных байт, и номер первого единичного бита
+маски (\texttt{tzcnt}) равен длине совпадения. Последний неполный блок
+загружается с маской (\texttt{\_mm512\_maskz\_loadu\_epi8}): такие загрузки не
+обращаются к байтам вне маски, поэтому граница \texttt{limit} никогда не
+нарушается. Совпадение длиной 258~байт проверяется за 5~шагов вместо 33.
+
+\begin{lstlisting}[caption={Сравнение командами AVX-512BW},label={lst:avx512}]
+__attribute__ ((target ("avx512bw,avx512vl")))
+static inline size_t
+match_length_avx512 (const uint8_t *candidate, const uint8_t *cursor,
+                     size_t limit)
+{
+  size_t len = 0;
+  while (len + 64 <= limit)
+    {
+      __m512i candidate_bytes = _mm512_loadu_si512 (candidate + len);
+      __m512i cursor_bytes = _mm512_loadu_si512 (cursor + len);
+      __mmask64 unequal = _mm512_cmpneq_epi8_mask (candidate_bytes,
+                                                   cursor_bytes);
+      if (unequal != 0)
+        return len + (size_t) __builtin_ctzll (unequal);
+      len += 64;
+    }
+  if (len < limit)
+    {
+      __mmask64 tail = (1ULL << (limit - len)) - 1;
+      __m512i candidate_bytes = _mm512_maskz_loadu_epi8 (tail, candidate + len);
+      __m512i cursor_bytes = _mm512_maskz_loadu_epi8 (tail, cursor + len);
+      __mmask64 unequal = _mm512_mask_cmpneq_epi8_mask (tail, candidate_bytes,
+                                                        cursor_bytes);
+      if (unequal != 0)
+        return len + (size_t) __builtin_ctzll (unequal);
+    }
+  return limit;
+}
+\end{lstlisting}
+
+\textbf{Результаты} (таблица~\ref{tab:res-avx}). На hppavillion "---
+единственном компьютере с AVX-512 "--- сжатие корпуса ускорилось в
+1,21~раза при 19~\% меньшем числе команд. Выигрыш меньше, чем у сравнения
+по 8 байт: тот шаг уже убрал основную побайтовую работу, а 64-байтный шаг
+помогает только на совпадениях длиннее 8~байт. Файл mixed.dat с длинными
+повторами ускорился в 1,43~раза, nci "--- в 1,25~раза, текстовые файлы "---
+примерно в 1,15~раза. На debian, где AVX-512 нет, программа выполняет
+прежний код сравнения по 8 байт, и разница (1,02$\times$) находится в
+пределах шума.
+
+\section{Сравнение командами AVX2}
+\label{sec:avx2}
+
+Процессор Ryzen 7 5700U компьютера debian не поддерживает AVX-512, но
+имеет AVX2 с 256-битными регистрами. Функция \texttt{match\_length\_avx2}
+(листинг~\ref{lst:avx2}) сравнивает по 32~байта: команда
+\texttt{vpcmpeqb} даёт по байту на каждую пару, \texttt{vpmovmskb} собирает
+из них 32-битную маску равных байт, и первый нулевой бит маски,
+\texttt{tzcnt(\textasciitilde mask)}, равен длине совпадения. Остаток короче
+32~байт обрабатывает функция сравнения по 8 байт, так что за границу
+\texttt{limit} программа не читает.
+
+\begin{lstlisting}[caption={Сравнение командами AVX2},label={lst:avx2}]
+__attribute__ ((target ("avx2,bmi")))
+static inline size_t
+match_length_avx2 (const uint8_t *candidate, const uint8_t *cursor,
+                   size_t limit)
+{
+  size_t len = 0;
+  while (len + 32 <= limit)
+    {
+      __m256i candidate_bytes =
+        _mm256_loadu_si256 ((const __m256i *) (candidate + len));
+      __m256i cursor_bytes =
+        _mm256_loadu_si256 ((const __m256i *) (cursor + len));
+      uint32_t equal = (uint32_t)
+        _mm256_movemask_epi8 (_mm256_cmpeq_epi8 (candidate_bytes,
+                                                 cursor_bytes));
+      if (equal != UINT32_MAX)
+        return len + (size_t) _tzcnt_u32 (~equal);
+      len += 32;
+    }
+  return len + match_length (candidate + len, cursor + len, limit - len);
+}
+\end{lstlisting}
+
+Команды BMI2 \texttt{pext} и \texttt{pdep} рассматривались для побитового
+ввода-вывода, но были отвергнуты: на Zen~2 они выполняются микрокодом за
+сотни тактов~\cite{agner}. Это пример того, что машинно-зависимая
+оптимизация должна учитывать не только наличие команды, но и её стоимость на
+конкретном процессоре.
+
+\textbf{Результаты.} На debian сжатие корпуса ускорилось в 1,13~раза
+(таблица~\ref{tab:res-avx}), но почти весь выигрыш даёт один файл,
+mixed.dat (1,44$\times$), с длинными совпадениями. На файлах Silesia в
+сумме выигрыш около 2~\%: nci, samba и xml ускорились на 6--13~\%, а dickens,
+osdb, sao, x-ray и random.dat замедлились на 7--10~\%
+(рисунок~\ref{fig:paths-debian}). Вариант, проверяющий первые 8 байт
+одним 64-битным сравнением перед 32-байтным циклом, этих файлов не
+улучшил и в сумме оказался медленнее (15,7~млрд тактов), поэтому в
+программу не вошёл.
+
+\begin{table}[H]
+\caption{Результаты векторного сравнения, млрд тактов на сжатие всего корпуса}
+\label{tab:res-avx}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\multirow{2}{*}{\textbf{Шаг}} & \multicolumn{2}{c|}{\textbf{debian (AVX2)}} & \multicolumn{2}{c|}{\textbf{hppavillion (AVX-512)}} \\
+\cline{2-5}
+ & \textbf{такты} & \textbf{ускорение} & \textbf{такты} & \textbf{ускорение} \\
+\hline
+04 сравнение по 8 байт & 16,65 & "--- & 17,99 & "--- \\
+05 AVX-512BW & 16,29 & 1,02 (не используется) & 14,90 & \textbf{1,21} \\
+06 AVX2 & 14,40 & \textbf{1,13} & 14,69 & 1,01 (не используется) \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\section{Выбор реализации во время выполнения}
+\label{sec:dispatch}
+
+Программа должна запускаться на любом процессоре x86-64, поэтому ключ
+\texttt{-march=native} не используется. Вместо этого цикл сжатия
+описан один раз как функция \texttt{compress\_stream} с атрибутом
+\texttt{always\_inline} и компилируется трижды: обычная версия
+\texttt{compress\_word} и версии \texttt{compress\_avx2} и
+\texttt{compress\_avx512} с атрибутом \texttt{target}~\cite{gcc}. В каждой
+копии векторная функция сравнения встроена в цикл, так что на каждого
+кандидата нет косвенного вызова. Функция \texttt{match\_kind}
+(листинг~\ref{lst:dispatch}) один раз на файл проверяет возможности
+процессора встроенной функцией \texttt{\_\_builtin\_cpu\_supports} и
+выбирает самую широкую доступную реализацию. Переменная окружения
+\texttt{MZ77\_MATCH=word} или \texttt{MZ77\_MATCH=avx2} принудительно
+выбирает реализацию; это позволило измерить все варианты на одном
+компьютере. На других архитектурах векторный код не компилируется вовсе.
+
+\begin{lstlisting}[caption={Выбор реализации сравнения},label={lst:dispatch}]
+static enum MatchKind
+match_kind (void)
+{
+  const char *forced = getenv ("MZ77_MATCH");
+  if (forced && strcmp (forced, "word") == 0)
+    return MATCH_WORD;
+  __builtin_cpu_init ();
+  int has_avx2 = __builtin_cpu_supports ("avx2")
+    && __builtin_cpu_supports ("bmi");
+  if (forced && strcmp (forced, "avx2") == 0 && has_avx2)
+    return MATCH_AVX2;
+  if (__builtin_cpu_supports ("avx512bw")
+      && __builtin_cpu_supports ("avx512vl"))
+    return MATCH_AVX512;
+  if (has_avx2)
+    return MATCH_AVX2;
+  return MATCH_WORD;
+}
+\end{lstlisting}
+
+\textbf{Сложность.} Векторное сравнение уменьшает число шагов сравнения
+кандидата до $\lceil M/w \rceil$ при $w = 32$ (AVX2) или $w = 64$
+(AVX-512): оценка~\eqref{eq:after-15} сохраняет вид, но с большим $w$.
+
+\textbf{Сравнение реализаций.} На рисунках~\ref{fig:paths-hpp}
+и~\ref{fig:paths-debian} показано ускорение каждой векторной реализации
+относительно сравнения по 8 байт на каждом файле корпуса
+(\texttt{perf stat}, программа шага~06). Неожиданный результат: на
+hppavillion реализация AVX2, выбранная принудительно, в сумме на 3~\%
+быстрее реализации AVX-512, которую программа выбирает по умолчанию
+(14,38 против 14,83~млрд тактов), и не хуже неё почти на всех файлах.
+Причина в работе не установлена; можно лишь отметить, что большинство
+кандидатов различаются уже в первых байтах, и на них ширина сравнения не
+важна. Порядок выбора (AVX-512 первым) сохранён таким,
+каким он был измерен; его изменение "--- возможное продолжение работы.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=\textwidth, height=7cm, bar width=5pt,
+  ylabel={Ускорение относительно сравнения по 8 байт}, ymin=0.8, ymax=1.6,
+  xtick=data, xticklabels from table={data/paths-hppavillion.dat}{file},
+  xticklabel style={rotate=60, anchor=east, font=\small\ttfamily},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+  enlarge x limits=0.04, grid=major, grid style={gray!25},
+]
+\addplot[fill=gray!40] table[x=index, y expr=\thisrow{word}/\thisrow{avx512}] {data/paths-hppavillion.dat};
+\addlegendentry{AVX-512BW}
+\addplot[fill=gray!85] table[x=index, y expr=\thisrow{word}/\thisrow{avx2}] {data/paths-hppavillion.dat};
+\addlegendentry{AVX2}
+\end{axis}
+\end{tikzpicture}
+\caption{Ускорение векторных реализаций сравнения по файлам, hppavillion (такты)}
+\label{fig:paths-hpp}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=\textwidth, height=7cm, bar width=8pt,
+  ylabel={Ускорение относительно сравнения по 8 байт}, ymin=0.8, ymax=1.6,
+  xtick=data, xticklabels from table={data/paths-debian.dat}{file},
+  xticklabel style={rotate=60, anchor=east, font=\small\ttfamily},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+  enlarge x limits=0.04, grid=major, grid style={gray!25},
+]
+\addplot[fill=gray!85] table[x=index, y expr=\thisrow{word}/\thisrow{avx2}] {data/paths-debian.dat};
+\addlegendentry{AVX2}
+\draw[dashed] (axis cs:-1,1) -- (axis cs:16,1);
+\end{axis}
+\end{tikzpicture}
+\caption{Ускорение реализации AVX2 по файлам, debian (такты)}
+\label{fig:paths-debian}
+\end{figure}
+
+\screenshot{match-paths}{Сжатие корпуса с разными реализациями сравнения на hppavillion}{fig:match-paths}{%
+На hppavillion, сборка шага 06 (\texttt{bench/mz77-bench}), три команды
+подряд:\\
+\texttt{taskset -c 3 perf stat -e cycles:u bench/mz77-bench --mode=compress --repeat=1 bench/corpus/*/*}\\
+затем то же с \texttt{MZ77\_MATCH=avx2} и \texttt{MZ77\_MATCH=word} в начале
+строки. Снять три итоговых числа \texttt{cycles:u}.}

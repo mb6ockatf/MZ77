@@ -1,0 +1,260 @@
+\chapter{Профилирование и сложность исходной программы}
+
+\section{Профиль исходной программы}
+
+Исходная программа (шаг~00, коммит 1f70c33) сжимает весь корпус на
+компьютере debian за 10,10~с (28,9~МБ/с) и распаковывает за 2,07~с
+(141~МБ/с). В~тактах процессора сжатие корпуса занимает 41,9~млрд тактов,
+распаковка "--- 7,6~млрд тактов (таблица~\ref{tab:final-cycles}).
+
+Профиль снимался на файле dickens (10,2~МБ английского текста). Основные
+метрики счётчиков процессора, полученные командой \texttt{perf stat},
+приведены в таблице~\ref{tab:base-perf}, а вывод команды "--- на
+рисунке~\ref{fig:base-perfstat}.
+
+\begin{table}[H]
+\caption{Метрики исходной программы на файле dickens (perf stat, среднее
+из 5 запусков)}
+\label{tab:base-perf}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\multirow{2}{*}{\textbf{Метрика}} & \multicolumn{2}{c|}{\textbf{Сжатие}} & \multicolumn{2}{c|}{\textbf{Распаковка}} \\
+\cline{2-5}
+ & \textbf{debian} & \textbf{hppavillion} & \textbf{debian} & \textbf{hppavillion} \\
+\hline
+Такты, млн & 1150 & 1215 & 350 & 348 \\
+Команды, млн & 2747 & 2639 & 862 & 811 \\
+Команд за такт (IPC) & 2,39 & 2,17 & 2,46 & 2,33 \\
+Ветвления, млн & 541 & 542 & 153 & "--- \\
+Ошибки предсказания ветвлений, \% & 2,92 & 3,26 & 2,42 & "--- \\
+Промахи кеша L1D, \% & 2,12 & "--- & 0,02 & "--- \\
+Время, с & 0,279 & "--- & 0,092 & "--- \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\screenshot{base-perfstat}{Вывод perf stat для сжатия файла dickens исходной программой}{fig:base-perfstat}{%
+Файл \texttt{bench/log/debian/00-baseline/raw/profile/perf-stat-compress.txt}:
+\texttt{cat} в терминале. Или заново, на коммите 1f70c33 после
+\texttt{make profile}: \texttt{perf stat -r 5 -e cycles:u,instructions:u,branches:u,branch-misses:u
+bench/bin/prof --mode=compress --repeat=1 bench/corpus/silesia/dickens}.}
+
+Распределение времени по функциям показывает плоский профиль gprof
+(таблица~\ref{tab:base-gprof}, рисунок~\ref{fig:base-gprof}). Для него
+программа собирается с ключами \texttt{-pg -fno-inline}, чтобы каждая
+маленькая функция была видна отдельно; профиль охватывает 5~циклов сжатия и
+распаковки.
+
+\begin{table}[H]
+\caption{Плоский профиль gprof исходной программы (debian, dickens)}
+\label{tab:base-gprof}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|l|}
+\hline
+\textbf{Функция} & \textbf{Доля времени, \%} & \textbf{Вызовов} & \textbf{Назначение} \\
+\hline
+\texttt{lz77\_compress} & 41,1 & 5 & цикл сжатия, поиск совпадений \\
+\texttt{lz77\_decompress} & 16,5 & 5 & цикл распаковки \\
+\texttt{bw\_flush} & 11,0 & 38\,841\,340 & вывод готовых байт архива \\
+\texttt{br\_read} & 11,0 & 38\,841\,345 & чтение полей архива \\
+\texttt{hash3} & 10,3 & 65\,453\,735 & хеш трёх байт \\
+\texttt{ht\_insert} & 2,7 & 50\,962\,220 & вставка позиции в хеш-таблицу \\
+\texttt{byte\_at} & 2,1 & 366\,666\,790 & байт окна или буфера \\
+прочие & 5,3 & & \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, width=0.8\textwidth, height=6.5cm,
+  xmin=0, xmax=50, xlabel={Доля времени, \%},
+  symbolic y coords={прочие,byte\_at,ht\_insert,hash3,br\_read,bw\_flush,lz77\_decompress,lz77\_compress},
+  ytick=data, yticklabel style={font=\small\ttfamily},
+  nodes near coords, nodes near coords style={font=\small},
+  bar width=9pt, enlarge y limits=0.08,
+]
+\addplot[fill=gray!60] coordinates {(41.1,lz77\_compress) (16.5,lz77\_decompress)
+  (11.0,bw\_flush) (11.0,br\_read) (10.3,hash3) (2.7,ht\_insert)
+  (2.1,byte\_at) (5.3,прочие)};
+\end{axis}
+\end{tikzpicture}
+\caption{Распределение времени исходной программы по функциям (gprof)}
+\label{fig:base-gprof}
+\end{figure}
+
+\screenshot{base-gprof}{Плоский профиль gprof исходной программы}{fig:base-gprof-shot}{%
+\texttt{head -25 bench/log/debian/00-baseline/raw/profile/gprof.txt}
+в терминале (строки <<Flat profile>> с первыми десятью функциями).}
+
+Профиль по строкам исходного кода (\texttt{perf record}, рисунок~\ref{fig:base-perflines})
+уточняет картину:
+\begin{itemize}
+\item 15--20~\% тактов приходится на побайтное сравнение во внутреннем
+цикле поиска совпадения (строки 83--86 файла \texttt{lz77.c}), где каждый
+байт кандидата читается функцией \texttt{byte\_at} с ветвлением и
+взятием остатка от деления;
+\item около 12~\% "--- на функцию \texttt{memmove} из glibc: после каждого
+токена программа сдвигает упреждающий буфер влево;
+\item заметную долю дают \texttt{fputc} и \texttt{fgetc}: каждый байт
+архива и каждый байт распакованных данных проходит через отдельный вызов
+библиотеки ввода-вывода.
+\end{itemize}
+
+\screenshot{base-perflines}{Самые <<горячие>> строки исходного кода (perf report)}{fig:base-perflines}{%
+\texttt{head -30 bench/log/debian/00-baseline/raw/profile/perf-lines.txt},
+или \texttt{perf report -i perf.data --sort srcline} после \texttt{make profile}.
+Должны быть видны \texttt{lz77.c:84} и строки \texttt{memmove-vec-unaligned-erms.S}.}
+
+Из числа вызовов функций в профиле gprof можно точно восстановить состав
+потока токенов для файла dickens (таблица~\ref{tab:tokens}). Функция
+\texttt{bw\_write} вызывается дважды на литерал и трижды на ссылку, а
+\texttt{hash3} "--- один раз на каждую вставку в хеш-таблицу и один раз на
+каждый токен. Рассчитанный по этим числам размер архива,
+$(9\cdot926\,641 + 21\cdot1\,971\,662)/8 \approx 6\,218\,084$ байт, совпадает с
+фактическим (6\,218\,082 байт) с точностью до округления.
+
+\begin{table}[H]
+\caption{Поток токенов при сжатии файла dickens (на один запуск)}
+\label{tab:tokens}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Величина} & \textbf{Значение} \\
+\hline
+Размер входного файла $n$, байт & 10\,192\,446 \\
+Число токенов $T$ & 2\,898\,303 \\
+\quad из них литералов & 926\,641 \\
+\quad из них ссылок & 1\,971\,662 \\
+Средняя длина ссылки, байт & 4,7 \\
+Просмотрено кандидатов в цепочках, всего & 16\,170\,300 \\
+Кандидатов на токен, в среднем & 5,6 \\
+Прочитано байт при сравнении, на кандидата & 4,5 \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+Наконец, чтобы отделить качество кода от настроек компилятора, исходная
+программа была собрана с разными уровнями оптимизации GCC
+(таблица~\ref{tab:base-variants}, \texttt{make bench-compare}). Переход от
+\texttt{-O0} к \texttt{-O1} ускоряет сжатие вдвое, но дальнейшие уровни
+дают лишь несколько процентов. Значит, оставшееся время определяется самим
+кодом "--- лишними копированиями и вызовами, "--- и его нужно менять.
+
+\begin{table}[H]
+\caption{Исходная программа с разными флагами компилятора (debian, весь корпус)}
+\label{tab:base-variants}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\textbf{Флаги} & \textbf{Сжатие, с} & \textbf{Распаковка, с} & \textbf{Сжатие, МБ/с} & \textbf{Распаковка, МБ/с} \\
+\hline
+\texttt{-O0} & 21,88 & 3,13 & 13,3 & 93,3 \\
+\texttt{-O1} & 10,90 & 2,07 & 26,8 & 141,0 \\
+\texttt{-O2} & 10,47 & 2,07 & 27,9 & 140,9 \\
+\texttt{-O3} & 10,12 & 1,99 & 28,9 & 146,8 \\
+\texttt{-O3 -march=native} & 10,62 & 2,02 & 27,5 & 144,4 \\
+\quad + LTO & 9,50 & 1,76 & 30,7 & 166,3 \\
+\quad + LTO + PGO & 9,18 & 1,75 & 31,8 & 166,8 \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\section{Оценка алгоритмической сложности исходной программы}
+\label{sec:base-complexity}
+
+Сложность оценивается в асимптотических обозначениях~\cite{cormen}
+как число элементарных операций в зависимости от размера входа.
+Обозначим $n$ "--- размер входного файла, $T$ "--- число токенов
+($n/M \le T \le n$), остальные обозначения "--- по
+таблице~\ref{tab:params}.
+
+\textbf{Сжатие.} Для каждого токена программа выполняет:
+\begin{enumerate}
+\item вычисление хеша и выбор головы цепочки "--- $O(1)$;
+\item просмотр не более $C$ кандидатов цепочки, для каждого "--- сравнение
+не более $M$ байт, каждый через \texttt{byte\_at} "--- $O(C \cdot M)$;
+\item запись токена в архив "--- $O(1)$;
+\item вставку в хеш-таблицу каждой из пройденных позиций "--- $O(1)$ на байт
+входа;
+\item сдвиг упреждающего буфера функцией \texttt{memmove} на длину
+токена: копируется весь остаток буфера, от 258 до $L = 4096$ байт, "---
+$O(L)$.
+\end{enumerate}
+
+Суммарное время сжатия
+\begin{equation}
+\label{eq:base-compress}
+T_{\text{сж}}(n) = O\bigl(n + T \cdot (C \cdot M + L)\bigr) =
+O\bigl(n \cdot (C \cdot M + L)\bigr),
+\end{equation}
+где худший случай $T = n$ достигается на несжимаемых данных (одни
+литералы). Поскольку $C$, $M$ и $L$ "--- константы алгоритма, асимптотически
+сжатие линейно: $T_{\text{сж}}(n) = O(n)$. Однако константа очень велика:
+в худшем случае до $C\cdot M + L \approx 70\,000$ операций на байт.
+
+На реальных данных цепочки короткие: для dickens в среднем просматривается
+5,6~кандидата на токен, и сравнение каждого обрывается через 4,5~байта
+(таблица~\ref{tab:tokens}), то есть поиск стоит около 25 сравнений на токен.
+Сдвиг буфера стоит намного дороже: размер упреждающего буфера равномерно
+убывает от 4096 до 258 байт и затем снова дополняется, так что в среднем
+на каждый токен копируется около $(4096 + 258)/2 \approx 2200$ байт. Для
+dickens это примерно $2{,}9\cdot10^6 \cdot 2200 \approx 6{,}3$~ГБ копирования
+на 10~МБ входных данных "--- более 600 байт на каждый входной байт.
+Именно этот член $O(T\cdot L)$ определяет время на данных с короткими
+совпадениями.
+
+\textbf{Распаковка.} Каждый токен декодируется за $O(1)$, каждый выходной
+байт записывается за $O(1)$: $T_{\text{расп}}(n) = O(n)$. Константу
+определяют вызовы \texttt{fgetc} и \texttt{fputc} "--- по одному на каждый
+байт архива и каждый байт результата.
+
+\textbf{Память.} Сжатие использует таблицу голов цепочек ($H$ элементов
+по 8~байт, 512~КиБ), массив \texttt{ht\_next} ($W$ элементов, 32~КиБ), окно
+и упреждающий буфер (по 4~КиБ): $O(H + W + L) = O(1)$ "--- память не
+зависит от размера файла. Распаковка хранит только окно, $O(W) = O(1)$.
+
+\textbf{Экспериментальная проверка.} Линейность подтверждается
+измерением: префиксы синтетических файлов размером от 1 до 20~МБ сжимались
+исходной программой, и для каждого считалось число выполненных команд
+процессора (рисунок~\ref{fig:base-scaling}). Число команд на байт входа
+постоянно с точностью до 1~\%: около 251 для текста, 384 для случайных
+данных и 33 для нулевых байт. Случайные данные "--- худший случай: в них
+почти нет совпадений, каждый байт становится литералом и вызывает сдвиг
+буфера.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.85\textwidth, height=7cm,
+  xlabel={Размер входа, МБ}, ylabel={Команды процессора, млрд},
+  xmin=0, xmax=21, ymin=0,
+  legend pos=north west, legend style={font=\small},
+  grid=major, grid style={gray!25},
+]
+\addplot[mark=square*, thick] table[x=mb, y=base_ginstr]
+  {data/scaling-random.dat};
+\addlegendentry{random.dat}
+\addplot[mark=*, thick, dashed] table[x=mb, y=base_ginstr]
+  {data/scaling-text.dat};
+\addlegendentry{text.dat}
+\addplot[mark=triangle*, thick, dotted] table[x=mb, y=base_ginstr]
+  {data/scaling-zeros.dat};
+\addlegendentry{zeros.dat}
+\end{axis}
+\end{tikzpicture}
+\caption{Зависимость числа команд при сжатии от размера входа, исходная программа}
+\label{fig:base-scaling}
+\end{figure}

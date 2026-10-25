@@ -1,0 +1,349 @@
+\chapter{Итоговые результаты и сложность оптимизированной программы}
+
+\section{Сводные результаты}
+
+Сводные результаты всех шагов приведены в таблице~\ref{tab:final-cycles}
+и на рисунках~\ref{fig:steps-compress} и~\ref{fig:steps-decompress}. Это
+медианы пяти раундов сценария \texttt{bench/steps.sh}, который собрал
+программу каждого шага из её коммита и измерил все шаги подряд на одном
+ядре процессора. Столбец <<к пред.>> "--- ускорение относительно предыдущего
+шага, <<к исх.>> "--- относительно исходной программы; для сборки с PGO
+предыдущим шагом считается сборка только с LTO.
+
+\begin{table}[H]
+\caption{Такты процессора на весь корпус по шагам, млрд}
+\label{tab:final-cycles}
+\begin{tabletext}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+\hline
+\multirow{3}{*}{\textbf{Шаг}} & \multicolumn{4}{c|}{\textbf{debian (Ryzen 7 5700U)}} & \multicolumn{4}{c|}{\textbf{hppavillion (i3-1115G4)}} \\
+\cline{2-9}
+ & \multicolumn{2}{c|}{\textbf{сжатие}} & \multicolumn{2}{c|}{\textbf{распаковка}} & \multicolumn{2}{c|}{\textbf{сжатие}} & \multicolumn{2}{c|}{\textbf{распаковка}} \\
+\cline{2-9}
+ & \textbf{такты} & \textbf{к пред.} & \textbf{такты} & \textbf{к пред.} & \textbf{такты} & \textbf{к пред.} & \textbf{такты} & \textbf{к пред.} \\
+\hline
+00 исходная & 41,85 & & 7,57 & & 42,15 & & 7,38 & \\
+01 блочный в/в & 39,93 & 1,05 & 4,64 & \textbf{1,63} & 41,68 & 1,01 & 4,42 & \textbf{1,67} \\
+02 встраивание & 41,94 & 0,95 & 3,24 & \textbf{1,43} & 40,86 & 1,02 & 3,42 & \textbf{1,29} \\
+03 без сдвига & 27,62 & \textbf{1,52} & 3,25 & 1,00 & 31,65 & \textbf{1,29} & 3,36 & 1,02 \\
+04 по 8 байт & 16,65 & \textbf{1,66} & 3,24 & 1,00 & 17,99 & \textbf{1,76} & 3,38 & 0,99 \\
+05 AVX-512BW & 16,29 & 1,02 & 3,26 & 0,99 & 14,90 & \textbf{1,21} & 3,37 & 1,00 \\
+06 AVX2 & 14,40 & \textbf{1,13} & 3,34 & 0,98 & 14,69 & 1,01 & 3,40 & 0,99 \\
+07 LTO & 14,19 & 1,01 & 3,32 & 1,00 & 14,66 & 1,00 & 3,33 & 1,02 \\
+07 LTO + PGO & 13,47 & \textbf{1,05} & 3,14 & \textbf{1,06} & 14,80 & 0,99 & 3,10 & \textbf{1,07} \\
+\hline
+\textbf{Итого к исходной} & & \textbf{3,11} & & \textbf{2,41} & & \textbf{2,85} & & \textbf{2,38} \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=\textwidth, height=7.5cm, bar width=7pt,
+  ylabel={Сжатие корпуса, млрд тактов}, ymin=0, ymax=48,
+  symbolic x coords={00,01,02,03,04,05,06,07a,07b}, xtick=data,
+  xticklabels={00,01,02,03,04,05,06,{07 LTO},{07 PGO}},
+  xticklabel style={font=\small},
+  xlabel={Шаг оптимизации},
+  nodes near coords, nodes near coords style={font=\tiny, rotate=90, anchor=west},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+  enlarge x limits=0.07, grid=major, grid style={gray!25},
+]
+\addplot[fill=gray!40] table[x=step, y=compress] {data/steps-debian.dat};
+\addlegendentry{debian}
+\addplot[fill=gray!85] table[x=step, y=compress] {data/steps-hppavillion.dat};
+\addlegendentry{hppavillion}
+\end{axis}
+\end{tikzpicture}
+\caption{Такты сжатия всего корпуса по шагам оптимизации}
+\label{fig:steps-compress}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=\textwidth, height=7cm, bar width=7pt,
+  ylabel={Распаковка корпуса, млрд тактов}, ymin=0, ymax=9,
+  symbolic x coords={00,01,02,03,04,05,06,07a,07b}, xtick=data,
+  xticklabels={00,01,02,03,04,05,06,{07 LTO},{07 PGO}},
+  xticklabel style={font=\small},
+  xlabel={Шаг оптимизации},
+  nodes near coords, nodes near coords style={font=\tiny, rotate=90, anchor=west},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+  enlarge x limits=0.07, grid=major, grid style={gray!25},
+]
+\addplot[fill=gray!40] table[x=step, y=decompress] {data/steps-debian.dat};
+\addlegendentry{debian}
+\addplot[fill=gray!85] table[x=step, y=decompress] {data/steps-hppavillion.dat};
+\addlegendentry{hppavillion}
+\end{axis}
+\end{tikzpicture}
+\caption{Такты распаковки всего корпуса по шагам оптимизации}
+\label{fig:steps-decompress}
+\end{figure}
+
+\screenshot{steps-debian}{Результат сценария bench/steps.sh на компьютере debian}{fig:steps-debian}{%
+\texttt{cat bench/log/debian/steps/steps.txt} в терминале шириной не менее
+100 символов. Повторить измерение: \texttt{ROUNDS=5 CPU=15 bench/steps.sh}.}
+
+\screenshot{steps-hpp}{Результат сценария bench/steps.sh на компьютере hppavillion}{fig:steps-hpp}{%
+\texttt{cat bench/log/hppavillion/steps/steps.txt}. Повторить измерение:
+\texttt{ROUNDS=5 CPU=3 bench/steps.sh} (ноутбук подключён к сети и не нагружен).}
+
+В~секундах на компьютере debian сжатие всего корпуса ускорилось с 10,10 до
+3,29~с (в 3,07~раза, с 28,9 до 88,7~МБ/с), распаковка "--- с 2,07 до
+0,90~с (в 2,29~раза, со 141 до 324~МБ/с), таблица~\ref{tab:wall} и
+рисунок~\ref{fig:throughput}.
+
+\begin{table}[H]
+\caption{Время обработки всего корпуса на компьютере debian (сумма медиан по файлам, 9 запусков)}
+\label{tab:wall}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\textbf{Шаг} & \textbf{Сжатие, с} & \textbf{Распаковка, с} & \textbf{Сжатие, МБ/с} & \textbf{Распаковка, МБ/с} \\
+\hline
+00 исходная & 10,10 & 2,07 & 28,9 & 141,2 \\
+01 блочный ввод-вывод & 10,27 & 1,24 & 28,4 & 235,3 \\
+02 встраивание & 9,89 & 0,95 & 29,5 & 306,8 \\
+03 без сдвига буфера & 7,04 & 0,93 & 41,5 & 313,1 \\
+04 сравнение по 8 байт & 3,88 & 0,93 & 75,3 & 314,6 \\
+05 AVX-512BW & 3,92 & 0,92 & 74,5 & 316,4 \\
+06 AVX2 & 3,48 & 0,94 & 83,8 & 309,4 \\
+07 LTO + PGO & 3,29 & 0,90 & 88,7 & 323,9 \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\textwidth, height=7cm,
+  symbolic x coords={00,01,02,03,04,05,06,07b}, xtick=data,
+  xticklabels={00,01,02,03,04,05,06,07},
+  xlabel={Шаг оптимизации}, ylabel={Скорость, МБ/с},
+  ymin=0, ymax=350, grid=major, grid style={gray!25},
+  legend pos=north west, legend style={font=\small},
+  nodes near coords, nodes near coords style={font=\tiny, anchor=south},
+]
+\addplot[mark=*, thick] table[x=step, y=dmbs] {data/wall-debian.dat};
+\addlegendentry{распаковка}
+\addplot[mark=square*, thick, dashed] table[x=step, y=cmbs] {data/wall-debian.dat};
+\addlegendentry{сжатие}
+\end{axis}
+\end{tikzpicture}
+\caption{Скорость сжатия и распаковки по шагам, debian}
+\label{fig:throughput}
+\end{figure}
+
+Ускорение по отдельным файлам (рисунок~\ref{fig:per-file-total})
+составляет от 2 до 4,4~раза при сжатии и от 1,2 до 3,8~раза при
+распаковке. Сильнее всего ускорились random.dat (больше всего токенов на
+байт) и mixed.dat (самые длинные цепочки совпадений), меньше всего "---
+zeros.dat, который и в исходной программе обрабатывался быстрее всех.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=\textwidth, height=7.5cm, bar width=5pt,
+  ylabel={Ускорение, раз}, ymin=0, ymax=4.8,
+  xtick=data, xticklabels from table={data/perfile-debian.dat}{file},
+  xticklabel style={rotate=60, anchor=east, font=\small\ttfamily},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+  enlarge x limits=0.04, grid=major, grid style={gray!25},
+]
+\addplot[fill=gray!40] table[x=index, y=stotal] {data/perfile-debian.dat};
+\addlegendentry{сжатие}
+\addplot[fill=gray!85] table[x=index, y=dtotal] {data/perfile-debian.dat};
+\addlegendentry{распаковка}
+\end{axis}
+\end{tikzpicture}
+\caption{Итоговое ускорение по файлам, шаг 07 против исходной программы (debian, время)}
+\label{fig:per-file-total}
+\end{figure}
+
+На всех шагах и на обоих компьютерах архивы всех 16 файлов корпуса
+совпадают байт в байт с архивами исходной программы
+(рисунок~\ref{fig:sha256}), коэффициент сжатия корпуса остаётся равным
+0,4753, а набор тестов \texttt{make check} проходит
+(рисунок~\ref{fig:make-check}).
+
+\screenshot{sha256}{Совпадение контрольных сумм архивов исходной и оптимизированной программ}{fig:sha256}{%
+\texttt{diff bench/log/debian/00-baseline/raw/archives.sha256
+bench/log/debian/07-lto-pgo/raw/archives.sha256 \&\& echo identical},
+а также \texttt{head -5} одного из файлов, чтобы были видны суммы.}
+
+\screenshot{make-check}{Успешное выполнение набора тестов make check}{fig:make-check}{%
+На текущей версии: \texttt{make check}; снять итоговую сводку
+<<Testsuite summary>> с \texttt{PASS} и \texttt{FAIL: 0}.}
+
+\section{Профиль оптимизированной программы}
+
+Метрики процессора на файле dickens для всех шагов показаны на
+рисунке~\ref{fig:profile-steps}, сравнение исходной и оптимизированной
+программ "--- в таблице~\ref{tab:final-profile}. Профильная сборка на всех
+шагах одинакова (\texttt{-O2 -g}, без LTO и PGO), поэтому шаг~07 в
+профиле совпадает с шагом~06. На debian профильная сборка шагов 05--07
+медленнее шага~04 на dickens: это один из файлов, на которых реализация
+AVX2 проигрывает сравнению по 8 байт (раздел~\ref{sec:avx2}).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\textwidth, height=7cm,
+  symbolic x coords={00,01,02,03,04,05,06,07b}, xtick=data,
+  xticklabels={00,01,02,03,04,05,06,07},
+  xlabel={Шаг оптимизации}, ylabel={Сжатие dickens, млн},
+  ymin=0, ymax=3000, grid=major, grid style={gray!25},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+]
+\addplot[mark=*, thick] table[x=step, y=cinstr] {data/profile-debian.dat};
+\addlegendentry{команды, debian}
+\addplot[mark=o, thick, dashed] table[x=step, y=cinstr] {data/profile-hppavillion.dat};
+\addlegendentry{команды, hppavillion}
+\addplot[mark=square*, thick] table[x=step, y=ccycles] {data/profile-debian.dat};
+\addlegendentry{такты, debian}
+\addplot[mark=square, thick, dashed] table[x=step, y=ccycles] {data/profile-hppavillion.dat};
+\addlegendentry{такты, hppavillion}
+\end{axis}
+\end{tikzpicture}
+\caption{Команды и такты при сжатии файла dickens по шагам (профильная сборка)}
+\label{fig:profile-steps}
+\end{figure}
+
+\begin{table}[H]
+\caption{Профиль исходной и оптимизированной программ, dickens, debian}
+\label{tab:final-profile}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Метрика} & \textbf{Шаг 00} & \textbf{Шаг 07} & \textbf{Изменение} \\
+\hline
+Сжатие: такты, млн & 1150 & 553 & в 2,08 раза меньше \\
+Сжатие: команды, млн & 2747 & 1099 & в 2,50 раза меньше \\
+Сжатие: ветвления, млн & 541 & 194 & в 2,79 раза меньше \\
+Сжатие: ошибки предсказания, млн & 15,8 & 7,6 & в 2,09 раза меньше \\
+Распаковка: такты, млн & 350 & 170 & в 2,06 раза меньше \\
+Распаковка: команды, млн & 862 & 346 & в 2,49 раза меньше \\
+Cachegrind, сжатие и распаковка: команды, млн & 3642 & 1441 & в 2,53 раза меньше \\
+Cachegrind: промахи L1D при чтении, млн & 14,1 & 12,8 & на 10~\% меньше \\
+Cachegrind: ошибки предсказания ветвлений, млн & 34,2 & 15,9 & в 2,16 раза меньше \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+Плоский профиль gprof оптимизированной программы
+(рисунок~\ref{fig:final-gprof}) показывает, что теперь время делится между
+циклом сжатия \texttt{compress\_avx2} (32~\%) и сравнением кандидатов
+\texttt{match\_length\_avx2} (26~\%); распаковка занимает 8~\%, вывод
+байта \texttt{output\_byte} "--- 7~\%, хеш "--- 6~\%. Вызовы библиотеки
+ввода-вывода и копирование памяти из профиля исчезли. Число промахов кеша
+почти не изменилось: все структуры данных программы (менее 1~МиБ)
+по-прежнему помещаются в кеш последнего уровня~\cite{drepper}, где
+Cachegrind насчитывает лишь несколько тысяч промахов, и оставшееся время "--- это вычисления и
+зависимые переходы по цепочкам хеш-таблицы.
+
+\screenshot{final-gprof}{Плоский профиль gprof оптимизированной программы}{fig:final-gprof}{%
+\texttt{head -20 bench/log/debian/07-lto-pgo/raw/profile/gprof.txt}; при
+желании рядом \texttt{perf report} по строкам:
+\texttt{head -20 bench/log/debian/07-lto-pgo/raw/profile/perf-lines.txt}.}
+
+\section{Оценка алгоритмической сложности оптимизированной программы}
+
+\textbf{Сжатие.} Для каждого токена оптимизированная программа выполняет:
+\begin{enumerate}
+\item вычисление хеша и выбор головы цепочки "--- $O(1)$;
+\item просмотр не более $C$ кандидатов; сравнение каждого занимает не более
+$\lceil M/w \rceil$ шагов, где $w$ "--- ширина сравнения: 8~байт в
+переносимой версии, 32~байта с AVX2, 64~байта с AVX-512, "--- $O(C \cdot
+\lceil M/w \rceil)$;
+\item запись токена в блок архива "--- $O(1)$;
+\item вставку в хеш-таблицу пройденных позиций "--- $O(1)$ на байт входа.
+\end{enumerate}
+Сдвига буфера на каждый токен больше нет; перенос данных при дополнении
+общего буфера стоит $O(n)$ на весь файл (не более 0,15~байта на входной
+байт). Итого
+\begin{equation}
+\label{eq:final}
+T_{\text{сж}}(n) = O\bigl(n + T \cdot C \cdot \lceil M/w \rceil\bigr) =
+O\bigl(n \cdot C \cdot \lceil M/w \rceil\bigr).
+\end{equation}
+Асимптотически сжатие, как и прежде, линейно: $T_{\text{сж}}(n) = O(n)$.
+Изменилась константа: из стоимости токена исключено слагаемое $L = 4096$, а
+член поиска уменьшился в $w$ раз; в худшем случае "--- с $C \cdot M + L
+\approx 70\,000$ до $C \cdot \lceil M/32 \rceil \approx 2300$ шагов на байт
+при AVX2. Улучшить асимптотику ниже $O(n)$ невозможно, поскольку каждый
+входной байт нужно хотя бы прочитать.
+
+\textbf{Распаковка.} $T_{\text{расп}}(n) = O(n)$, как и прежде; каждый байт
+теперь обходится записью в массив и сдвигом битового буфера вместо вызовов
+\texttt{fgetc} и \texttt{fputc}.
+
+\textbf{Память.} Сжатие использует таблицу голов (512~КиБ), массив
+\texttt{ht\_next} (32~КиБ), общий буфер данных (64~КиБ) и блок
+побитового писателя (64~КиБ), всего около 672~КиБ против 552~КиБ в
+исходной программе; распаковка вместо одного окна в 4~КиБ использует ещё
+два блока по 64~КиБ. Объём памяти по-прежнему $O(1)$ относительно размера
+файла и увеличился не более чем на 128~КиБ.
+
+\textbf{Экспериментальная проверка.} Префиксы тех же синтетических файлов
+размером от 1 до 20~МБ сжимались исходной и оптимизированной
+программами (рисунок~\ref{fig:final-scaling}, таблица~\ref{tab:ipb}). Обе
+зависимости линейны: число команд на байт входа не зависит от размера
+входа, а у оптимизированной программы оно меньше в 1,7--4,2~раза. Сильнее
+всего константа уменьшилась на случайных данных, где в исходной программе
+преобладал сдвиг буфера.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.9\textwidth, height=8cm,
+  xlabel={Размер входа, МБ}, ylabel={Команды процессора, млрд},
+  xmin=0, xmax=21, ymin=0,
+  legend pos=north west, legend style={font=\small},
+  grid=major, grid style={gray!25},
+]
+\addplot[mark=square*, thick] table[x=mb, y=base_ginstr] {data/scaling-random.dat};
+\addlegendentry{random.dat, исходная}
+\addplot[mark=square, thick, dashed] table[x=mb, y=final_ginstr] {data/scaling-random.dat};
+\addlegendentry{random.dat, оптимизированная}
+\addplot[mark=*, thick] table[x=mb, y=base_ginstr] {data/scaling-text.dat};
+\addlegendentry{text.dat, исходная}
+\addplot[mark=o, thick, dashed] table[x=mb, y=final_ginstr] {data/scaling-text.dat};
+\addlegendentry{text.dat, оптимизированная}
+\end{axis}
+\end{tikzpicture}
+\caption{Зависимость числа команд при сжатии от размера входа}
+\label{fig:final-scaling}
+\end{figure}
+
+\begin{table}[H]
+\caption{Команды процессора на байт входа при сжатии (hppavillion)}
+\label{tab:ipb}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Файл} & \textbf{Исходная} & \textbf{Оптимизированная} & \textbf{Отношение} \\
+\hline
+random.dat & 384 & 92 & 4,2 \\
+text.dat & 251 & 87 & 2,9 \\
+zeros.dat & 33 & 20 & 1,7 \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}

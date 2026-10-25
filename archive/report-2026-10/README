@@ -1,0 +1,68 @@
+Coursework report, October 2026: optimisation of MZ77
+=====================================================
+
+The report for the task "оптимизировать курсовую работу по
+программированию с предыдущих курсов" (discipline «Языки
+программирования»), in Russian, built with pdflatex.
+
+  make            report.pdf (latexmk; TeX Live with extsizes, tempora,
+                  pgfplots, titlesec, tocloft)
+  make data       regenerate data/*.dat from ../../bench/log
+  make clean      remove LaTeX's intermediate files
+
+report.pdf is not committed; build it.
+
+Layout
+------
+
+  report.tex               title-page fields (\reporttitle, \reportauthor,
+                           ...) and the list of chapters
+  spbpu-coursework.sty     the layout of coursework_template.docx; the
+                           header of the file says which Word setting
+                           each part reproduces
+  chapters/                one file per chapter, in report order
+  data/extract.py          turns bench/log into the tables the charts read
+  data/scaling.sh          measures instructions against input size
+                           (data/scaling-raw.txt, run on hppavillion)
+  pic/                     screenshots; window.png is from the May report
+
+Where the numbers come from
+---------------------------
+
+  steps-*.dat     bench/log/MACHINE/steps/steps.txt (cycles, all steps
+                  rebuilt and measured back to back)
+  profile-*.dat   bench/log/MACHINE/STEP/raw/profile/summary.txt (perf stat
+                  on dickens, profiling build -O2 -g)
+  perfile-*.dat,  bench/log/MACHINE/STEP/raw/bench.csv (wall clock; only
+  wall-*.dat      debian's is quoted, the laptop's clock was unstable)
+  paths-*.dat     bench/log/MACHINE/06-avx2/raw/followup/ab-cycles.txt
+  scaling-*.dat   data/scaling-raw.txt
+
+Numbers typed into the text and tables come from the same files and
+from doc/optimisations/*.md; ../../doc/optimisations/RESULTS.md is the
+guide to all of them.
+
+Screenshots to take
+-------------------
+
+Every \screenshot in chapters/ shows a framed red placeholder until
+pic/NAME.png (or .jpg) exists; then the picture replaces it.  The
+placeholder itself says which command to run.  In report order:
+
+  machines        lscpu and gcc --version on both machines, side by side
+  base-perfstat   perf stat of the original program on dickens
+  base-gprof      gprof flat profile of the original program
+  base-perflines  hottest source lines of the original program (perf)
+  perf-14         perf stat after #14 (no memmove), next to step 02
+  gprof-12        gprof flat profile after #12 (inline bit I/O)
+  perf-15         profile summary after #15 (8-byte compare)
+  make-pgo        output of make pgo
+  match-paths     perf stat cycles with MZ77_MATCH unset, avx2, word
+  steps-debian    cat bench/log/debian/steps/steps.txt
+  steps-hpp       cat bench/log/hppavillion/steps/steps.txt
+  sha256          diff of archives.sha256, baseline against final
+  make-check      make check summary
+  final-gprof     gprof flat profile of the final program
+
+All the files named there are already in bench/log, so most
+screenshots are just 'cat' or 'head' of a committed log in a terminal.

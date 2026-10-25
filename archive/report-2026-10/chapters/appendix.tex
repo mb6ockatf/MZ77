@@ -1,0 +1,54 @@
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Приложение А. Воспроизведение измерений}
+\chapter*{Приложение А}
+\vspace{-12pt}
+{\centering\singlespacing\textbf{Воспроизведение измерений}\par}
+\vspace{12pt}
+
+Все результаты отчёта хранятся в репозитории~\cite{mz77-repo} в каталоге
+\texttt{bench/log}: подкаталог на каждый компьютер и шаг, в нём исходные
+журналы (\texttt{raw/}) и файл \texttt{EXPLANATION.md} с описанием условий
+измерения. Указатель на все результаты "--- файл
+\texttt{doc/optimisations/RESULTS.md}, описание каждой оптимизации "---
+файлы \texttt{doc/optimisations/*.md}.
+
+Для измерений нужны Linux на x86-64, GCC, autoconf, automake, libtool,
+gnulib, файлы разработки GTK~4, \texttt{perf} и \texttt{taskset}. Счётчики
+процессора должны быть доступны пользователю:
+\texttt{sysctl kernel.perf\_event\_paranoid=1}. Ноутбук должен быть
+подключён к сети, компьютер не должен быть нагружен.
+
+Сборка и загрузка корпуса:
+\begin{lstlisting}[language=bash,numbers=none]
+./bootstrap
+./configure --enable-release
+make -j$(nproc)
+make corpus
+\end{lstlisting}
+
+Измерение всех шагов в тактах (таблица~\ref{tab:final-cycles}): сценарий
+собирает каждый шаг из его коммита и пишет \texttt{steps.txt} в
+\texttt{bench/results/КОММИТ/}.
+\begin{lstlisting}[language=bash,numbers=none]
+ROUNDS=5 CPU=3 bench/steps.sh
+\end{lstlisting}
+
+Полное измерение одного шага (время, профиль, контрольные суммы архивов):
+\begin{lstlisting}[language=bash,numbers=none]
+git checkout 5d53dc4
+./configure --enable-release && make clean && make -j$(nproc)
+make pgo
+MACHINE=mybox bench/campaign.sh 07-lto-pgo
+\end{lstlisting}
+
+Отдельные инструменты: \texttt{make bench} "--- время на всём корпусе,
+\texttt{make bench-compare} "--- сборки с разными флагами компилятора,
+\texttt{make profile} "--- профиль одного файла (gprof, perf, Cachegrind,
+Callgrind). Переменная \texttt{MZ77\_MATCH=word} или
+\texttt{MZ77\_MATCH=avx2} выбирает реализацию сравнения.
+
+Данные для графиков этого отчёта извлекаются из \texttt{bench/log}
+сценарием \texttt{archive/report-2026-10/data/extract.py}; измерение
+зависимости от размера входа повторяет сценарий
+\texttt{archive/report-2026-10/data/scaling.sh}.

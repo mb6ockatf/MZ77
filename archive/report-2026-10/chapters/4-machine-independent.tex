@@ -1,0 +1,329 @@
+\chapter{Машинно-независимые оптимизации}
+
+Машинно-независимыми называют оптимизации, которые не опираются на
+особенности конкретного процессора: они улучшают программу на любой
+архитектуре, для которой её можно собрать~\cite{aho,muchnick}. В~работе
+реализованы четыре такие оптимизации; первые две относятся к
+вводу-выводу, третья "--- к поиску совпадений, четвёртая выполняется
+компилятором.
+
+\section{Блочный ввод-вывод}
+\label{sec:block-io}
+
+\textbf{Проблема.} Побитовый писатель архива отдавал каждый готовый байт
+функцией \texttt{fputc}, побитовый читатель получал каждый байт функцией
+\texttt{fgetc}, а распаковщик выводил каждый байт результата через
+\texttt{fputc} (листинг~\ref{lst:fputc}). Стандартная библиотека
+буферизует эти вызовы, но каждый из них "--- это вызов функции glibc с
+проверкой блокировки потока и границ буфера. Профиль исходной программы
+показывает эти вызовы на горячем пути распаковки.
+
+\begin{lstlisting}[caption={Вывод байт архива в исходной программе},label={lst:fputc}]
+void
+bw_flush (BitWriter *bw)
+{
+  while (bw->bits >= 8)
+    {
+      uint8_t byte = (uint8_t) (bw->buf >> (bw->bits - 8));
+      fputc (byte, bw->fp);
+      bw->buf &= ((1ULL << (bw->bits - 8)) - 1);
+      bw->bits -= 8;
+    }
+}
+\end{lstlisting}
+
+\textbf{Решение.} Структуры \texttt{BitWriter} и \texttt{BitReader} получили
+собственный блок размером 64~КиБ. Готовые байты записываются в массив, а
+массив уходит в файл одним вызовом \texttt{fwrite}, когда заполнится, и в
+конце работы. Читатель заполняет свой блок одним вызовом \texttt{fread}.
+Распаковщик пишет результат в такой же блок \texttt{OutputBlock}
+(листинг~\ref{lst:output-byte}). Вместо вызова библиотечной функции на
+каждый байт выполняется запись в массив.
+
+\begin{lstlisting}[caption={Вывод байта распакованных данных через блок},label={lst:output-byte}]
+static inline void
+output_byte (OutputBlock *output, uint8_t byte)
+{
+  if (output->used == sizeof (output->bytes))
+    output_flush (output);
+  output->bytes[output->used++] = byte;
+}
+\end{lstlisting}
+
+\textbf{Сложность} не меняется: $O(n)$ операций ввода-вывода, уменьшается
+только стоимость одного байта.
+
+\textbf{Результаты} (таблица~\ref{tab:res-11-12}, рисунок~\ref{fig:decompress-io}).
+Распаковка стала в 1,63~раза быстрее на debian и в 1,67~раза на
+hppavillion; на файле dickens число команд распаковки уменьшилось с 862 до
+602~млн. Сжатие почти не изменилось (в пределах $\pm5$~\%): оно и раньше
+читало вход блоками по 4~КиБ и пишет лишь около 2,6 байта на токен, а его
+время уходит на поиск совпадений.
+
+\section{Встраивание побитового ввода-вывода}
+\label{sec:inline-bitio}
+
+\textbf{Проблема.} Функции \texttt{bw\_write} и \texttt{br\_read} находились
+в отдельном файле \texttt{bitio.c}, поэтому компилятор не мог встроить их
+в циклы сжатия и распаковки без оптимизации при компоновке: каждый токен
+стоил двух-трёх вызовов функций. Кроме того, \texttt{bw\_write} после
+каждого вызова проверял, не накопился ли целый байт, а \texttt{br\_read}
+проверял аргументы и пополнял буфер по одному байту.
+
+\textbf{Решение.} Функции \texttt{br\_read} и \texttt{bw\_write} перенесены
+в заголовок \texttt{bitio.h} как \texttt{static inline}; в \texttt{bitio.c}
+остались только редкие медленные ветви \texttt{br\_refill} и
+\texttt{bw\_drain} (листинг~\ref{lst:bw-write}). Писатель накапливает до 31
+бита в 64-битном регистре и выгружает целые байты только тогда, когда
+накопилось 32 бита и больше, так что обычно вызов "--- это сдвиг, логическое
+<<или>> и сравнение. Читатель пополняет 64-битный буфер сразу не менее чем до
+57 бит. Проверки аргументов удалены: все вызовы передают константную ширину
+поля 1, 8 или 12 бит.
+
+\begin{lstlisting}[caption={Встраиваемая запись битового поля},label={lst:bw-write}]
+static inline void
+bw_write (BitWriter *bw, uint32_t val, int width)
+{
+  bw->buf = (bw->buf << width) | (val & ((1ULL << width) - 1));
+  bw->bits += width;
+  if (bw->bits >= 32)
+    bw_drain (bw);
+}
+\end{lstlisting}
+
+\textbf{Сложность} не меняется: $O(n)$; уменьшается число вызовов и
+ветвлений на токен.
+
+\textbf{Результаты.} Распаковка ускорилась ещё в 1,43~раза на debian и в
+1,29~раза на hppavillion, а вместе с блочным вводом-выводом "--- в 2,34 и
+2,16~раза по сравнению с исходной программой
+(таблица~\ref{tab:res-11-12}). Число команд распаковки dickens уменьшилось
+ещё на 40~\%, но оставшаяся работа "--- цепочка зависимых сдвигов и
+ветвлений, поэтому IPC снизился и число тактов уменьшилось меньше. Сжатие
+выполняет на 9~\% меньше команд, но в тактах не изменилось.
+
+\begin{table}[H]
+\caption{Результаты оптимизаций ввода-вывода (шаги 01 и 02), млрд тактов на весь корпус}
+\label{tab:res-11-12}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|r|r|}
+\hline
+\multirow{2}{*}{\textbf{Шаг}} & \multicolumn{3}{c|}{\textbf{debian}} & \multicolumn{3}{c|}{\textbf{hppavillion}} \\
+\cline{2-7}
+ & \textbf{распак.} & \textbf{ускор.} & \textbf{сжатие} & \textbf{распак.} & \textbf{ускор.} & \textbf{сжатие} \\
+\hline
+00 исходная & 7,57 & "--- & 41,85 & 7,38 & "--- & 42,15 \\
+01 блочный ввод-вывод & 4,64 & \textbf{1,63} & 39,93 & 4,42 & \textbf{1,67} & 41,68 \\
+02 встраивание & 3,24 & \textbf{1,43} & 41,94 & 3,42 & \textbf{1,29} & 40,86 \\
+\hline
+\multicolumn{7}{|l|}{Файл dickens, распаковка: такты / команды, млн} \\
+\hline
+00 исходная & \multicolumn{3}{c|}{350 / 862} & \multicolumn{3}{c|}{348 / 811} \\
+01 блочный ввод-вывод & \multicolumn{3}{c|}{216 / 602} & \multicolumn{3}{c|}{213 / 536} \\
+02 встраивание & \multicolumn{3}{c|}{163 / 346} & \multicolumn{3}{c|}{190 / 336} \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=0.8\textwidth, height=6.5cm, bar width=16pt,
+  ylabel={Распаковка корпуса, млрд тактов}, ymin=0, ymax=9,
+  symbolic x coords={00,01,02}, xtick=data,
+  xticklabels={00 исходная, 01 блочный в/в, 02 встраивание},
+  nodes near coords, nodes near coords style={font=\small},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+  enlarge x limits=0.25,
+]
+\addplot[fill=gray!40] coordinates {(00,7.57) (01,4.64) (02,3.24)};
+\addlegendentry{debian}
+\addplot[fill=gray!80] coordinates {(00,7.38) (01,4.42) (02,3.42)};
+\addlegendentry{hppavillion}
+\end{axis}
+\end{tikzpicture}
+\caption{Такты распаковки корпуса после оптимизаций ввода-вывода}
+\label{fig:decompress-io}
+\end{figure}
+
+\screenshot{gprof-12}{Плоский профиль gprof после встраивания побитового ввода-вывода}{fig:gprof-12}{%
+\texttt{head -20 bench/log/debian/02-inline-bitio/raw/profile/gprof.txt}.
+Видно, что \texttt{fputc}/\texttt{fgetc} и \texttt{bw\_flush} исчезли, а
+\texttt{lz77\_compress} занимает 65~\% времени.}
+
+\section{Сравнение по 8 байт}
+\label{sec:compare-8}
+
+\textbf{Проблема.} После алгоритмической оптимизации время сжатия почти
+целиком уходит на поиск совпадений. Кандидат проверяется по одному байту:
+загрузка, сравнение и условный переход на каждый совпавший байт, до
+258~байт и до 256 кандидатов на позицию.
+
+\textbf{Решение.} Функция \texttt{match\_length} (листинг~\ref{lst:match-word})
+загружает по 8~байт кандидата и упреждающего буфера как 64-битные числа
+(через \texttt{memcpy}, поэтому невыровненный доступ допустим),
+вычисляет их исключающее <<или>>, и если результат ненулевой, номер первого
+различающегося байта равен числу младших нулевых битов, делённому на 8
+(\texttt{\_\_builtin\_ctzll}; на машинах с обратным порядком байт "---
+старших, \texttt{\_\_builtin\_clzll}). Последние 0--7 байт сравниваются по
+одному. Это стандартный приём обработки <<слово за раз>> (SWAR): код
+написан на переносимом C и собирается на любой 64-битной архитектуре.
+
+\begin{lstlisting}[caption={Сравнение по 8 байт},label={lst:match-word}]
+static inline size_t
+match_length (const uint8_t *candidate, const uint8_t *cursor, size_t limit)
+{
+  size_t len = 0;
+  while (len + sizeof (uint64_t) <= limit)
+    {
+      uint64_t candidate_word, cursor_word;
+      memcpy (&candidate_word, candidate + len, sizeof (candidate_word));
+      memcpy (&cursor_word, cursor + len, sizeof (cursor_word));
+      uint64_t difference = candidate_word ^ cursor_word;
+      if (difference != 0)
+        {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+          return len + (size_t) __builtin_ctzll (difference) / 8;
+#else
+          return len + (size_t) __builtin_clzll (difference) / 8;
+#endif
+        }
+      len += sizeof (uint64_t);
+    }
+  while (len < limit && candidate[len] == cursor[len])
+    len++;
+  return len;
+}
+\end{lstlisting}
+
+\textbf{Сложность.} Граница~\eqref{eq:after-14} сохраняется, но сравнение
+кандидата требует не более $\lceil M/8 \rceil = 33$ шагов вместо $M = 258$:
+\begin{equation}
+\label{eq:after-15}
+T_{\text{сж}}(n) = O\bigl(n + T \cdot C \cdot \lceil M/w \rceil\bigr),
+\quad w = 8.
+\end{equation}
+На кандидатах, различающихся уже в первом байте, работы немного больше:
+две 8-байтные загрузки и \texttt{tzcnt} вместо одного сравнения байт.
+
+\textbf{Результаты.} Это самая выгодная оптимизация работы: сжатие корпуса
+ускорилось в 1,66~раза на debian и в 1,76~раза на hppavillion
+(таблица~\ref{tab:res-15}). Число ошибок предсказания ветвлений упало
+вдвое: короткий цикл с непредсказуемым выходом на каждом байте заменён
+циклом, который обычно выходит на первом же слове. Выигрыш на отдельных
+файлах (рисунок~\ref{fig:per-file-15}) зависит от длины совпадений: файлы с
+длинными повторами (mixed.dat, samba, mr) ускорились примерно вдвое,
+x-ray с короткими совпадениями "--- почти не изменился, а random.dat,
+где кандидаты различаются в первых байтах, на hppavillion стал на 13~\%
+медленнее в тактах.
+
+\begin{table}[H]
+\caption{Результаты сравнения по 8 байт (шаг 04 против шага 03)}
+\label{tab:res-15}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|r|r|}
+\hline
+\multirow{2}{*}{\textbf{Метрика}} & \multicolumn{3}{c|}{\textbf{debian}} & \multicolumn{3}{c|}{\textbf{hppavillion}} \\
+\cline{2-7}
+ & \textbf{до} & \textbf{после} & \textbf{ускор.} & \textbf{до} & \textbf{после} & \textbf{ускор.} \\
+\hline
+Сжатие корпуса, млрд тактов & 27,62 & 16,65 & \textbf{1,66} & 31,65 & 17,99 & \textbf{1,76} \\
+\quad только Silesia & 14,35 & 9,05 & 1,59 & 13,90 & 9,36 & 1,48 \\
+Сжатие корпуса, с & 7,04 & 3,88 & 1,82 & "--- & "--- & "--- \\
+dickens: такты, млн & 785 & 499 & 1,57 & 784 & 520 & 1,51 \\
+dickens: команды, млн & 1366 & 1033 & 1,32 & 1322 & 1044 & 1,27 \\
+dickens: ошибки предсказания, млн & 14,41 & 6,96 & 2,07 & 15,60 & 6,91 & 2,26 \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=\textwidth, height=7cm, bar width=8pt,
+  ylabel={Ускорение сжатия, раз}, ymin=0, ymax=2.6,
+  xtick=data, xticklabels from table={data/perfile-debian.dat}{file},
+  xticklabel style={rotate=60, anchor=east, font=\small\ttfamily},
+  nodes near coords, nodes near coords style={font=\tiny, rotate=90, anchor=west},
+  enlarge x limits=0.04, grid=major, grid style={gray!25},
+]
+\addplot[fill=gray!60] table[x=index, y=s15] {data/perfile-debian.dat};
+\draw[dashed] (axis cs:-1,1) -- (axis cs:16,1);
+\end{axis}
+\end{tikzpicture}
+\caption{Ускорение сжатия по файлам после перехода к сравнению по 8 байт (debian, время)}
+\label{fig:per-file-15}
+\end{figure}
+
+\screenshot{perf-15}{Профиль perf после перехода к сравнению по 8 байт}{fig:perf-15}{%
+\texttt{sed -n '/gprof flat/,/\textasciicircum{}cachegrind/p'
+bench/log/debian/04-compare-8-bytes/raw/profile/summary.txt}: видны функция
+\texttt{match\_length} и метрики perf stat.}
+
+\section{Оптимизация при компоновке и по профилю}
+\label{sec:lto-pgo}
+
+\textbf{Проблема.} В~конфигурации выпуска каждый файл исходного кода
+компилировался отдельно, поэтому компилятор не мог встраивать функции
+между файлами и ничего не знал о том, какие ветви кода выполняются чаще.
+
+\textbf{Решение.} Применены две оптимизации компилятора GCC~\cite{gcc}:
+\begin{itemize}
+\item \emph{оптимизация при компоновке} (LTO, \texttt{-flto=auto}) теперь
+включена в \texttt{./configure --enable-release}: компилятор видит всю
+программу целиком и может встраивать и упрощать код между файлами;
+\item \emph{оптимизация по профилю} (PGO) "--- отдельная цель
+\texttt{make pgo}: программа собирается с инструментированием
+(\texttt{-fprofile-generate}), запускается на обучающем наборе (файлы
+\texttt{test/input} и синтетические данные по 4~МБ, с каждым вариантом
+сравнения, который поддерживает процессор) и пересобирается с ключами
+\texttt{-fprofile-use -fprofile-partial-training}. Компилятор раскладывает
+горячие ветви подряд, выбирает, какие циклы разворачивать и какие функции
+встраивать, по реальным частотам.
+\end{itemize}
+Исходный код программы на этом шаге не меняется; сложность "--- тоже.
+Корпус Silesia в обучении не участвует, поэтому выигрыш на нём не связан с
+подгонкой под обучающие данные.
+
+\textbf{Результаты} приведены в таблице~\ref{tab:res-13}. LTO сам по себе
+даёт не более 1--2~\%. На исходной программе он был заметно полезнее:
+сжатие ускорялось в 1,12, распаковка "--- в 1,15~раза
+(таблица~\ref{tab:base-variants}), "--- но главное, что он давал, "---
+встраивание функций побитового ввода-вывода между файлами, "--- уже сделано
+вручную в разделе~\ref{sec:inline-bitio}. PGO ускоряет на debian сжатие на 5~\% и распаковку на
+6~\%, на hppavillion "--- распаковку на 7~\%, а сжатие не меняет.
+
+\begin{table}[H]
+\caption{Результаты LTO и PGO (шаг 07 против шага 06), млрд тактов на весь корпус}
+\label{tab:res-13}
+\begin{tabletext}
+\centering
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\multirow{2}{*}{\textbf{Сборка}} & \multicolumn{2}{c|}{\textbf{debian}} & \multicolumn{2}{c|}{\textbf{hppavillion}} \\
+\cline{2-5}
+ & \textbf{сжатие} & \textbf{распаковка} & \textbf{сжатие} & \textbf{распаковка} \\
+\hline
+06, без LTO & 14,40 & 3,34 & 14,69 & 3,40 \\
+07, LTO & 14,19 (1,01$\times$) & 3,32 (1,00$\times$) & 14,66 (1,00$\times$) & 3,33 (1,02$\times$) \\
+07, LTO + PGO & 13,47 (\textbf{1,05$\times$}) & 3,14 (\textbf{1,06$\times$}) & 14,80 (0,99$\times$) & 3,10 (\textbf{1,07$\times$}) \\
+\hline
+\multicolumn{5}{|l|}{debian, время на весь корпус, с} \\
+\hline
+06, без LTO & 3,48 & 0,94 & \multicolumn{2}{c|}{} \\
+07, LTO + PGO & 3,29 & 0,90 & \multicolumn{2}{c|}{} \\
+\hline
+\end{tabular}
+\end{tabletext}
+\end{table}
+
+\screenshot{make-pgo}{Сборка с оптимизацией по профилю: make pgo}{fig:make-pgo}{%
+На коммите 5d53dc4: \texttt{./configure --enable-release \&\& make -j\$(nproc) \&\& make pgo};
+снять конец вывода, где видны обучающие запуски и пересборка с
+\texttt{-fprofile-use}.}

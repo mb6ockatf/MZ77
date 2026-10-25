@@ -1,0 +1,190 @@
+% spbpu-coursework.sty: the layout of coursework_template.docx (SPbPU,
+% Institute of Computer Science and Cybersecurity) for pdflatex.
+%
+% What the .docx sets, and where it is reproduced here:
+%   page            A4; margins left 30 mm, right 10 mm, top 20 mm,
+%                   bottom 20 mm; header 10 mm                 -> geometry
+%   body text       Times New Roman 14 pt, line spacing 1.5, first-line
+%                   indent 1.25 cm, justified, no hyphenation  -> tempora,
+%                   setspace, \parindent, \hyphenpenalty
+%   page numbers    top right; none on the title page, which counts as
+%                   page 1                                     -> fancyhdr
+%   heading 1       "1." bold capitals, centred, single spacing, 12 pt
+%                   after, new page                            -> \chapter
+%   heading 2       "1.1." bold, centred                       -> \section
+%   heading 3       "1.1.1" bold italic, centred               -> \subsection
+%   introduction,   unnumbered heading 1 (style
+%   conclusion ...  "Введение_заключение")                    -> \unnumberedchapter
+%   contents        "СОДЕРЖАНИЕ" bold centred, dotted leaders  -> tocloft
+%   figures         centred, caption below, single spacing:
+%                   "Рисунок 1.1 – Текст"                      -> caption
+%   tables          caption above, left: "Таблица 4.1 – Текст" -> caption
+%   lists           dash lists and "1)" lists indented like the first
+%                   line of a paragraph                       -> enumitem
+%   references      "1." numbered list, cited as [1]           -> thebibliography
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{spbpu-coursework}[2026/10/25 SPbPU coursework layout]
+
+\RequirePackage[T2A]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[main=russian,english]{babel}
+\RequirePackage{tempora}
+\RequirePackage[scaled=0.9]{DejaVuSansMono}
+\RequirePackage[a4paper,left=30mm,right=10mm,top=20mm,bottom=20mm,
+  headheight=17pt,headsep=5mm,includehead=false]{geometry}
+\RequirePackage{setspace}
+\RequirePackage{indentfirst}
+\RequirePackage{titlesec}
+\RequirePackage{tocloft}
+\RequirePackage{fancyhdr}
+\RequirePackage{enumitem}
+\RequirePackage[font={stretch=1},labelsep=endash]{caption}
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{xcolor}
+\RequirePackage{array}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\RequirePackage{makecell}
+\RequirePackage{listings}
+\RequirePackage{amsmath}
+\RequirePackage{pgfplots}
+\RequirePackage{pgfplotstable}
+\RequirePackage[hidelinks]{hyperref}
+
+\pgfplotsset{compat=1.18}
+
+% Word's "1.5 lines" for Times New Roman 14 pt is about 24 pt between
+% baselines; LaTeX's 14 pt baseline is 17 pt.
+\setstretch{1.42}
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=4em
+\sloppy
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyhead[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}}
+
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+\titleformat{\chapter}[block]
+  {\normalfont\normalsize\bfseries\centering\singlespacing}
+  {\thechapter.}{0.5em}{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{0pt}{12pt}
+\titleformat{\section}[block]
+  {\normalfont\normalsize\bfseries\centering\singlespacing}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{12pt}{12pt}
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries\itshape\centering\singlespacing}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{12pt}{6pt}
+
+\newcommand{\unnumberedchapter}[1]{%
+  \chapter*{#1}%
+  \addcontentsline{toc}{chapter}{#1}}
+
+\renewcommand{\cfttoctitlefont}{\hfill\normalfont\normalsize\bfseries\MakeUppercase}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftaftertoctitleskip}{12pt}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cftchappagefont}{\normalfont}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftchapaftersnum}{.}
+\renewcommand{\cftsecaftersnum}{.}
+\setlength{\cftbeforechapskip}{0pt}
+\setlength{\cftchapindent}{0pt}
+\setlength{\cftsecindent}{0pt}
+\setlength{\cftsubsecindent}{0pt}
+\setlength{\cftchapnumwidth}{1.25cm}
+\setlength{\cftsecnumwidth}{1.25cm}
+\setlength{\cftsubsecnumwidth}{1.25cm}
+
+\addto\captionsrussian{%
+  \renewcommand{\contentsname}{Содержание}%
+  \renewcommand{\bibname}{Список использованных источников}%
+  \renewcommand{\figurename}{Рисунок}%
+  \renewcommand{\tablename}{Таблица}}
+
+\captionsetup[figure]{position=bottom,justification=centering,
+  singlelinecheck=false,skip=6pt}
+\captionsetup[table]{position=top,justification=raggedright,
+  singlelinecheck=false,skip=6pt}
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
+\AtBeginDocument{\counterwithin{lstlisting}{chapter}}
+
+\setlist{noitemsep,topsep=0pt,partopsep=0pt,parsep=0pt}
+\setlist[itemize]{label=\textendash,leftmargin=0pt,labelindent=\parindent,
+  itemindent=*,labelsep=0.5em}
+\setlist[enumerate]{label=\arabic*),leftmargin=0pt,labelindent=\parindent,
+  itemindent=*,labelsep=0.5em}
+
+\renewcommand{\lstlistingname}{Листинг}
+\captionsetup[lstlisting]{position=top,justification=raggedright,
+  singlelinecheck=false}
+\lstset{
+  language=C,
+  basicstyle=\linespread{1}\footnotesize\ttfamily,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=6pt,
+  frame=single,
+  framesep=3pt,
+  xleftmargin=18pt,
+  tabsize=8,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true,
+  aboveskip=6pt,
+  belowskip=6pt,
+  extendedchars=false,
+  morekeywords={uint8_t,uint16_t,uint32_t,uint64_t,size_t,__m256i,__m512i,
+    __mmask64,__attribute__,inline},
+}
+
+% Tables: 12 pt, single spacing, as the template allows inside tables.
+\newenvironment{tabletext}{\par\small\singlespacing}{\par}
+
+% \screenshot{file}{caption}{label}{what to capture}: includes pic/FILE
+% (.png or .jpg) when it exists, otherwise draws a framed placeholder
+% that says what the screenshot has to show.
+\newcommand{\screenshot}[4]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{pic/#1.png}{\includegraphics[width=\textwidth,
+        height=0.42\textheight,keepaspectratio]{pic/#1.png}}{%
+    \IfFileExists{pic/#1.jpg}{\includegraphics[width=\textwidth,
+        height=0.42\textheight,keepaspectratio]{pic/#1.jpg}}{%
+      \fbox{\begin{minipage}[c][5.5cm][c]{0.92\textwidth}
+        \centering\singlespacing
+        {\color{red}\bfseries МЕСТО ДЛЯ СНИМКА ЭКРАНА\par}
+        \medskip
+        {\small Файл: \texttt{pic/#1.png}\par}
+        \medskip
+        \begin{minipage}{0.92\textwidth}\small\raggedright #4\end{minipage}
+      \end{minipage}}}}
+    \caption{#2}
+    \label{#3}
+  \end{figure}}
+
+% References are numbered "1." in the list and cited as [1].
+\makeatletter
+\renewcommand{\@biblabel}[1]{#1.}
+\makeatother
+
+\endinput
