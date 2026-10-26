@@ -17,7 +17,7 @@
 while (len < MAX_MATCH && len < buf_len
        && byte_at (window, buf, win_pos, pos + len) == buf[len])
   len++;
-/* ... emit the token ... */
+
 memmove (buf, buf + advance, buf_len - advance);
 buf_len -= advance;
 if (buf_len < MAX_MATCH)
