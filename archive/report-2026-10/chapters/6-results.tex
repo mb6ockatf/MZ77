@@ -301,35 +301,11 @@ O\bigl(n \cdot C \cdot \lceil M/w \rceil\bigr).
 
 \textbf{Экспериментальная проверка.} Префиксы тех же синтетических файлов
 размером от 1 до 20~МБ сжимались исходной и оптимизированной
-программами (рисунок~\ref{fig:final-scaling}, таблица~\ref{tab:ipb}). Обе
+программами (таблица~\ref{tab:ipb}). Обе
 зависимости линейны: число команд на байт входа не зависит от размера
 входа, а у оптимизированной программы оно меньше в 1,7--4,2~раза. Сильнее
 всего константа уменьшилась на случайных данных, где в исходной программе
 преобладал сдвиг буфера.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.9\textwidth, height=8cm,
-  xlabel={Размер входа, МБ}, ylabel={Команды процессора, млрд},
-  xmin=0, xmax=21, ymin=0,
-  legend pos=north west, legend style={font=\small},
-  grid=major, grid style={gray!25},
-]
-\addplot[mark=square*, thick] table[x=mb, y=base_ginstr] {data/scaling-random.dat};
-\addlegendentry{random.dat, исходная}
-\addplot[mark=square, thick, dashed] table[x=mb, y=final_ginstr] {data/scaling-random.dat};
-\addlegendentry{random.dat, оптимизированная}
-\addplot[mark=*, thick] table[x=mb, y=base_ginstr] {data/scaling-text.dat};
-\addlegendentry{text.dat, исходная}
-\addplot[mark=o, thick, dashed] table[x=mb, y=final_ginstr] {data/scaling-text.dat};
-\addlegendentry{text.dat, оптимизированная}
-\end{axis}
-\end{tikzpicture}
-\caption{Зависимость числа команд при сжатии от размера входа}
-\label{fig:final-scaling}
-\end{figure}
 
 \begin{table}[H]
 \caption{Команды процессора на байт входа при сжатии (hppavillion)}
