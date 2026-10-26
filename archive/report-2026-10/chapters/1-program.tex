@@ -108,7 +108,7 @@ MZ77 "--- программа для операционных систем сем
 \end{tabletext}
 \end{table}
 
-\screenshot{machines}{Характеристики процессоров тестовых компьютеров}{fig:machines}{%
+\screenshot{machines}{Процессор и компилятор компьютера hppavillion}{fig:machines}{%
 Два окна терминала рядом: на каждом компьютере выполнить
 \texttt{lscpu | head -20} и \texttt{gcc --version | head -1}.}
 
@@ -193,6 +193,85 @@ perf~\cite{perf} и Valgrind (Cachegrind, Callgrind)~\cite{valgrind};
 T_{\text{после}}$: значение $1{,}52\times$ означает, что программа работает
 в~1,52~раза быстрее, то есть затрачивает на $1 - 1/1{,}52 = 34~\%$ меньше
 тактов.
+
+\subsection{Команды профилирования}
+
+Профиль на каждом шаге снимала цель \texttt{make profile} (сценарий
+\texttt{bench/profile.sh}); результаты записываются в каталог
+\texttt{bench/results/КОММИТ/profile/} и затем копировались в
+\texttt{bench/log/МАШИНА/ШАГ/raw/profile/}. Ниже приведены команды, которые
+она выполняет; \texttt{\$IN} "--- файл \texttt{bench/corpus/silesia/dickens}.
+
+Программа тестирования собирается в двух вариантах: для gprof (с
+инструментированием \texttt{-pg} и без встраивания функций, чтобы каждая
+функция была видна в профиле) и для perf и Valgrind:
+\begin{lstlisting}[language=bash,numbers=none]
+SRC="src/lz77.c src/bitio.c bench/bench.c"
+gcc -O2 -g -pg -fno-inline -fno-omit-frame-pointer \
+    -I. -Isrc $SRC -o bench/bin/gprof
+gcc -O2 -g -fno-omit-frame-pointer -I. -Isrc $SRC -o bench/bin/prof
+\end{lstlisting}
+
+Плоский профиль и граф вызовов gprof (файл \texttt{gprof.txt}), пять
+повторов сжатия и распаковки:
+\begin{lstlisting}[language=bash,numbers=none]
+bench/bin/gprof --repeat=5 $IN
+gprof -b bench/bin/gprof gmon.out > gprof.txt
+\end{lstlisting}
+
+Счётчики процессора, среднее из пяти запусков, отдельно для сжатия и для
+распаковки (файлы \texttt{perf-stat-compress.txt} и
+\texttt{perf-stat-decompress.txt}):
+\begin{lstlisting}[language=bash,numbers=none]
+EV=cycles:u,instructions:u,branches:u,branch-misses:u
+EV=$EV,cache-references:u,cache-misses:u
+EV=$EV,L1-dcache-loads:u,L1-dcache-load-misses:u
+perf stat -r 5 -e $EV -o perf-stat-compress.txt -- \
+    bench/bin/prof --mode=compress --repeat=1 $IN
+perf stat -r 5 -e $EV -o perf-stat-decompress.txt -- \
+    bench/bin/prof --archives --repeat=1 $IN.lz77
+\end{lstlisting}
+
+Выборочный профиль perf с цепочками вызовов: распределение тактов по
+функциям (\texttt{perf-report.txt}), по строкам исходного кода
+(\texttt{perf-lines.txt}) и по машинным командам функции
+(\texttt{perf-annotate-*.txt}):
+\begin{lstlisting}[language=bash,numbers=none]
+perf record -e cycles:u -F 4999 -g --user-callchains \
+    -o perf.data -- bench/bin/prof --repeat=1 $IN
+perf report -i perf.data --stdio --no-children \
+    --percent-limit=0.5 > perf-report.txt
+perf report -i perf.data --stdio --no-children \
+    --sort=srcline --percent-limit=0.5 -g none > perf-lines.txt
+perf annotate -i perf.data --stdio --no-source \
+    -s lz77_compress > perf-annotate-lz77_compress.txt
+\end{lstlisting}
+
+Точный подсчёт выполненных команд по функциям и строкам (Callgrind) и
+моделирование кэшей и предсказателя переходов (Cachegrind):
+\begin{lstlisting}[language=bash,numbers=none]
+valgrind --tool=callgrind --dump-instr=yes \
+    --callgrind-out-file=callgrind.out bench/bin/prof --repeat=1 $IN
+callgrind_annotate --inclusive=yes callgrind.out > callgrind.txt
+callgrind_annotate --auto=yes callgrind.out \
+    src/lz77.c src/bitio.c > callgrind-lines.txt
+valgrind --tool=cachegrind --cache-sim=yes --branch-sim=yes \
+    --cachegrind-out-file=cachegrind.out bench/bin/prof --repeat=1 $IN
+cg_annotate cachegrind.out > cachegrind.txt
+\end{lstlisting}
+Основные числа из этих файлов сценарий собирает в \texttt{summary.txt}.
+
+Сравнение шагов в тактах (сценарий \texttt{bench/steps.sh}) и зависимость
+от размера входа (\texttt{data/scaling.sh}) измерялись программой, собранной
+в конфигурации выпуска, на одном закреплённом ядре:
+\begin{lstlisting}[language=bash,numbers=none]
+taskset -c 15 perf stat -x, -e cycles:u \
+    bench/mz77-bench --mode=compress --repeat=1 FILES...
+taskset -c 3 perf stat -x, -e cycles:u,instructions:u \
+    bench/mz77-bench --mode=compress --repeat=1 FILE
+\end{lstlisting}
+Реализация сравнения выбирается переменной окружения, например
+\texttt{MZ77\_MATCH=word} перед той же командой.
 
 \section{Последовательность оптимизаций}
 

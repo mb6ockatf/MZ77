@@ -42,8 +42,8 @@ Numbers typed into the text and tables come from the same files and
 from doc/optimisations/*.md; ../../doc/optimisations/RESULTS.md is the
 guide to all of them.
 
-Screenshots to take
--------------------
+Screenshots
+-----------
 
 Every \screenshot in chapters/ shows a framed red placeholder until
 pic/NAME.png (or .jpg) exists; then the picture replaces it.  The
@@ -66,3 +66,8 @@ placeholder itself says which command to run.  In report order:
 
 All the files named there are already in bench/log, so most
 screenshots are just 'cat' or 'head' of a committed log in a terminal.
+
+All 14 were taken on 2026-10-26 this way (a kitty window per command,
+captured with maim); make-check is from 'make check' on 5d53dc4's
+successor c7bcf34.  'machines' shows hppavillion only: debian was
+offline, its processor is in the table of chapter 1.
