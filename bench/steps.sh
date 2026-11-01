@@ -16,10 +16,6 @@ set -e
 rounds=${ROUNDS:-3}
 cpu=${CPU:-$(($(nproc) - 1))}
 command -v perf > /dev/null || { echo "$0: perf not found" >&2; exit 1; }
-
-# STEP COMMIT [PATCH] [lto|pgo]: the source of each step.  03-no-memmove
-# was committed together with 04 (c1c1f4a), so its own source is the
-# parent commit plus the patch that was measured.
 steps='00-baseline 1f70c33
 01-block-io cc7a482
 02-inline-bitio 08b2ec5
@@ -29,7 +25,6 @@ steps='00-baseline 1f70c33
 06-avx2 55149a1
 07-lto 5d53dc4 - lto
 07-lto-pgo 5d53dc4 - pgo'
-
 work=$(mktemp -d "${TMPDIR:-/tmp}/mz77-steps.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 release="-O3 -DNDEBUG -fhardened"
@@ -48,8 +43,6 @@ build_step () {
   esac
   sources="$tree/src/lz77.c $tree/src/bitio.c $srcdir/bench/bench.c"
   if [ "$kind" = pgo ]; then
-    # The same training as 'make pgo'.  Both builds must have the same
-    # output name, which the profile files are named after.
     "$CC" "$@" -fprofile-generate -fprofile-dir="$tree/pgo" \
       -I"$builddir" -I"$tree/src" $sources -o "$tree/bench"
     "$tree/bench" --generate="$tree/train-data" --size=4000000 > /dev/null
@@ -64,15 +57,16 @@ build_step () {
   mv "$tree/bench" "$work/bin-$name"
 }
 
-echo "$steps" | while read -r name commit patch kind; do
+echo "$steps" | while read -r name commit patch kind
+do
   echo "building $name"
   build_step "$name" "$commit" "$patch" "$kind"
 done
-
 generated=$(ls "$corpus"/generated/*.dat)
 silesia=$(find "$corpus/silesia" -type f | sort)
 mkdir -p "$work/archives"
-for file in $generated $silesia; do
+for file in $generated $silesia
+do
   "$work/bin-00-baseline" --mode=compress --repeat=1 \
     --keep="$work/archives/$(basename "$file")" "$file" > /dev/null
 done
@@ -91,9 +85,11 @@ raw=$results/steps-raw.txt
   echo "# round step set cycles"
 } > "$raw"
 round=1
-while [ $round -le "$rounds" ]; do
+while [ $round -le "$rounds" ]
+do
   echo "round $round"
-  echo "$steps" | while read -r name rest; do
+  echo "$steps" | while read -r name rest
+do
     bin=$work/bin-$name
     echo "$round $name compress-generated $(cycles "$bin" --mode=compress --repeat=1 $generated)"
     echo "$round $name compress-silesia $(cycles "$bin" --mode=compress --repeat=1 $silesia)"
